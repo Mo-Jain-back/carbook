@@ -1,6 +1,8 @@
 import { NavBar } from "@/components/navbar"
 import { BottomNav } from "@/components/bottom-nav"
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
+import { Calendar } from "@/components/ui/calendar"
+import { Suspense } from "react"
+import CalendarClient from "./calender-client"
 
 // This would typically come from a database or API
 const userCars = [
@@ -33,29 +35,25 @@ const userCars = [
   },
 ]
 
-export default function Bookings() {
+const fetchCar = async (id: string) => {  
+  return userCars.find((car) => car.id === Number.parseInt(id))
+}
+
+export default async function CarBookings({ params }: { params: { id: string } }) {
+  const car = await fetchCar(params.id)
+
+  if (!car) {
+    return <div>Car not found</div>
+  }
+
   return (
     <div className="min-h-screen bg-background">
       <NavBar />
       <main className="container mx-auto px-4 py-8 pb-16 sm:pb-8">
-        <h1 className="text-3xl font-bold mb-6">My Bookings</h1>
-        <div className="space-y-4">
-          {userCars.map((car) => (
-            <Card key={car.id}>
-              <CardHeader>
-                <CardTitle>{car.name}</CardTitle>
-              </CardHeader>
-              <CardContent>
-                {car.bookings.map((booking, index) => (
-                  <div key={index} className="mb-2">
-                    <p>From: {booking.start}</p>
-                    <p>To: {booking.end}</p>
-                  </div>
-                ))}
-              </CardContent>
-            </Card>
-          ))}
-        </div>
+        <h1 className="text-3xl font-bold mb-6">{car.name} Bookings</h1>
+        <Suspense fallback={<div>Loading calendar...</div>}>
+          <CalendarClient bookings={car.bookings} />
+        </Suspense>
       </main>
       <BottomNav />
     </div>

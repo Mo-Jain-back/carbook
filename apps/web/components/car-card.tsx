@@ -10,14 +10,14 @@ export function CarCard({ name, imageUrl }: CarCardProps) {
   return (
     <Card className="w-full">
       <CardContent className="p-2 cursor-pointer">
-        <div className="flex sm:flex-col flex-row">
-          <div className="relative sm:w-full w-1/3 sm:h-48 h-full">
+        <div className="flex sm:flex-col flex-row justify-around sm:px-1 px-8">
+          <div className="relative sm:w-full w-2/3 sm:h-48">
             <Image
               src={imageUrl || "/placeholder.svg"}
               alt={name}
               fill
               style={{ objectFit: "cover" }}
-              className="rounded-t-lg sm:rounded-l-lg sm:rounded-t-none"
+              className="sm:rounded-l-lg sm:rounded-t-none"
             />
           </div>
           <div className="p-4 w-full flex sm:justify-center justify-end items">
