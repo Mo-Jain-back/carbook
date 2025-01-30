@@ -4,6 +4,7 @@ import { NavBar } from "@/components/navbar"
 import { BottomNav } from "@/components/bottom-nav"
 import { Card, CardContent } from "@/components/ui/card"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
+import { Button } from "@/components/ui/button"
 import { ArrowRight, Clock } from "lucide-react"
 import Image from "next/image"
 import { useState } from "react"
@@ -22,12 +23,16 @@ const userCars = [
         start: "2024-01-25T10:00:00",
         end: "2024-01-27T18:00:00",
         bookedBy: { name: "John Doe", contact: "+1234567890" },
+        status: "upcoming",
+        cancelledBy: null,
       },
       {
         id: 102,
         start: "2024-02-10T09:00:00",
         end: "2024-02-15T17:00:00",
         bookedBy: { name: "Jane Smith", contact: "+1987654321" },
+        status: "cancelled",
+        cancelledBy: "guest",
       },
     ],
   },
@@ -42,16 +47,22 @@ const userCars = [
         start: "2024-01-28T11:00:00",
         end: "2024-01-30T16:00:00",
         bookedBy: { name: "Alice Johnson", contact: "+1122334455" },
+        status: "ongoing",
+        cancelledBy: null,
       },
       {
         id: 202,
         start: "2024-02-20T08:00:00",
         end: "2024-02-25T19:00:00",
         bookedBy: { name: "Bob Williams", contact: "+1555666777" },
+        status: "completed",
+        cancelledBy: null,
       },
     ],
   },
 ]
+
+type BookingStatus = "upcoming" | "ongoing" | "completed" | "cancelled" | "all"
 
 function formatDateTime(dateString: string) {
   return new Date(dateString).toLocaleString("en-US", {
@@ -84,6 +95,7 @@ function getTimeUntilBooking(startTime: string) {
 
 export default function Bookings() {
   const [selectedCar, setSelectedCar] = useState<string>("all")
+  const [selectedStatus, setSelectedStatus] = useState<BookingStatus>("all")
 
   const filteredBookings = userCars
     .flatMap((car) =>
@@ -97,7 +109,11 @@ export default function Bookings() {
         },
       })),
     )
-    .filter((booking) => selectedCar === "all" || booking.car.id.toString() === selectedCar)
+    .filter(
+      (booking) =>
+        (selectedCar === "all" || booking.car.id.toString() === selectedCar) &&
+        (selectedStatus === "all" || booking.status === selectedStatus),
+    )
 
   return (
     <div className="min-h-screen bg-background">
@@ -119,21 +135,48 @@ export default function Bookings() {
             </SelectContent>
           </Select>
         </div>
+
+        <div className="flex gap-2 mb-6 overflow-x-auto pb-2">
+          <Button variant={selectedStatus === "all" ? "default" : "outline"} onClick={() => setSelectedStatus("all")}>
+            All
+          </Button>
+          <Button
+            variant={selectedStatus === "upcoming" ? "default" : "outline"}
+            onClick={() => setSelectedStatus("upcoming")}
+          >
+            Upcoming
+          </Button>
+          <Button
+            variant={selectedStatus === "ongoing" ? "default" : "outline"}
+            onClick={() => setSelectedStatus("ongoing")}
+          >
+            Ongoing
+          </Button>
+          <Button
+            variant={selectedStatus === "completed" ? "default" : "outline"}
+            onClick={() => setSelectedStatus("completed")}
+          >
+            Completed
+          </Button>
+          <Button
+            variant={selectedStatus === "cancelled" ? "default" : "outline"}
+            onClick={() => setSelectedStatus("cancelled")}
+          >
+            Cancelled
+          </Button>
+        </div>
+
         <div className="space-y-4">
-          {filteredBookings.map((booking, index) => (
-            <Link href={`/bookings/${booking.id}`} key={index}>
+          {filteredBookings.map((booking) => (
+            <Link href={`/bookings/${booking.id}`} key={booking.id}>
               <Card className="overflow-hidden hover:shadow-md transition-shadow">
                 <CardContent className="p-0">
-                  {/* Top Section */}
+                  {/* Rest of the card content remains the same */}
                   <div className="p-4 bg-white">
                     <p className="text-sm text-muted-foreground">Guest shall pickup car by</p>
                     <p className="font-semibold">{getPickupTime(booking.start)}</p>
                   </div>
-
-                  {/* Divider */}
                   <hr className="border-t border-border" />
-
-                  {/* Middle Section */}
                   <div className="p-4 bg-white flex items-start justify-between">
                     <div className="flex-1">
                       <div className="flex items-center gap-8">
@@ -161,8 +204,6 @@ export default function Bookings() {
                       <p className="text-xs text-muted-foreground">{booking.car.plateNumber}</p>
                     </div>
                   </div>
-
-                  {/* Bottom Section */}
                   <div className="p-4 bg-blue-50 flex items-center gap-2">
                     <Clock className="h-4 w-4" />
                     <p className="text-sm">Trip start window opens in {getTimeUntilBooking(booking.start)}</p>

@@ -10,6 +10,8 @@ interface BookingDetailsClientProps {
     id: number
     start: string
     end: string
+    status: string
+    cancelledBy: string | null
     car: {
       name: string
       plateNumber: string
@@ -19,7 +21,7 @@ interface BookingDetailsClientProps {
       name: string
       contact: string
     }
-  }
+  },
   status: string
 }
 
@@ -39,35 +41,42 @@ export function BookingDetailsClient({ booking, status }: BookingDetailsClientPr
 
   return (
     <>
-      <Card className="mb-6">
-        <CardContent className="p-4">
-          <div className="flex items-center justify-between mb-4">
-            <button onClick={() => router.back()} className="text-primary">
-              <ArrowLeft className="h-6 w-6" />
-            </button>
-            <div className="text-center">
-              <h2 className="text-xl font-bold">{status}</h2>
-              <p className="text-sm text-muted-foreground">Booking ID: {booking.id}</p>
-            </div>
-            <div className="w-6"></div> {/* Spacer for alignment */}
-          </div>
-        </CardContent>
-      </Card>
+      <div className="flex items-center justify-between px-2 pb-2 border-b border-gray-300">
+        <button onClick={() => router.back()} className="text-primary">
+          <ArrowLeft className="h-6 w-6" />
+        </button>
+        <div className="text-center">
+          <h2 className="text-xl font-bold">Booking {booking.status}</h2>
+          <p className="text-sm text-muted-foreground">Booking ID: {booking.id}</p>
+        </div>
+        <div className="w-6"></div> {/* Spacer for alignment */}
+      </div>
 
-      <Card className="mb-6">
-        <CardContent className="p-4">
+      <div className="px-4 py-4 border-b-4 border-gray-200">
           <div className="flex justify-between items-center">
             <div>
-              <p className="text-sm text-muted-foreground">
-                {status === "Booking Completed" ? "Guest returned at" : "Guest shall return by"}
-              </p>
-              <p className="font-semibold">{formatDateTime(booking.end)}</p>
+              {booking.status === "cancelled" ? (
+                <>
+                  <p className="text-sm text-muted-foreground">
+                    Booking was cancelled by {booking.cancelledBy === "you" ? "you" : "guest"}
+                  </p>
+                  <p className="font-semibold">{formatDateTime(booking.end)}</p>
+                </>
+              ) : (
+                <>
+                  <p className="text-sm text-muted-foreground">
+                    {booking.status === "completed" ? "Guest returned at" : "Guest shall return by"}
+                  </p>
+                  <p className="font-semibold">{formatDateTime(booking.end)}</p>
+                </>
+              )}
             </div>
             <div className="text-right">
               <div className="relative w-20 h-20 mb-2">
                 <Image
                   src={booking.car.imageUrl || "/placeholder.svg"}
                   alt={booking.car.name}
+                  priority
                   fill
                   className="object-cover rounded"
                 />
@@ -76,13 +85,11 @@ export function BookingDetailsClient({ booking, status }: BookingDetailsClientPr
               <p className="text-xs text-muted-foreground">{booking.car.plateNumber}</p>
             </div>
           </div>
-        </CardContent>
-      </Card>
+      </div>
 
-      <Card>
-        <CardContent className="p-4">
+      <div className="px-4 py-4 border-b-4 border-gray-200">
           <h3 className="text-lg font-semibold mb-4">Booking Details</h3>
-          <div className="flex items-center gap-8 mb-4">
+          <div className="flex items-center justify-center gap-8 mb-4">
             <div>
               <p className="text-sm text-muted-foreground">From</p>
               <p className="font-semibold">{formatDateTime(booking.start)}</p>
@@ -99,8 +106,7 @@ export function BookingDetailsClient({ booking, status }: BookingDetailsClientPr
             <p className="font-semibold">{booking.bookedBy.name}</p>
             <p className="text-sm">{booking.bookedBy.contact}</p>
           </div>
-        </CardContent>
-      </Card>
+        </div>
     </>
   )
 }
