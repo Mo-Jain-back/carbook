@@ -202,7 +202,7 @@ export default function Bookings() {
                         />
                       </div>
                       <p className="text-sm font-semibold">{booking.car.name}</p>
-                      <p className="text-xs text-muted-foreground">{booking.car.plateNumber}</p>
+                      <p className="text-xs text-blue-400">{booking.car.plateNumber}</p>
                     </div>
                   </div>
                   <div className="p-4 bg-gray-100 flex items-center text-black gap-2">

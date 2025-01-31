@@ -27,12 +27,12 @@ export default function Profile() {
               {user.image ? (
                 <Image src={user.image || "/placeholder.svg"} alt="Profile" fill className="object-cover" />
               ) : (
-                <User className="w-16 h-16 text-blue-400" />
+                <User className="w-16 h-16 text-black" />
               )}
             </div>
             {user.isLoggedIn && (
               <button
-                className="absolute bottom-0 right-0 p-2 bg-blue-500 text-primary-foreground rounded-full shadow-lg"
+                className="absolute bottom-0 right-0 p-2 bg-black text-blue-100 hover:bg-blue-100 hover:border hover:border-black hover:text-black rounded-full shadow-lg"
                 onClick={() => {
                   /* Handle image edit */
                 }}
@@ -47,7 +47,7 @@ export default function Profile() {
               <div className="flex items-center gap-2">
                 <h2 className="text-2xl font-bold">{user.name}</h2>
                 <button
-                  className="p-1.5 text-blue-500 hover:text-foreground"
+                  className="p-1.5 text-blue-500 hover:text-black"
                   onClick={() => {
                     /* Handle name edit */
                   }}
@@ -55,17 +55,14 @@ export default function Profile() {
                   <Pencil className="w-4 h-4" />
                 </button>
               </div>
-              <Button variant="outline" className="hover:bg-blue-100 text-black" onClick={() => setUser({ ...user, isLoggedIn: false })}>
+              <Button variant="outline" className="hover:bg-black hover:text-blue-100" onClick={() => setUser({ ...user, isLoggedIn: false })}>
                 Logout
               </Button>
             </>
           ) : (
             <div className="space-y-2">
-              <Button  className="w-full hover:bg-blue-100 text-black" onClick={() => setUser({ ...user, isLoggedIn: true })}>
+              <Button  className="w-full bg-black text-blue-100 hover:bg-blue-100 hover:border hover:border-black hover:text-black" onClick={() => setUser({ ...user, isLoggedIn: true })}>
                 Login
-              </Button>
-              <Button variant="outline" >
-                Sign Up
               </Button>
             </div>
           )}

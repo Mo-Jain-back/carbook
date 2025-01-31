@@ -43,11 +43,11 @@ export function BookingDetailsClient({ booking, status }: BookingDetailsClientPr
     <>
       <div className="flex items-center justify-between px-2 pb-2 border-b border-gray-300">
         <button onClick={() => router.back()} className="text-primary">
-          <ArrowLeft className="h-6 w-6" />
+          <ArrowLeft color="blue" className="h-6 w-6" />
         </button>
         <div className="text-center">
-          <h2 className="text-xl font-bold">Booking {booking.status}</h2>
-          <p className="text-sm text-muted-foreground">Booking ID: {booking.id}</p>
+          <h2 className="text-xl font-bold text-black">Booking {booking.status}</h2>
+          <p className="text-sm text-blue-500">Booking ID: {booking.id}</p>
         </div>
         <div className="w-6"></div> {/* Spacer for alignment */}
       </div>
@@ -57,14 +57,14 @@ export function BookingDetailsClient({ booking, status }: BookingDetailsClientPr
             <div>
               {booking.status === "cancelled" ? (
                 <>
-                  <p className="text-sm text-muted-foreground">
+                  <p className="text-sm text-blue-500">
                     Booking was cancelled by {booking.cancelledBy === "you" ? "you" : "guest"}
                   </p>
                   <p className="font-semibold">{formatDateTime(booking.end)}</p>
                 </>
               ) : (
                 <>
-                  <p className="text-sm text-muted-foreground">
+                  <p className="text-sm text-blue-500">
                     {booking.status === "completed" ? "Guest returned at" : "Guest shall return by"}
                   </p>
                   <p className="font-semibold">{formatDateTime(booking.end)}</p>
@@ -81,28 +81,28 @@ export function BookingDetailsClient({ booking, status }: BookingDetailsClientPr
                   className="object-cover rounded"
                 />
               </div>
-              <p className="text-sm font-semibold">{booking.car.name}</p>
-              <p className="text-xs text-muted-foreground">{booking.car.plateNumber}</p>
+              <p className="text-sm font-semibold text-[#4B4237]">{booking.car.name}</p>
+              <p className="text-xs text-blue-500">{booking.car.plateNumber}</p>
             </div>
           </div>
       </div>
 
       <div className="px-4 py-4 border-b-4 border-gray-200">
-          <h3 className="text-lg font-semibold mb-4">Booking Details</h3>
+          <h3 className="text-lg font-semibold mb-4 text-black">Booking Details</h3>
           <div className="flex items-center justify-center gap-8 mb-4">
             <div>
-              <p className="text-sm text-muted-foreground">From</p>
+              <p className="text-sm text-blue-500">From</p>
               <p className="font-semibold">{formatDateTime(booking.start)}</p>
             </div>
             <ArrowRight className="mt-4" />
             <div>
-              <p className="text-sm text-muted-foreground">To</p>
+              <p className="text-sm text-blue-500">To</p>
               <p className="font-semibold">{formatDateTime(booking.end)}</p>
             </div>
           </div>
           <hr className="my-4 border-gray-200" />
           <div>
-            <p className="text-sm text-muted-foreground mb-1">Booked by</p>
+            <p className="text-sm text-blue-500 mb-1">Booked by</p>
             <p className="font-semibold">{booking.bookedBy.name}</p>
             <p className="text-sm">{booking.bookedBy.contact}</p>
           </div>
