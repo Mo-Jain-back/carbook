@@ -5,7 +5,7 @@ import { BottomNav } from "@/components/bottom-nav"
 import { Card, CardContent } from "@/components/ui/card"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Button } from "@/components/ui/button"
-import { ArrowRight, Clock, PlusCircle, PlusIcon } from "lucide-react"
+import { ArrowRight, Clock, LogIn, PlaneTakeoff, PlusCircle, PlusIcon } from "lucide-react"
 import Image from "next/image"
 import { useState } from "react"
 import Link from "next/link"
@@ -130,7 +130,7 @@ export default function Bookings() {
             >Add Booking</span>
           </button>
         </div>
-        
+
       <NavBar />
       <main className="container mx-auto px-4 py-8 pb-16 sm:pb-8">
         <div className="flex justify-between items-center mb-6">
@@ -225,8 +225,8 @@ export default function Bookings() {
                       <p className="text-xs text-blue-400">{booking.car.plateNumber}</p>
                     </div>
                   </div>
-                  <div className="p-4 bg-gray-100 flex items-center text-black gap-2">
-                    <Clock className="h-4 w-4" />
+                  <div className="p-4 bg-gray-100 flex items-center text-red-600 gap-2">
+                    <PlaneTakeoff className="h-4 w-4" />
                     <p className="text-sm">Trip start window opens in {getTimeUntilBooking(booking.start)}</p>
                   </div>
                 </CardContent>
