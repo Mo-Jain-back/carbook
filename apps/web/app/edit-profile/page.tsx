@@ -78,7 +78,7 @@ export default function ProfilePage() {
   return (
     <div className="min-h-screen bg-white" onClick={handleClickOutside}>
       {/* Blue section covering ~30% of the page */}
-      <div className="h-[30vh] bg-blue-500 relative">
+      <div className="h-[30vh] bg-primary relative">
         {/* Circle for user image or icon */}
         <div className="absolute left-1/2 bottom-0 transform -translate-x-1/2 translate-y-1/2">
           <div className="relative w-32 h-32 rounded-full bg-white flex items-center justify-center overflow-hidden border-4 border-white shadow-lg">

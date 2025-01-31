@@ -22,7 +22,7 @@ export default function Profile() {
 
   return (
     <div className="min-h-screen bg-background">
-      <NavBar />
+      
       <main className="container mx-auto px-4 py-8 pb-16 sm:pb-8">
         <div className="flex flex-col items-center justify-center space-y-4">
           <div className="relative">

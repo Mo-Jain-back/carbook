@@ -92,7 +92,7 @@ export default async function BookingDetails({ params }: { params: { id: string 
 
   return (
     <div className="min-h-screen bg-background">
-      <NavBar />
+      
       <main className="container mx-auto px-0 py-2 pb-16 sm:pb-8">
         <Suspense fallback={<div>Loading booking details...</div>}>
           <BookingDetailsClient booking={booking} status={status} />
