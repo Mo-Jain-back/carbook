@@ -5,7 +5,7 @@ import { BottomNav } from "@/components/bottom-nav"
 import { Card, CardContent } from "@/components/ui/card"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Button } from "@/components/ui/button"
-import { ArrowRight, Clock } from "lucide-react"
+import { ArrowRight, Clock, PlusCircle, PlusIcon } from "lucide-react"
 import Image from "next/image"
 import { useState } from "react"
 import Link from "next/link"
@@ -95,7 +95,8 @@ function getTimeUntilBooking(startTime: string) {
 
 export default function Bookings() {
   const [selectedCar, setSelectedCar] = useState<string>("all")
-  const [selectedStatus, setSelectedStatus] = useState<BookingStatus>("all")
+  const [selectedStatus, setSelectedStatus] = useState<BookingStatus>("all");
+  const [isHovered, setIsHovered] = useState(false);
 
   const filteredBookings = userCars
     .flatMap((car) =>
@@ -117,6 +118,19 @@ export default function Bookings() {
 
   return (
     <div className="min-h-screen bg-background">
+      
+        {/* Add Booking button */}
+        <div className="fixed sm:hidden bottom-[70px] right-5 flex items-center justify-start whitespace-nowrap"
+            onMouseEnter={() => setIsHovered(true)}
+            onMouseLeave={() => setIsHovered(false)}
+          >
+          <button className="bg-black  text-blue-100 hover:border hover:border-black  shadow-lg  rounded-xl w-12 h-12 flex items-center justify-center shadow-lg transition-all duration-300 hover:w-40">
+            <span className={`text-[30px] mt-[-3px] transition-rotate duration-400 flex items-center `}>+</span>
+            <span className={` ${isHovered ? "" : "hidden"} ml-2 transition-opacity font-bold duration-300`}
+            >Add Booking</span>
+          </button>
+        </div>
+        
       <NavBar />
       <main className="container mx-auto px-4 py-8 pb-16 sm:pb-8">
         <div className="flex justify-between items-center mb-6">
@@ -135,37 +149,43 @@ export default function Bookings() {
             </SelectContent>
           </Select>
         </div>
-
-        <div className="flex gap-2 mb-6 overflow-x-auto pb-2">
-          <Button variant={selectedStatus === "all" ? "default" : "outline"} className={selectedStatus === "all" ? "bg-blue-400 hover:bg-blue-500 text-white" : "hover:bg-blue-100 text-black"} 
-            onClick={() => setSelectedStatus("all")}>
-            All
-          </Button>
-          <Button
-            variant={selectedStatus === "upcoming" ? "default" : "outline"} className={selectedStatus === "upcoming" ? "bg-blue-400 hover:bg-blue-500 text-white" : "hover:bg-blue-100 text-black"} 
-            onClick={() => setSelectedStatus("upcoming")}
-          >
-            Upcoming
-          </Button>
-          <Button
-            variant={selectedStatus === "ongoing" ? "default" : "outline"} className={selectedStatus === "ongoing" ? "bg-blue-400 hover:bg-blue-500 text-white" : "hover:bg-blue-100 text-black"} 
-            onClick={() => setSelectedStatus("ongoing")}
-          >
-            Ongoing
-          </Button>
-          <Button
-            variant={selectedStatus === "completed" ? "default" : "outline"} className={selectedStatus === "completed" ? "bg-blue-400 hover:bg-blue-500 text-white" : "hover:bg-blue-100 text-black"} 
-            onClick={() => setSelectedStatus("completed")}
-          >
-            Completed
-          </Button>
-          <Button
-            variant={selectedStatus === "cancelled" ? "default" : "outline"} className={selectedStatus === "cancelled" ? "bg-blue-400 hover:bg-blue-500 text-white" : "hover:bg-blue-100 text-black"} 
-            onClick={() => setSelectedStatus("cancelled")}
-          >
-            Cancelled
+        <div className=" flex justify-between w-full">
+          <div className="flex gap-2 mb-6 overflow-x-auto pb-2">
+            <Button variant={selectedStatus === "all" ? "default" : "outline"} className={selectedStatus === "all" ? "bg-blue-400 hover:bg-blue-500 text-white" : "hover:bg-blue-100 text-black"} 
+              onClick={() => setSelectedStatus("all")}>
+              All
+            </Button>
+            <Button
+              variant={selectedStatus === "upcoming" ? "default" : "outline"} className={selectedStatus === "upcoming" ? "bg-blue-400 hover:bg-blue-500 text-white" : "hover:bg-blue-100 text-black"} 
+              onClick={() => setSelectedStatus("upcoming")}
+            >
+              Upcoming
+            </Button>
+            <Button
+              variant={selectedStatus === "ongoing" ? "default" : "outline"} className={selectedStatus === "ongoing" ? "bg-blue-400 hover:bg-blue-500 text-white" : "hover:bg-blue-100 text-black"} 
+              onClick={() => setSelectedStatus("ongoing")}
+            >
+              Ongoing
+            </Button>
+            <Button
+              variant={selectedStatus === "completed" ? "default" : "outline"} className={selectedStatus === "completed" ? "bg-blue-400 hover:bg-blue-500 text-white" : "hover:bg-blue-100 text-black"} 
+              onClick={() => setSelectedStatus("completed")}
+            >
+              Completed
+            </Button>
+            <Button
+              variant={selectedStatus === "cancelled" ? "default" : "outline"} className={selectedStatus === "cancelled" ? "bg-blue-400 hover:bg-blue-500 text-white" : "hover:bg-blue-100 text-black"} 
+              onClick={() => setSelectedStatus("cancelled")}
+            >
+              Cancelled
+            </Button>
+          </div>
+          <Button className="max-sm:hidden bg-black hover:bg-blue-100 hover:text-black text-blue-100 hover:border hover:border-black  shadow-lg">
+            <PlusCircle className="mr-2 h-4 w-4 " />
+            <span className="">Add Booking</span> 
           </Button>
         </div>
+
 
         <div className="space-y-4">
           {filteredBookings.map((booking) => (

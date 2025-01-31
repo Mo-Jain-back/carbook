@@ -17,11 +17,11 @@ export function CarCard({ name, imageUrl }: CarCardProps) {
               alt={name}
               fill
               style={{ objectFit: "cover" }}
-              className="sm:rounded-l-lg sm:rounded-t-none"
+              className="rounded-lg  "
             />
           </div>
           <div className="p-4 w-full flex sm:justify-center justify-end items">
-            <h3 className="text-lg font-semibold">{name}</h3>
+            <h3 className="text-lg font-semibold text-black">{name}</h3>
           </div>
         </div>
       </CardContent>

@@ -5,7 +5,7 @@ import logo from "../public/jcr logo design 2.png";
 
 export function NavBar() {
   return (
-    <nav className="flex items-center justify-center sm:justify-between px-4 py-[1px] bg-[#039BE5] text-primary-foreground">
+    <nav className="flex items-center justify-center sm:justify-between px-4 py-[3px] bg-[#039BE5] text-primary-foreground">
       <Link href="/" className=" sm:flex-grow-0 flex-grow flex justify-center sm:justify-start">
         <Image
             src={logo}

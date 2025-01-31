@@ -42,10 +42,10 @@ export default function Home() {
       <NavBar />
       <main className="container mx-auto px-4 py-8 pb-24">
         <div className="flex justify-between items-center mb-8">
-          <h1 className="text-3xl font-bold text-primary">My Cars</h1>
-          <Button className="bg-blue-500 hover:bg-blue-700 text-white shadow-lg">
-            <PlusCircle className="mr-2 h-4 w-4 text-blue-100" />
-            <span className="text-blue-100">Add Car</span> 
+          <h1 className="text-3xl font-bold text-black">My Cars</h1>
+          <Button className="bg-black hover:bg-blue-100 hover:text-black text-blue-100 hover:border hover:border-black  shadow-lg">
+            <PlusCircle className="mr-2 h-4 w-4 " />
+            <span className="">Add Car</span> 
           </Button>
         </div>
         <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6">

@@ -1,9 +1,13 @@
 "use client"
 
-import { Card, CardContent } from "@/components/ui/card"
+import { Card, CardContent } from "@/components/ui/card";
+import { Button } from "@/components/ui/button"
 import { ArrowLeft, ArrowRight } from "lucide-react"
 import Image from "next/image"
 import { useRouter } from "next/navigation"
+import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { useState } from "react";
+
 
 interface BookingDetailsClientProps {
   booking: {
@@ -22,7 +26,7 @@ interface BookingDetailsClientProps {
       contact: string
     }
   },
-  status: string
+  status?: string
 }
 
 function formatDateTime(dateString: string) {
@@ -36,8 +40,27 @@ function formatDateTime(dateString: string) {
   })
 }
 
-export function BookingDetailsClient({ booking, status }: BookingDetailsClientProps) {
-  const router = useRouter()
+export function BookingDetailsClient({ booking }: BookingDetailsClientProps) {
+  const router = useRouter();
+  const [isDialogOpen, setIsDialogOpen] = useState(false);
+  const [action,setAction] = useState<"Start"| "Stop">("Start");
+  const [status,setStatus] = useState<"Start"| "Stop">("Start");
+
+  function handleAction() {
+    //add code to stop or start the booking
+    const newStatus  = action == "Start" ? "Stop" : "Start";
+    setStatus(newStatus);
+    return;
+  }
+
+  function handleClick() {
+    //add code to stop or start the booking
+
+    return;
+  }
+
+
+  
 
   return (
     <>
@@ -106,7 +129,42 @@ export function BookingDetailsClient({ booking, status }: BookingDetailsClientPr
             <p className="font-semibold">{booking.bookedBy.name}</p>
             <p className="text-sm">{booking.bookedBy.contact}</p>
           </div>
-        </div>
+          
+      </div>
+      <div className=" flex justify-center space-x-2 mt-2" onClick={handleClick}>
+        {status == "Start" ? 
+        <Button className="px-4 py-4 max-sm:w-full bg-black hover:bg-blue-100 hover:text-black text-blue-100 hover:border hover:border-black  shadow-lg"
+          onClick={() => {
+            setAction("Start")
+            setIsDialogOpen(true)
+          }}>
+          <span className="" >Start Booking</span> 
+        </Button>
+        :
+        <Button className="px-4 py-4 max-sm:w-full bg-black hover:bg-blue-100 hover:text-black text-blue-100 hover:border hover:border-black  shadow-lg"
+        onClick={() => {
+          setIsDialogOpen(true);
+          setAction("Stop");
+        }}>
+          <span className="">Stop Booking</span> 
+        </Button>}
+      </div>
+      <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
+          <DialogContent className="sm:max-w-[425px] bg-white text-black">
+            <DialogHeader>
+              <DialogTitle>{action}</DialogTitle>
+              <DialogDescription className="text-blue-500">
+                "Are you sure you want to {action} the booking?" 
+              </DialogDescription>
+            </DialogHeader>
+            <DialogFooter>
+            <Button className="max-sm:w-full bg-black hover:bg-blue-100 hover:text-black text-blue-100 hover:border hover:border-black  shadow-lg" onClick={() => {
+                handleAction();
+                setIsDialogOpen(false)
+              }}>{action}</Button>
+            </DialogFooter>
+          </DialogContent>
+        </Dialog>
     </>
   )
 }

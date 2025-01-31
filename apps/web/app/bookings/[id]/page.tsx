@@ -66,7 +66,7 @@ function getBookingStatus(start: string, end: string) {
 }
 
 export default async function BookingDetails({ params }: { params: { id: string } }) {
-  const bookingId = Number(params.id); // Resolve params.id synchronously after awaiting params
+  const bookingId = await Number(params.id); // Resolve params.id synchronously after awaiting params
 
   
 
