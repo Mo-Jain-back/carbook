@@ -3,7 +3,7 @@ import { Home, Calendar, User } from "lucide-react"
 
 export function BottomNav() {
   return (
-    <nav className="fixed bottom-0 left-0 right-0 bg-primary text-primary-foreground sm:hidden">
+    <nav className="fixed bottom-0 left-0 right-0 bg-[#039BE5] text-primary-foreground sm:hidden">
       <div className="flex justify-around py-2">
         <Link href="/" className="flex flex-col items-center">
           <Home className="h-6 w-6" />

@@ -38,18 +38,23 @@ const userCars = [
 
 export default function Home() {
   return (
-    <div className="min-h-screen bg-background">
+    <div className="min-h-screen bg-blue-100">
       <NavBar />
-      <main className="container mx-auto px-4 py-8 pb-16 sm:pb-8">
-        <div className="flex justify-between items-center mb-6">
-          <h1 className="text-3xl font-bold">My Cars</h1>
-          <Button>
-            <PlusCircle className="mr-2 h-4 w-4" /> Add Car
+      <main className="container mx-auto px-4 py-8 pb-24">
+        <div className="flex justify-between items-center mb-8">
+          <h1 className="text-3xl font-bold text-primary">My Cars</h1>
+          <Button className="bg-blue-500 hover:bg-blue-700 text-white shadow-lg">
+            <PlusCircle className="mr-2 h-4 w-4 text-blue-100" />
+            <span className="text-blue-100">Add Car</span> 
           </Button>
         </div>
-        <div className="flex flex-col sm:grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
+        <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
           {userCars.map((car) => (
-            <Link href={`/car/${car.id}`} key={car.id}>
+            <Link
+              href={`/car/${car.id}`}
+              key={car.id}
+              className="transform transition-all duration-300 hover:scale-105"
+            >
               <CarCard name={car.name} imageUrl={car.imageUrl} />
             </Link>
           ))}

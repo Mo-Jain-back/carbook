@@ -121,14 +121,14 @@ export default function Bookings() {
       <main className="container mx-auto px-4 py-8 pb-16 sm:pb-8">
         <div className="flex justify-between items-center mb-6">
           <h1 className="text-3xl font-bold">My Bookings</h1>
-          <Select value={selectedCar} onValueChange={setSelectedCar}>
+          <Select value={selectedCar} onValueChange={setSelectedCar} >
             <SelectTrigger className="w-[180px]">
-              <SelectValue placeholder="Select car" />
+              <SelectValue placeholder="Select car"  className="bg-blue-100"/>
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="all">All Cars</SelectItem>
+              <SelectItem value="all" className="hover:bg-blue-100 hover:text-black">All Cars</SelectItem>
               {userCars.map((car) => (
-                <SelectItem key={car.id} value={car.id.toString()}>
+                <SelectItem key={car.id} value={car.id.toString()} className="hover:bg-blue-100 hover:text-black">
                   {car.name}
                 </SelectItem>
               ))}
@@ -137,29 +137,30 @@ export default function Bookings() {
         </div>
 
         <div className="flex gap-2 mb-6 overflow-x-auto pb-2">
-          <Button variant={selectedStatus === "all" ? "default" : "outline"} onClick={() => setSelectedStatus("all")}>
+          <Button variant={selectedStatus === "all" ? "default" : "outline"} className={selectedStatus === "all" ? "bg-blue-400 hover:bg-blue-500 text-white" : "hover:bg-blue-100 text-black"} 
+            onClick={() => setSelectedStatus("all")}>
             All
           </Button>
           <Button
-            variant={selectedStatus === "upcoming" ? "default" : "outline"}
+            variant={selectedStatus === "upcoming" ? "default" : "outline"} className={selectedStatus === "upcoming" ? "bg-blue-400 hover:bg-blue-500 text-white" : "hover:bg-blue-100 text-black"} 
             onClick={() => setSelectedStatus("upcoming")}
           >
             Upcoming
           </Button>
           <Button
-            variant={selectedStatus === "ongoing" ? "default" : "outline"}
+            variant={selectedStatus === "ongoing" ? "default" : "outline"} className={selectedStatus === "ongoing" ? "bg-blue-400 hover:bg-blue-500 text-white" : "hover:bg-blue-100 text-black"} 
             onClick={() => setSelectedStatus("ongoing")}
           >
             Ongoing
           </Button>
           <Button
-            variant={selectedStatus === "completed" ? "default" : "outline"}
+            variant={selectedStatus === "completed" ? "default" : "outline"} className={selectedStatus === "completed" ? "bg-blue-400 hover:bg-blue-500 text-white" : "hover:bg-blue-100 text-black"} 
             onClick={() => setSelectedStatus("completed")}
           >
             Completed
           </Button>
           <Button
-            variant={selectedStatus === "cancelled" ? "default" : "outline"}
+            variant={selectedStatus === "cancelled" ? "default" : "outline"} className={selectedStatus === "cancelled" ? "bg-blue-400 hover:bg-blue-500 text-white" : "hover:bg-blue-100 text-black"} 
             onClick={() => setSelectedStatus("cancelled")}
           >
             Cancelled
@@ -169,25 +170,25 @@ export default function Bookings() {
         <div className="space-y-4">
           {filteredBookings.map((booking) => (
             <Link href={`/bookings/${booking.id}`} key={booking.id}>
-              <Card className="overflow-hidden hover:shadow-md transition-shadow">
+              <Card className="overflow-hidden hover:shadow-md transition-shadow my-2">
                 <CardContent className="p-0">
                   {/* Rest of the card content remains the same */}
-                  <div className="p-4 bg-white">
-                    <p className="text-sm text-muted-foreground">Guest shall pickup car by</p>
-                    <p className="font-semibold">{getPickupTime(booking.start)}</p>
+                  <div className="p-4 bg-blue-100 bg-opacity-20">
+                    <p className="text-sm text-blue-500">Guest shall pickup car by</p>
+                    <p className="font-semibold text-[#5B4B49]">{getPickupTime(booking.start)}</p>
                   </div>
                   <hr className="border-t border-border" />
                   <div className="p-4 bg-white flex items-start justify-between">
                     <div className="flex-1">
                       <div className="flex items-center gap-8">
                         <div>
-                          <p className="text-sm text-muted-foreground">From</p>
-                          <p className="font-semibold">{formatDateTime(booking.start)}</p>
+                          <p className="text-sm text-blue-500">From</p>
+                          <p className="font-semibold text-[#5B4B49]">{formatDateTime(booking.start)}</p>
                         </div>
                         <ArrowRight className="mt-4" />
                         <div>
-                          <p className="text-sm text-muted-foreground">To</p>
-                          <p className="font-semibold">{formatDateTime(booking.end)}</p>
+                          <p className="text-sm text-blue-500">To</p>
+                          <p className="font-semibold text-[#5B4B49]">{formatDateTime(booking.end)}</p>
                         </div>
                       </div>
                     </div>
@@ -204,7 +205,7 @@ export default function Bookings() {
                       <p className="text-xs text-muted-foreground">{booking.car.plateNumber}</p>
                     </div>
                   </div>
-                  <div className="p-4 bg-blue-50 flex items-center gap-2">
+                  <div className="p-4 bg-gray-100 flex items-center text-black gap-2">
                     <Clock className="h-4 w-4" />
                     <p className="text-sm">Trip start window opens in {getTimeUntilBooking(booking.start)}</p>
                   </div>

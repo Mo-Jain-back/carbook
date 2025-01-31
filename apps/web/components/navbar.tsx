@@ -5,7 +5,7 @@ import logo from "../public/jcr1.png";
 
 export function NavBar() {
   return (
-    <nav className="flex items-center justify-center sm:justify-between px-4 py-2 bg-primary text-primary-foreground">
+    <nav className="flex items-center justify-center sm:justify-between px-4 py-2 bg-[#039BE5] text-primary-foreground">
       <Link href="/" className=" sm:flex-grow-0 flex-grow flex justify-center sm:justify-start">
         <Image
             src={logo}
@@ -15,10 +15,10 @@ export function NavBar() {
           />
       </Link>
       <div className="space-x-2 hidden sm:block">
-        <Button variant="secondary" asChild>
+        <Button variant="secondary" className="bg-blue-100 text-secondary-foreground" asChild>
           <Link href="/signup">Sign Up</Link>
         </Button>
-        <Button variant="secondary" asChild>
+        <Button variant="secondary" className="bg-blue-100" asChild>
           <Link href="/login">Login</Link>
         </Button>
       </div>
