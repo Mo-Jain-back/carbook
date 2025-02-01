@@ -9,6 +9,7 @@ import { ArrowRight, Clock, LogIn, PlaneTakeoff, PlusCircle, PlusIcon } from "lu
 import Image from "next/image"
 import { useState } from "react"
 import Link from "next/link"
+import { CarBookingDialog } from "@/components/add-booking"
 
 // This would typically come from a database or API
 const userCars = [
@@ -119,11 +120,14 @@ export default function Bookings() {
 
   return (
     <div className="min-h-screen bg-background">
-      
+
+      {/* Add Booking Dialog */}
+        <CarBookingDialog isOpen={isAddBookingOpen} setIsOpen={setIsAddBookingOpen} />
         {/* Add Booking button */}
         <div className="fixed sm:hidden bottom-[70px] right-5 flex items-center justify-start whitespace-nowrap"
             onMouseEnter={() => setIsHovered(true)}
             onMouseLeave={() => setIsHovered(false)}
+            onClick={() => setIsAddBookingOpen(true)}
           >
           <button className="bg-black  text-blue-100 hover:border hover:border-black  shadow-lg  rounded-xl w-12 h-12 flex items-center justify-center shadow-lg transition-all duration-300 hover:w-40">
             <span className={`text-[30px] mt-[-3px] transition-rotate duration-400 flex items-center `}>+</span>

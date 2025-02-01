@@ -47,7 +47,7 @@ export default function Home() {
                 Manage your car rentals with ease using our intuitive booking scheduler.
               </p>
               <Link
-                href="/bookings"
+                href="/booking"
                 className="bg-blue-500 text-white px-6 py-3 rounded-md font-semibold hover:bg-blue-600 transition duration-300"
               >
                 Start Booking Now
@@ -56,8 +56,9 @@ export default function Home() {
           </div>
         </section>
 
-        <section className="py-20 bg-gray-100 px-4">
-            <div className="flex justify-between items-center mb-8 px-4">
+        <section className="py-20 bg-gray-100">
+            <div className="w-full px-4 py-4 rounded-sm bg-black bg-opacity-20">
+            <div className="flex justify-between items-center mb-8">
                 <h1 className="text-3xl font-bold text-black">My Garrage</h1>
                 <Button className="bg-black hover:bg-blue-100 hover:text-black text-blue-100 hover:border hover:border-black  shadow-lg">
                 <PlusCircle className="mr-2 h-4 w-4 " />
@@ -74,6 +75,7 @@ export default function Home() {
                     <CarCard name={car.name} imageUrl={car.imageUrl} />
                 </Link>
                 ))}
+            </div>
             </div>
         </section>
 

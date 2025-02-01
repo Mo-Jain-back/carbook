@@ -3,7 +3,6 @@
 import Link from "next/link"
 import { Home, Calendar, User } from "lucide-react";
 import AppointmentIcon from "../public/pending-appointment.svg"
-import Image from "next/image";
 
 export function BottomNav() {
   return (

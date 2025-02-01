@@ -47,7 +47,8 @@ export default function AddTime({
           </div>
         </PopoverTrigger>
       <PopoverContent className=" max-h-40 p-1 overflow-scroll flex flex-col items-center w-24 overflow-x-hidden rounded-md border bg-popover text-popover-foreground shadow-md"
-          onClick={() => setIsPopoverOpen(false)}>
+          onClick={() => setIsPopoverOpen(false)}
+          style={{ pointerEvents: "auto" }} >
               {generateTimeIntervals().map((time) => (
                 <div
                   key={time}

@@ -14,7 +14,7 @@ export function NavBar() {
   const isHomePage = pathname === "/"
 
   return (
-    <nav className="flex items-center cursor-normal justify-between px-4 py-[3px] bg-[#039BE5] text-primary-foreground">
+    <nav className="flex items-center cursor-normal bg-gray-100 justify-between px-4 py-[3px] text-primary-foreground">
       <div className="max-sm:w-25 flex sm:hidden items-center">
         {!isHomePage ? (
           <div
@@ -37,20 +37,20 @@ export function NavBar() {
         />
       </Link>
       <div className="w-18 space-x-2  flex text-right items-center">
-        <div className="flex items-center max-sm:hidden space-x-2 justify-around">
-          <div className="px-2 hover:text-blue-800 border-[#039BE5] transition-all border duration-300 border-y-4 hover:border-b-blue-800 p-2 cursor-pointer font-bold" 
+        <div className="flex items-center text-gray-700 max-sm:hidden space-x-2 justify-around">
+          <div className="px-2 hover:text-blue-800 border-transparent transition-all border duration-300 border-y-4 hover:border-b-blue-800 p-2 cursor-pointer font-bold" 
                 onClick={() => router.push('/')}>Home</div>
-          <div className="px-2 hover:text-blue-800 border-[#039BE5] transition-all border duration-300 border-y-4 hover:border-b-blue-800 p-2 cursor-pointer font-bold" 
+          <div className="px-2 hover:text-blue-800 border-transparent transition-all border duration-300 border-y-4 hover:border-b-blue-800 p-2 cursor-pointer font-bold" 
                 onClick={() => router.push('/bookings')}>Bookings</div>
-          <div className="px-2 hover:text-blue-800 border-[#039BE5] transition-all border duration-300 border-y-4 hover:border-b-blue-800 p-2 cursor-pointer font-bold" 
+          <div className="px-2 hover:text-blue-800 border-transparent transition-all border duration-300 border-y-4 hover:border-b-blue-800 p-2 cursor-pointer font-bold" 
                 onClick={() => router.push('/bookings')}> Calendar</div>
-          <div className="px-2 hover:text-blue-800 border-[#039BE5] transition-all border duration-300 border-y-4 hover:border-b-blue-800 p-2 cursor-pointer font-bold" 
+          <div className="px-2 hover:text-blue-800 border-transparent transition-all border duration-300 border-y-4 hover:border-b-blue-800 p-2 cursor-pointer font-bold" 
                 onClick={() => router.push('/profile')}> Profile</div>
         </div>
         <span className="h-6 w-6 px-5 mr-[6px] max-sm:block hidden"></span>
         <Button
           variant="secondary"
-          className="bg-black hover:bg-blue-500 hidden sm:block hover:border hover:border-black hover:text-black text-white"
+          className="bg-black hover:bg-blue-500 hidden sm:block border border-black hover:text-black text-white"
           asChild>
           <Link href="/login">Login</Link>
         </Button>
