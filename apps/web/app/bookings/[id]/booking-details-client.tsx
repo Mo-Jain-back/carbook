@@ -12,6 +12,7 @@ import dayjs from "dayjs";
 import AddTime from "@/components/add-time";
 import { useEffect } from "react";
 import { useRef } from "react";
+import { StatusInput } from "@/components/ui/status-input";
 
 
 interface BookingDetailsClientProps {
@@ -55,15 +56,9 @@ export function BookingDetailsClient({ booking }: BookingDetailsClientProps) {
   const [endDate,setEndDate] = useState(new Date(booking.end));
   const [startTime,setStartTime] = useState(booking.start.split("T")[1].slice(0, 5));
   const [endTime,setEndTime] = useState(booking.end.split("T")[1].slice(0, 5));
-  const [isEditingStatus, setIsEditingStatus] = useState(false);
-  const statusInputRef = useRef<HTMLInputElement>(null);
   const [bookingStatus, setBookingStatus] = useState(booking.status);
 
-  useEffect(() => {
-    if (isEditingStatus && statusInputRef.current) {
-      statusInputRef.current.focus()
-    }
-  }, [isEditingStatus])
+
 
   function handleAction() {
     //add code to stop or start the booking
@@ -91,26 +86,29 @@ export function BookingDetailsClient({ booking }: BookingDetailsClientProps) {
     setIsEditable(!isEditable);
     setStartDate(new Date(booking.start));
     setEndDate(new Date(booking.end));
+    setBookingStatus(booking.status)
     return;
   }
   function handleStatusChange(e: React.ChangeEvent<HTMLInputElement>) {
     setBookingStatus(e.target.value);
   }
 
-  const handleClickOutside = (e: React.MouseEvent<HTMLDivElement>) => {
-      if (e.target instanceof HTMLElement) {
-        if (!e.target.closest("#status-field")) {
-          setIsEditingStatus(false)
-        }
-      }
-    }
+
   
   return (
-    <>
-      <div className="flex items-center justify-between px-2 pb-2 border-b border-gray-300" onClick={handleClickOutside}>
-        <button onClick={() => router.back()} className="text-black hover:bg-black hover:text-blue-100 p-2 rounded-md">
-          <div className="h-6 w-6" />
-        </button>
+    <div >
+      <div className="flex items-center justify-between px-2 pb-2 border-b border-gray-300" >
+          <div
+            className="mr-2 p-2 rounded-md font-bold text-black cursor-pointer max-sm:hidden  hover:text-white hover:bg-black"
+            onClick={() => router.back()} 
+          >
+            <ArrowLeft className="h-6 w-6" />
+          </div>
+          <div
+            className="mr-2 p-2 sm:hidden "
+          >
+            <div className="h-6 w-6" />
+          </div>
         <div className="text-center">
           <h2 className="text-xl font-bold text-black">Booking {bookingStatus}</h2>
           <p className="text-sm text-blue-500">Booking ID: {booking.id}</p>
@@ -120,7 +118,7 @@ export function BookingDetailsClient({ booking }: BookingDetailsClientProps) {
         </div> {/* Spacer for alignment */}
       </div>
 
-      <div className="px-4 py-4 border-b-4 border-gray-200">
+      <div className="px-4 py-4 border-b-4 border-gray-200" >
           <div className="flex justify-between items-center">
             <div>
               {bookingStatus === "cancelled" ? (
@@ -201,21 +199,15 @@ export function BookingDetailsClient({ booking }: BookingDetailsClientProps) {
           <hr className="my-4 border-gray-200" />
           <div>
             <p className="text-sm text-blue-500 mb-1">Booking Status</p>
-            <div className={`${!isEditingStatus ? "border-gray-200" :"border-blue-300"} ${isEditable ? "border-b-2" : ""} pb-3`} id="status-field">
-              {isEditingStatus ? (
-                <input
-                  ref={statusInputRef}
-                  type="text"
-                  id="username"
-                  value={bookingStatus}
-                  onChange={handleStatusChange}
-                  className="block w-full border-none p-0 text-gray-900 placeholder:text-gray-400 focus:ring-0 sm:text-sm sm:leading-6 outline-none"
-                />
+            <div >
+              { isEditable ? (
+                <StatusInput status={bookingStatus} setStatus={setBookingStatus} />
               ) : (
-                <p className={`  font-semibold`} onClick={() => setIsEditingStatus(true)}>{bookingStatus}</p>
+                <p className={` `} >{bookingStatus}</p>
               )}
             </div>
           </div>
+          
           
       </div>
       {!isEditable && <div className=" flex justify-center space-x-2 mt-2" onClick={handleClick}>
@@ -251,7 +243,7 @@ export function BookingDetailsClient({ booking }: BookingDetailsClientProps) {
 
         </>
       </div>}
-      <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
+     <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
           <DialogContent className="sm:max-w-[425px] bg-white text-black">
             <DialogHeader>
               <DialogTitle>{action}</DialogTitle>
@@ -267,7 +259,7 @@ export function BookingDetailsClient({ booking }: BookingDetailsClientProps) {
             </DialogFooter>
           </DialogContent>
         </Dialog>
-    </>
+    </div>
   )
 }
 

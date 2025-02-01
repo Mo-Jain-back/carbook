@@ -36,12 +36,16 @@ export function NavBar() {
           className=" sm:rounded-l-lg sm:rounded-t-none"
         />
       </Link>
-      <div className="w-18 space-x-2  flex text-right">
+      <div className="w-18 space-x-2  flex text-right items-center">
         <div className="flex items-center max-sm:hidden space-x-2 justify-around">
-          <div className="px-2 hover:text-blue-800 transition-all duration-300 hover:border-b-4 border-blue-800 p-2 cursor-pointer font-bold" onClick={() => router.push('/')}>Home</div>
-          <div className="px-2 hover:text-blue-800 transition-all duration-300 hover:border-b-4 border-blue-800 p-2 cursor-pointer font-bold" onClick={() => router.push('/bookings')}>Bookings</div>
-          <div className="px-2 hover:text-blue-800 transition-all duration-300 hover:border-b-4 border-blue-800 p-2 cursor-pointer font-bold" onClick={() => router.push('/bookings')}> Calendar</div>
-          <div className="px-2 hover:text-blue-800 transition-all duration-300 hover:border-b-4 border-blue-800 p-2 cursor-pointer font-bold" onClick={() => router.push('/profile')}> Profile</div>
+          <div className="px-2 hover:text-blue-800 border-[#039BE5] transition-all border duration-300 border-y-4 hover:border-b-blue-800 p-2 cursor-pointer font-bold" 
+                onClick={() => router.push('/')}>Home</div>
+          <div className="px-2 hover:text-blue-800 border-[#039BE5] transition-all border duration-300 border-y-4 hover:border-b-blue-800 p-2 cursor-pointer font-bold" 
+                onClick={() => router.push('/bookings')}>Bookings</div>
+          <div className="px-2 hover:text-blue-800 border-[#039BE5] transition-all border duration-300 border-y-4 hover:border-b-blue-800 p-2 cursor-pointer font-bold" 
+                onClick={() => router.push('/bookings')}> Calendar</div>
+          <div className="px-2 hover:text-blue-800 border-[#039BE5] transition-all border duration-300 border-y-4 hover:border-b-blue-800 p-2 cursor-pointer font-bold" 
+                onClick={() => router.push('/profile')}> Profile</div>
         </div>
         <span className="h-6 w-6 px-5 mr-[6px] max-sm:block hidden"></span>
         <Button

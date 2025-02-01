@@ -83,12 +83,21 @@ export default function Profile() {
                 <div className="border-t-2 border-r-2 rotate-45 w-2 h-2 border-black"></div>
               </div>
               <div className="flex items-center justify-between p-2 cursor-pointer"
-              onClick={() => router.push("/edit-profile")}>
+                    onClick={() => router.push("/edit-profile")}>
                 <div className="flex">
                   <span className="w-8 h-8 mx-2 p-[6px] rounded-full bg-blue-100">
                     <User color={"green"} className="w-5 h-5 "/>
                   </span>
                   <span className="mx-2">View Profile Details</span>
+                </div>
+                <div className="border-t-2 border-r-2 rotate-45 w-2 h-2 border-black"></div>
+              </div>
+              <div className="flex items-center justify-between p-2 cursor-pointer">
+                <div className="flex">
+                  <span className="w-8 h-8 mx-2 p-[6px] rounded-full bg-blue-100">
+                    <User color={"green"} className="w-5 h-5 "/>
+                  </span>
+                  <span className="mx-2">View Bookings</span>
                 </div>
                 <div className="border-t-2 border-r-2 rotate-45 w-2 h-2 border-black"></div>
               </div>

@@ -4,6 +4,12 @@ import { useState, useRef, useEffect } from 'react'
 import { Button } from "@/components/ui/button"
 import { ScrollArea } from "@/components/ui/scroll-area"
 import { ChevronDown } from "lucide-react"
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover"
+import { cn } from '@/lib/utils'
 
 export default function AddTime({
   onTimeSelect,
@@ -14,22 +20,9 @@ export default function AddTime({
   className?: string;
   currTime?:string
 }) {
-  const [isOpen, setIsOpen] = useState(false)
+  const [isPopoverOpen, setIsPopoverOpen] = useState<boolean>(false);
   const [selectedTime, setSelectedTime] = useState(currTime || '00:00')
-  const dropdownRef = useRef<HTMLDivElement>(null)
 
-  useEffect(() => {
-    const handleClickOutside = (event: MouseEvent) => {
-      if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
-        setIsOpen(false)
-      }
-    }
-
-    document.addEventListener('mousedown', handleClickOutside)
-    return () => {
-      document.removeEventListener('mousedown', handleClickOutside)
-    }
-  }, [])
 
   const generateTimeIntervals = () => {
     const intervals = []
@@ -43,39 +36,32 @@ export default function AddTime({
     return intervals
   }
 
-  const handleTimeSelect = (time: string) => {
-    setSelectedTime(time)
-    onTimeSelect(time);
-    setIsOpen(false)
-  }
-
   return (
-    <div className="relative" ref={dropdownRef}>
-      <Button
-        variant="outline"
-        className={"w-24 focus-visible:border-b-4 focus-visible:border-blue-400 justify-between"+className}
-        onClick={() => setIsOpen(!isOpen)}
-      >
-        {selectedTime}
-      </Button>
-      {isOpen && (
-        <div className="absolute z-50 mt-2 w-24 rounded-md border bg-popover text-popover-foreground shadow-md">
-          <ScrollArea className="h-60">
-            <div className="p-1">
+    <div className="relative" >
+      <Popover onOpenChange={(open) => setIsPopoverOpen(open)}>
+        <PopoverTrigger asChild >
+          <div
+            className={cn(
+              "p-1 w-[60px] text-sm m-0 border-0 focus-visible:ring-0 border-y-4 cursor-text bg-gray-200 rounded-sm hover:bg-gray-300 justify-start text-left font-normal",
+              isPopoverOpen ? "border-t-gray-200 hover:border-t-gray-300 border-b-blue-400" : " border-gray-200 hover:border-gray-300",
+            )}>
+            {selectedTime}
+          </div>
+        </PopoverTrigger>
+      <PopoverContent className=" max-h-40 p-1 overflow-scroll flex flex-col items-center w-24 overflow-x-hidden rounded-md border bg-popover text-popover-foreground shadow-md"
+          onClick={() => setIsPopoverOpen(false)}>
               {generateTimeIntervals().map((time) => (
-                <Button
+                <div
                   key={time}
-                  variant="ghost"
-                  className="w-full justify-start"
-                  onClick={() => handleTimeSelect(time)}
+                  className="w-full text-sm cursor-pointer hover:bg-gray-200 rounded-md justify-start p-1 px-4 text-black"
+                  onClick={() =>{ 
+                    setSelectedTime(time)}}
                 >
                   {time}
-                </Button>
+                </div>
               ))}
-            </div>
-          </ScrollArea>
-        </div>
-      )}
+      </PopoverContent>
+      </Popover>
     </div>
   )
 }
