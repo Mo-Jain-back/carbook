@@ -12,17 +12,15 @@ import {
 import { cn } from '@/lib/utils'
 
 export default function AddTime({
-  onTimeSelect,
+  setSelectedTime,
   className,
-  currTime
+  selectedTime
 }: {
-  onTimeSelect: (time: string) => void;
+  setSelectedTime: React.Dispatch<React.SetStateAction<string>>;
   className?: string;
-  currTime?:string
+  selectedTime:string
 }) {
   const [isPopoverOpen, setIsPopoverOpen] = useState<boolean>(false);
-  const [selectedTime, setSelectedTime] = useState(currTime || '00:00')
-
 
   const generateTimeIntervals = () => {
     const intervals = []

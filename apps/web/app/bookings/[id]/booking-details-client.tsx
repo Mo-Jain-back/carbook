@@ -166,7 +166,7 @@ export function BookingDetailsClient({ booking }: BookingDetailsClientProps) {
                   <DatePicker currDate={dayjs(startDate)} handleDateChange={handleDateChange} dateType="start"/>
                 </div>
                 <div className=" mx-2">
-                  <AddTime className="p-0 m-0 w-[50px] border-none bg-gray-200 hover:bg-gray-300 rounded-sm" currTime={startTime} onTimeSelect={setStartTime} />
+                  <AddTime className="" selectedTime={startTime} setSelectedTime={setStartTime} />
                   <input type="hidden" name="time" value={startTime} />
                 </div>
               </div>
@@ -183,7 +183,7 @@ export function BookingDetailsClient({ booking }: BookingDetailsClientProps) {
                   <DatePicker currDate={dayjs(endDate)} handleDateChange={handleDateChange} dateType="end"/>
                 </div>
                 <div className=" mx-2">
-                  <AddTime className="p-0 m-0 w-[50px] border-none bg-gray-200 hover:bg-gray-300 rounded-sm" currTime={endTime} onTimeSelect={setEndTime} />
+                  <AddTime className="" selectedTime={endTime} setSelectedTime={setEndTime} />
                 <input type="hidden" name="time" value={endTime} />
               </div>
               </div>

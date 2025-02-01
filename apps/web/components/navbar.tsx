@@ -3,7 +3,7 @@
 import Link from "next/link"
 import { Button } from "@/components/ui/button"
 import Image from "next/image"
-import logo from "../public/jcr3.png"
+import logo from "../public/jcr logo design 2.png"
 import { usePathname, useRouter } from "next/navigation"
 import { ArrowLeft } from "lucide-react"
 
@@ -28,7 +28,7 @@ export function NavBar() {
         <span className="h-6 w-6 px-5 mr-[6px]"></span>
       }
       </div>
-      <Link href="/" className={`flex-grow flex max-w-16 justify-center sm:justify-start`}>
+      <Link href="/" className={`flex-grow flex max-w-32 justify-center sm:justify-start`}>
         <Image
           src={logo || "/placeholder.svg"}
           alt={"JCR"}

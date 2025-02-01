@@ -7,7 +7,8 @@ import { Car, CarTaxiFrontIcon, Edit, Pencil, User } from "lucide-react"
 import Image from "next/image"
 import { useState } from "react"
 import { Card, CardContent } from "@/components/ui/card"
-import { useRouter } from "next/navigation"
+import { useRouter } from "next/navigation";
+import AppointmentIcon from "../../public/appointment.svg"
 
 // This would typically come from your auth system
 const mockUser = {
@@ -71,6 +72,7 @@ export default function Profile() {
           )}
         </div>
         <div>
+          {user.isLoggedIn &&
           <Card className="overflow-hidden hover:shadow-md transition-shadow my-2">
             <CardContent className="p-4 text-black">
               <div className="flex items-center justify-between p-2 cursor-pointer">
@@ -94,8 +96,8 @@ export default function Profile() {
               </div>
               <div className="flex items-center justify-between p-2 cursor-pointer">
                 <div className="flex">
-                  <span className="w-8 h-8 mx-2 p-[6px] rounded-full bg-blue-100">
-                    <User color={"green"} className="w-5 h-5 "/>
+                  <span className="w-8 h-8 mx-2 p-[6px] rounded-full text-green-500 bg-blue-100">
+                    <AppointmentIcon className="w-5 h-5 "/>
                   </span>
                   <span className="mx-2">View Bookings</span>
                 </div>
@@ -103,6 +105,7 @@ export default function Profile() {
               </div>
             </CardContent>
           </Card>
+          }
         </div>
       </main>
       <BottomNav />

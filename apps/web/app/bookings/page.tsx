@@ -97,6 +97,7 @@ export default function Bookings() {
   const [selectedCar, setSelectedCar] = useState<string>("all")
   const [selectedStatus, setSelectedStatus] = useState<BookingStatus>("all");
   const [isHovered, setIsHovered] = useState(false);
+  const [isAddBookingOpen,setIsAddBookingOpen] = useState(false);
 
   const filteredBookings = userCars
     .flatMap((car) =>
@@ -180,8 +181,9 @@ export default function Bookings() {
               Cancelled
             </Button>
           </div>
-          <Button className="max-sm:hidden bg-black hover:bg-blue-100 hover:text-black text-blue-100 hover:border hover:border-black  shadow-lg">
-            <PlusCircle className="mr-2 h-4 w-4 " />
+          <Button className="max-sm:hidden bg-black hover:bg-blue-100 hover:text-black text-blue-100 hover:border hover:border-black  shadow-lg"
+            onClick={() => setIsAddBookingOpen(true)}>
+            <span className={`text-[24px] mt-[-2px] `}>+</span>
             <span className="">Add Booking</span> 
           </Button>
         </div>
