@@ -1,0 +1,82 @@
+"use client"
+import Link from "next/link";
+import Image from "next/image"
+import { Card, CardContent } from "@/components/ui/card"
+import { useState } from "react";
+import { Edit } from "lucide-react";
+import { useRouter } from "next/router";
+
+const userCars = [
+    {
+      id: 1,
+      name: "Tesla Model 3",
+      imageUrl: "https://hips.hearstapps.com/hmg-prod/images/2025-tesla-model-s-1-672d42e172407.jpg?crop=0.465xw:0.466xh;0.285xw,0.361xh&resize=1200",
+      bookings: [
+        { start: "2023-06-01", end: "2023-06-03" },
+        { start: "2023-06-10", end: "2023-06-15" },
+      ],
+    },
+    {
+      id: 2,
+      name: "Ford Mustang",
+      imageUrl: "https://platform.cstatic-images.com/in/v2/stock_photos/602375aa-858e-4b71-a9eb-f77ca929c9d0/2fb5b283-ca73-41c1-812d-151a80af3953.png",
+      bookings: [
+        { start: "2023-06-05", end: "2023-06-07" },
+        { start: "2023-06-20", end: "2023-06-25" },
+      ],
+    },
+    {
+      id: 3,
+      name: "Toyota Camry",
+      imageUrl: "https://stimg.cardekho.com/images/carexteriorimages/930x620/Toyota/Camry/11344/1733916451269/front-left-side-47.jpg",
+      bookings: [
+        { start: "2023-06-08", end: "2023-06-09" },
+        { start: "2023-06-18", end: "2023-06-22" },
+      ],
+    },
+  ]
+const page = () => {
+    const [cars,setCars] = useState(userCars);
+    const router = useRouter();
+  return (
+    <section className="py-6 px-4">
+            <div className="flex justify-start items-center mb-8 px-4">
+                <h1 style={{ fontFamily: "var(--font-teratur), sans-serif",
+                 }} className="text-3xl font-black text-black font-myfont">Manage Your Garrage</h1>
+                
+            </div>
+            <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
+                {cars.map((car) => (
+                <Link
+                    href={`/car/${car.id}`}
+                    key={car.id}
+                    className="transform transition-all duration-300 hover:scale-105"
+                >
+                    <Card className="w-full">
+                        <CardContent className="p-2 border-black bg-blue-100 rounded-md cursor-pointer">
+                            <div className="flex sm:flex-col flex-row justify-around sm:px-1 px-8">
+                            <div className="relative sm:w-full w-2/3 sm:h-48">
+                                <Image
+                                src={car.imageUrl || "/placeholder.svg"}
+                                alt={car.name}
+                                fill
+                                style={{ objectFit: "cover" }}
+                                className="rounded-lg  "
+                                />
+                            </div>
+                            <div className="p-4 w-full flex sm:justify-center justify-end items-center"
+                                onClick={() => router.push(`/magane-garrage/${car.id}`)}>
+                                <Edit className="w-4 h-4 text-black mx-2"/>
+                                <h3 className="text-lg font-semibold text-black">{car.name}</h3>
+                            </div>
+                            </div>
+                        </CardContent>
+                        </Card>
+                </Link>
+                ))}
+            </div>
+        </section>
+  )
+};
+
+export default page;

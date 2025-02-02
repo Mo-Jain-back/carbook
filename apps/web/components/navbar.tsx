@@ -3,7 +3,8 @@
 import Link from "next/link"
 import { Button } from "@/components/ui/button"
 import Image from "next/image"
-import logo from "../public/jcr logo design 2.png"
+import logo from "../public/favicon.png"
+import LogoText from "../public/logo.svg"
 import { usePathname, useRouter } from "next/navigation"
 import { ArrowLeft } from "lucide-react"
 
@@ -14,7 +15,7 @@ export function NavBar() {
   const isHomePage = pathname === "/"
 
   return (
-    <nav className="flex items-center cursor-normal bg-gray-100 justify-between px-4 py-[3px] text-primary-foreground">
+    <nav className="flex items-center cursor-normal bg-gray-100 justify-between px-4 py-[6px] text-primary-foreground">
       <div className="max-sm:w-25 flex sm:hidden items-center">
         {!isHomePage ? (
           <div
@@ -28,13 +29,14 @@ export function NavBar() {
         <span className="h-6 w-6 px-5 mr-[6px]"></span>
       }
       </div>
-      <Link href="/" className={`flex-grow flex max-w-32 justify-center sm:justify-start`}>
+      <Link href="/" className={`flex-grow flex sm:ml-4 max-w-18 justify-center items-center sm:justify-start`}>
         <Image
           src={logo || "/placeholder.svg"}
           alt={"JCR"}
           style={{ objectFit: "cover" }}
-          className=" sm:rounded-l-lg sm:rounded-t-none"
+          className=" sm:rounded-l-lg max-w-14 sm:rounded-t-none"
         />
+        <LogoText className="ml-[-5px] w-18 h-9"/> 
       </Link>
       <div className="w-18 space-x-2  flex text-right items-center">
         <div className="flex items-center text-gray-700 max-sm:hidden space-x-2 justify-around">

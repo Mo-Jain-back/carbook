@@ -204,10 +204,10 @@ export function BookingDetailsClient({ booking }: BookingDetailsClientProps) {
             <>
               <Input type="text" id="name" value={name} 
                 onChange={(e) => setName(e.target.value)} 
-                className="w-[170px] border-0 p-0 px-1 bg-gray-200 focus-visible:ring-0 " />
+                className="w-[170px] border-0 p-0 px-1 bg-gray-200 focus-visible:ring-0 border-y-gray-200 border-y-4 focus:border-b-blue-400 " />
               <Input type="text" id="number" value={number} 
                 onChange={(e) => setNumber(e.target.value)} 
-                className="w-[170px] border-0 p-0 px-1 my-1 bg-gray-200 focus-visible:ring-0 
+                className="w-[170px] border-0 p-0 px-1 my-1 bg-gray-200 focus-visible:ring-0  border-y-gray-200 border-y-4 focus:border-b-blue-400
                 [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none
                 " />
             </>

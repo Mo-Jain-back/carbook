@@ -195,7 +195,7 @@ export default function Bookings() {
 
         <div className="space-y-4">
           {filteredBookings.map((booking) => (
-            <Link href={`/bookings/${booking.id}`} key={booking.id}>
+            <Link href={`/booking/${booking.id}`} key={booking.id}>
               <Card className="overflow-hidden hover:shadow-md transition-shadow my-2">
                 <CardContent className="p-0">
                   {/* Rest of the card content remains the same */}
