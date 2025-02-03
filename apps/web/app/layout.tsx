@@ -1,7 +1,10 @@
 import "@/app/globals.css"
+import { BottomNav } from "@/components/bottom-nav";
 import { NavBar } from "@/components/navbar"
 import { Inter } from "next/font/google";
 import localFont from "next/font/local";
+import { ThemeProvider } from "@/components/theme-provider";
+import SplashScreen from "@/components/SplashScreen";
 
 const inter = Inter({ subsets: ["latin"] })
 
@@ -29,6 +32,18 @@ const xova = localFont({
   weight: "100 900",
 });
 
+const equinox = localFont({
+  src: "./fonts/Equinox-Bold.woff",
+  variable: "--font-equinox",
+  weight: "100 900",
+});
+
+const alma = localFont({
+  src: "./fonts/AlmaMono-Heavy.ttf",
+  variable: "--font-alma",
+  weight: "100 900",
+});
+
 export default function RootLayout({
   children,
 }: {
@@ -36,10 +51,12 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en">
-      <body className={`${inter.className} ${teratur.variable} ${alcova.variable} ${xova.variable} antialiased`}>
-        <NavBar/>
-        {children}
-        </body>
+        <body className={`${inter.className} ${teratur.variable} ${alcova.variable} ${xova.variable} ${equinox.variable} ${alma.variable} antialiased`}>
+          <SplashScreen/>
+          <NavBar/>
+          <BottomNav/>
+          {children}
+          </body>
     </html>
   )
 }

@@ -5,7 +5,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from 
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
-import { Car, Clock, Plus, Fuel, X } from "lucide-react"
+import { Car, Clock, Plus, Fuel, X, Palette } from "lucide-react"
 import { CarCard } from "./car-card"
 import Link from "next/link";
 import { cn } from "@/lib/utils"
@@ -48,7 +48,7 @@ export function AddCarDialog() {
   const [mileage,setMileage] = useState("");
   const [carBrand,setCarBrand] = useState<string>("");
   const [carModel,setCarModel] = useState<string>("");
-  const [carColor,setCarColor] = useState<string>("");
+  const [color,setColor] = useState<string>("#0000FF");
   const [carNumber,setCarNumber] = useState<string>("");
   const [selectedImage, setSelectedImage] = useState<string | null>(null);
   const [imageFile, setImageFile] = useState<File | null>(null);
@@ -65,7 +65,7 @@ export function AddCarDialog() {
     setCars([...cars, car]);
     setCarBrand("");
     setCarModel("");
-    setCarColor("");
+    setColor("#0000FF");
     setCarNumber("");
     setPrice("");
     setMileage("");
@@ -95,15 +95,15 @@ export function AddCarDialog() {
     <>
         <section className="py-6 bg-gray-100 px-4">
             <div className="flex justify-between items-center mb-8 px-4">
-                <h1 style={{ fontFamily: "var(--font-teratur), sans-serif",
-                 }} className="text-3xl font-black text-black font-myfont">Mohit's Garrage</h1>
+                <h1 style={{ fontFamily: "var(--font-equinox), sans-serif",
+                 }} className="text-3xl font-black text-black font-myfont">MOHIT's GARRAGE</h1>
                 <Button className="bg-black hover:bg-blue-100 hover:text-black text-blue-100 hover:border hover:border-black  shadow-lg"
                   onClick={() => setIsOpen(true)}>
                   <Plus className="mr-2 h-4 w-4 " />
                   <span className="">Add Car</span> 
                 </Button>
             </div>
-            <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
+            <div className="grid z-[-1] sm:grid-cols-2 lg:grid-cols-3 gap-6">
                 {cars.map((car) => (
                 <Link
                     href={`/car/${car.id}`}
@@ -130,7 +130,7 @@ export function AddCarDialog() {
                     value={carBrand} 
                     onChange={(e) => setCarBrand(e.target.value)}
                     placeholder="Add Car Brand"
-                    className="my-4 rounded-none placeholder:text-[30px] text-[30px] md:text-[30px] file:text-[30px] placeholder:text-gray-700 border-0 border-b text-2xl focus-visible:border-b-2 focus-visible:border-b-blue-600 focus-visible:ring-0 focus-visible:ring-offset-0 w-full"
+                    className="my-4 rounded-none placeholder:text-[30px] text-[30px] md:text-[30px] file:text-[30px] placeholder:text-gray-700 border-0 border-b text-2xl focus-visible:border-b-2 border-b-gray-400 focus-visible:border-b-blue-600  focus-visible:ring-0 focus-visible:ring-offset-0 w-full"
                     />
                 </div>
                 
@@ -143,34 +143,54 @@ export function AddCarDialog() {
                                 placeholder="Add Car Model"
                                 value={carModel} 
                                 onChange={(e) => setCarModel(e.target.value)}
-                                className="my-4 w-full rounded-none placeholder:text-[14px] text-[14px] md:text-[14px] file:text-[14px] placeholder:text-gray-700 border-0 border-b text-2xl focus-visible:border-b-2 focus-visible:border-b-blue-600 focus-visible:ring-0 focus-visible:ring-offset-0"
+                                className="my-4 w-full rounded-none placeholder:text-[14px] text-[14px] md:text-[14px] placeholder:text-gray-700 border-0 border-b text-2xl focus-visible:border-b-2 border-b-gray-400 focus-visible:border-b-blue-600  focus-visible:ring-0 focus-visible:ring-offset-0"
                                 />
-                            <Input
-                                type="text"
-                                name="title"
-                                placeholder="Add Car Color"
-                                value={carColor} 
-                                onChange={(e) => setCarColor(e.target.value)}
-                                className="my-4 w-full rounded-none placeholder:text-[14px] text-[14px] md:text-[14px] file:text-[14px] placeholder:text-gray-700 border-0 border-b text-2xl focus-visible:border-b-2 focus-visible:border-b-blue-600 focus-visible:ring-0 focus-visible:ring-offset-0"
-                                />
-                        </div>
-                        <div className="flex justify-between gap-6 items-end">
-                            <Input
+                                <Input
                                 type="text"
                                 name="title"
                                 placeholder="Add Car Number"
                                 value={carNumber} 
                                 onChange={(e) => setCarNumber(e.target.value)}
-                                className="ml-10 w-full max-w-[214px] overflow-hidden rounded-none placeholder:text-[14px] text-[14px] md:text-[14px] file:text-[14px] placeholder:text-gray-700 border-0 border-b text-2xl focus-visible:border-b-2 focus-visible:border-b-blue-600 focus-visible:ring-0 focus-visible:ring-offset-0"
+                                className="my-4 w-full rounded-none placeholder:text-[14px] text-[14px] md:text-[14px] placeholder:text-gray-700 border-0 border-b text-2xl focus-visible:border-b-2 border-b-gray-400 focus-visible:border-b-blue-600  focus-visible:ring-0 focus-visible:ring-offset-0"
                                 />
-                            <div className="cursor-pointer">
-                                <Label htmlFor="selfie" className="cursor-pointer">Upload image</Label>
+                            
+                        </div>
+                        <div className="flex justify-between items-center gap-6 items-end">
+                            <Palette className="w-5 h-5 flex-shrink-0" />
+                            <div className="flex flex-col item-center gap-1 max-w-[214px] w-full">
+                              <Label htmlFor="color" >
+                                Select color for booking
+                              </Label>
+                              <div className="w-2/3 flex  items-center">
+                                <div
+                                  className="w-8 h-8 rounded-md border border-gray-300 cursor-pointer"
+                                  style={{ backgroundColor: color }}
+                                  onClick={() => document.getElementById("colorPicker")?.click()}
+                                />
                                 <Input
-                                    id="selfie"
+                                  type="color"
+                                  id="colorPicker"
+                                  value={color}
+                                  onChange={(e) => setColor(e.target.value)}
+                                  className="hidden"
+                                />
+                              </div>
+                            </div>
+                            <div className=" w-full">
+                                <Label htmlFor="carImage" className="cursor-pointer">Upload image</Label>
+                                <div onClick={() => {
+                                  document.getElementById('carImage')?.click()
+                                  setIsOpen(true);
+                                  }} className=" mx-3 bg-gray-300 w-fit cursor-pointer text-secondary-foreground px-2 py-1 rounded-sm hover:bg-gray-200 transition-colors">
+                                  <span>Choose file</span>
+                                </div>
+                                <Input
+                                    id="carImage"
                                     type="file"
                                     accept="image/*"
                                     onChange={handleFileUpload}
-                                    className={cn("border-0 cursor-pointer overflow-hidden text-ellipsis rounded-none border-b border-black p-0 focus:border-blue-500 focus:ring-0", "transition-colors duration-200")}
+                                    className="hidden"
+                                    // className={cn("border-0 cursor-pointer overflow-hidden text-ellipsis border-b-gray-400 rounded-none border-b border-black p-0 focus:border-blue-500 focus:ring-0", "transition-colors duration-200")}
                                 />
                             </div>
                         </div>

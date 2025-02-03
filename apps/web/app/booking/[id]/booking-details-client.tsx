@@ -2,7 +2,7 @@
 
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button"
-import { ArrowLeft, ArrowRight, Edit } from "lucide-react"
+import { ArrowLeft, ArrowRight, Edit, MoreVertical, Trash2 } from "lucide-react"
 import Image from "next/image"
 import { useParams, useRouter } from "next/navigation"
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
@@ -14,6 +14,8 @@ import { useEffect } from "react";
 import { useRef } from "react";
 import { StatusInput } from "@/components/ui/status-input";
 import { Input } from "@/components/ui/input";
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu"
+
 
 
 interface BookingDetailsClientProps {
@@ -61,6 +63,7 @@ export function BookingDetailsClient({ booking }: BookingDetailsClientProps) {
   const [number,setNumber] = useState<string>(booking.bookedBy.contact);
   const idObj = useParams();
 
+  
 
   function handleAction() {
     //add code to stop or start the booking
@@ -96,27 +99,44 @@ export function BookingDetailsClient({ booking }: BookingDetailsClientProps) {
     setNumber(booking.bookedBy.contact);
     return;
   }
+
+  function handleDelete() {
+    return;
+  }
   
   return (
     <div >
       <div className="flex items-center justify-between px-2 pb-2 border-b border-gray-300" >
           <div
-            className="mr-2 p-2 rounded-md font-bold text-black cursor-pointer max-sm:hidden  hover:text-white hover:bg-black"
+            className="mr-2 p-2 rounded-md font-bold text-black cursor-pointer hover:text-white hover:bg-black"
             onClick={() => router.back()} 
           >
             <ArrowLeft className="h-6 w-6" />
           </div>
-          <div
-            className="mr-2 p-2 sm:hidden "
-          >
-            <div className="h-6 w-6" />
-          </div>
+         
         <div className="text-center">
           <h2 className="text-xl font-bold text-black">Booking {bookingStatus}</h2>
           <p className="text-sm text-blue-500">Booking ID: {booking.id}</p>
         </div>
-        <div className="rounded-md mr-4 p-2 cursor-pointer text-black hover:bg-black hover:text-blue-100" onClick={handleCancel}>
-          <Edit  className="h-6 w-6 " />
+        <div className="mr-4">
+          <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <Button variant="ghost" className="h-8 w-8 p-0">
+                    <span className="sr-only">Open menu</span>
+                    <MoreVertical className="h-4 w-4" />
+                  </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="end">
+                  <DropdownMenuItem className="cursor-pointer" onClick={handleCancel}>
+                    <Edit className="mr-2 h-4 w-4" />
+                    <span>Edit</span>
+                  </DropdownMenuItem>
+                  <DropdownMenuItem className="cursor-pointer" onClick={handleDelete}>
+                    <Trash2 className="mr-2 h-4 w-4" />
+                    <span>Delete</span>
+                  </DropdownMenuItem>
+                </DropdownMenuContent>
+              </DropdownMenu>
         </div> {/* Spacer for alignment */}
       </div>
 

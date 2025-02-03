@@ -119,26 +119,7 @@ export function CarBookingDialog({isOpen, setIsOpen}: {isOpen: boolean, setIsOpe
               className="w-2/3 border-black focus:border-blue-400 focus-visible:ring-blue-400 "/>
           </div>
 
-          <div className="flex items-center gap-4">
-            <Palette className="h-5 w-5 flex-shrink-0" />
-            <Label htmlFor="color" className="w-1/3">
-              Select color for booking
-            </Label>
-            <div className="w-2/3 flex items-center gap-2">
-              <div
-                className="w-8 h-8 rounded-md border border-gray-300 cursor-pointer"
-                style={{ backgroundColor: color }}
-                onClick={() => document.getElementById("colorPicker")?.click()}
-              />
-              <Input
-                type="color"
-                id="colorPicker"
-                value={color}
-                onChange={(e) => setColor(e.target.value)}
-                className="hidden"
-              />
-            </div>
-          </div>
+          
 
           <div className="flex items-center gap-4">
             <Clock className="h-5 w-5 flex-shrink-0" />

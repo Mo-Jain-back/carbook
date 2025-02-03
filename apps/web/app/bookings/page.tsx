@@ -3,12 +3,12 @@
 import { NavBar } from "@/components/navbar"
 import { BottomNav } from "@/components/bottom-nav"
 import { Card, CardContent } from "@/components/ui/card"
+import Link from "next/link"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Button } from "@/components/ui/button"
 import { ArrowRight, Clock, LogIn, PlaneTakeoff, PlusCircle, PlusIcon } from "lucide-react"
 import Image from "next/image"
 import { useState } from "react"
-import Link from "next/link"
 import { CarBookingDialog } from "@/components/add-booking"
 
 // This would typically come from a database or API
@@ -139,7 +139,7 @@ export default function Bookings() {
       
       <main className="container mx-auto px-4 py-8 pb-16 sm:pb-8">
         <div className="flex justify-between items-center mb-6">
-          <h1 className="text-3xl font-bold">My Bookings</h1>
+          <h1 style={{fontFamily:"var(--font-equinox)"}} className="text-3xl font-black">MY BOOKINGS</h1>
           <Select value={selectedCar} onValueChange={setSelectedCar} >
             <SelectTrigger className="w-[180px]">
               <SelectValue placeholder="Select car"  className="bg-blue-100"/>
@@ -241,7 +241,6 @@ export default function Bookings() {
           ))}
         </div>
       </main>
-      <BottomNav />
     </div>
   )
 }

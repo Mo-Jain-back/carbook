@@ -4,7 +4,7 @@ import Image from "next/image"
 import { Card, CardContent } from "@/components/ui/card"
 import { useState } from "react";
 import { Edit } from "lucide-react";
-import { useRouter } from "next/router";
+import { useRouter } from "next/navigation";
 
 const userCars = [
     {
@@ -41,8 +41,8 @@ const page = () => {
   return (
     <section className="py-6 px-4">
             <div className="flex justify-start items-center mb-8 px-4">
-                <h1 style={{ fontFamily: "var(--font-teratur), sans-serif",
-                 }} className="text-3xl font-black text-black font-myfont">Manage Your Garrage</h1>
+                <h1 style={{ fontFamily: "var(--font-equinox), sans-serif",
+                 }} className="text-3xl font-black text-black font-myfont">MANAGE YOUR GARRAGE</h1>
                 
             </div>
             <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6">

@@ -1,0 +1,24 @@
+<svg width="143" height="122" viewBox="0 0 143 122" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <!-- Masking for water effect -->
+    <clipPath id="waveClip">
+      <rect width="143" height="122" id="waterRect"/>
+    </clipPath>
+  </defs>
+
+  <!-- Background Shape -->
+  <path d="M2 121.5L36 90.5C36 90.5 59.4883 96.9117 72 90.5C75.1327 88.8946 77.5 87.5 79.5 85.5C81.5 83.5 85.0187 79.8422 87.5 75.5C88.8871 73.0726 90.5 69 90.5 69L110.5 1H141.5L117 85.5C117 85.5 113.743 93.5552 110.5 98C107.813 101.682 102.5 106.5 102.5 106.5C102.5 106.5 94 113.5 90.5 116C87 118.5 83.8328 119.256 79.5 120.5C76.5865 121.337 72 121.5 72 121.5H2Z" stroke="black" fill="none"/>
+
+  <!-- Water Fill -->
+  <g clip-path="url(#waveClip)">
+    <rect width="143" height="122" fill="blue"/>
+    <path id="wave" fill="white" fill-opacity="0.4"
+      d="M 0 100 
+        Q 30 95, 60 100
+        T 120 100
+        T 180 100
+        V 150
+        H 0
+        Z"/>
+  </g>
+</svg>

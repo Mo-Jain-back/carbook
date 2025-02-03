@@ -68,8 +68,6 @@ function getBookingStatus(start: string, end: string) {
 export default async function BookingDetails({ params }: { params: { id: string } }) {
   const bookingId = await Number(params.id); // Resolve params.id synchronously after awaiting params
 
-  
-
   const booking = userCars
     .flatMap((car) =>
       car.bookings.map((booking) => ({
@@ -98,7 +96,6 @@ export default async function BookingDetails({ params }: { params: { id: string 
           <BookingDetailsClient booking={booking} status={status} />
         </Suspense>
       </main>
-      <BottomNav />
     </div>
   )
 }

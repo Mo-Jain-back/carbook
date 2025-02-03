@@ -2,40 +2,24 @@
 
 import Link from "next/link"
 import { Button } from "@/components/ui/button"
-import Image from "next/image"
-import logo from "../public/favicon.png"
-import LogoText from "../public/logo.svg"
+import Logo1 from "../public/logo1.svg"
+import LogoText from "../public/logo_text.svg"
 import { usePathname, useRouter } from "next/navigation"
-import { ArrowLeft } from "lucide-react"
 
 export function NavBar() {
   const pathname = usePathname()
   const router = useRouter()
 
-  const isHomePage = pathname === "/"
 
   return (
-    <nav className="flex items-center cursor-normal bg-gray-100 justify-between px-4 py-[6px] text-primary-foreground">
+    <nav className="flex items-center rounded-none cursor-normal bg-gray-100 justify-between px-4 py-[6px] text-primary-foreground">
       <div className="max-sm:w-25 flex sm:hidden items-center">
-        {!isHomePage ? (
-          <div
-            className="mr-2 p-2 rounded-md font-bold text-white hover:text-black hover:bg-white sm:hidden"
-            onClick={() => router.back()} 
-          >
-            <ArrowLeft className="h-6 w-6" />
-          </div>
-        )
-        :
-        <span className="h-6 w-6 px-5 mr-[6px]"></span>
-      }
+      <span className="h-6 w-6 px-5 mr-[6px]"></span>
       </div>
-      <Link href="/" className={`flex-grow flex sm:ml-4 max-w-18 justify-center items-center sm:justify-start`}>
-        <Image
-          src={logo || "/placeholder.svg"}
-          alt={"JCR"}
-          style={{ objectFit: "cover" }}
-          className=" sm:rounded-l-lg max-w-14 sm:rounded-t-none"
-        />
+      <Link href="/" className={`flex-grow rounded-none flex sm:ml-4 justify-center items-center sm:justify-start`}>
+        <div className="flex items-start">
+          <Logo1 className="h-[55px] fill-[#039BE5] stroke-[1px]"/>
+        </div>
         <LogoText className="ml-[-5px] w-18 h-9"/> 
       </Link>
       <div className="w-18 space-x-2  flex text-right items-center">
