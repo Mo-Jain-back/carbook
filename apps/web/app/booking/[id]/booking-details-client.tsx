@@ -106,16 +106,16 @@ export function BookingDetailsClient({ booking }: BookingDetailsClientProps) {
   
   return (
     <div >
-      <div className="flex items-center justify-between px-2 pb-2 border-b border-gray-300" >
+      <div className="flex items-center justify-between px-2 pb-2 border-b border-gray-300 dark:border-gray-600" >
           <div
-            className="mr-2 p-2 rounded-md font-bold text-black cursor-pointer hover:text-white hover:bg-black"
+            className="mr-2 p-2 rounded-md font-bold  cursor-pointer dark:hover:bg-gray-800 hover:bg-gray-200"
             onClick={() => router.back()} 
           >
             <ArrowLeft className="h-6 w-6" />
           </div>
          
         <div className="text-center">
-          <h2 className="text-xl font-bold text-black">Booking {bookingStatus}</h2>
+          <h2 className="text-xl font-bold">Booking {bookingStatus}</h2>
           <p className="text-sm text-blue-500">Booking ID: {booking.id}</p>
         </div>
         <div className="mr-4">
@@ -140,7 +140,7 @@ export function BookingDetailsClient({ booking }: BookingDetailsClientProps) {
         </div> {/* Spacer for alignment */}
       </div>
 
-      <div className="px-4 py-4 border-b-4 border-gray-200" >
+      <div className="px-4 py-4 border-b-4 border-gray-200 dark:border-gray-600" >
           <div className="flex justify-between items-center">
             <div>
               {bookingStatus === "cancelled" ? (
@@ -169,14 +169,14 @@ export function BookingDetailsClient({ booking }: BookingDetailsClientProps) {
                   className="object-cover rounded"
                 />
               </div>
-              <p className="text-sm font-semibold text-[#4B4237]">{booking.car.name}</p>
+              <p className="text-sm font-semibold text-[#4B4237] dark:text-gray-400">{booking.car.name}</p>
               <p className="text-xs text-blue-500">{booking.car.plateNumber}</p>
             </div>
           </div>
       </div>
 
-      <div className="px-4 py-4 border-b-4 border-gray-200">
-          <h3 className="text-lg font-semibold mb-4 text-black">Booking Details</h3>
+      <div className="px-4 py-4 border-b-4 border-gray-200 dark:border-gray-600">
+          <h3 className="text-lg font-semibold mb-4 ">Booking Details</h3>
           <div className="flex items-center justify-center gap-8 mb-4">
             <div>
               <p className="text-sm text-blue-500">From</p>
@@ -212,13 +212,13 @@ export function BookingDetailsClient({ booking }: BookingDetailsClientProps) {
             }
             </div>
           </div>
-          <hr className="my-4 border-gray-200" />
+          <hr className="my-4 border-gray-200 dark:border-gray-600" />
           <div>
             <p className="text-sm text-blue-500 mb-1">Booked by</p>
             { !isEditable ?
             <>
-              <p className="font-semibold">{booking.bookedBy.name}</p>
-              <p className="text-sm">{booking.bookedBy.contact}</p>
+              <p className="font-semibold">{name}</p>
+              <p className="text-sm">{number}</p>
             </>
             :
             <>
@@ -234,7 +234,7 @@ export function BookingDetailsClient({ booking }: BookingDetailsClientProps) {
             }
             
           </div>
-          <hr className="my-4 border-gray-200" />
+          <hr className="my-4 border-gray-200 dark:border-gray-600" />
           <div>
             <p className="text-sm text-blue-500 mb-1">Booking Status</p>
             <div >
@@ -250,14 +250,14 @@ export function BookingDetailsClient({ booking }: BookingDetailsClientProps) {
       </div>
       {!isEditable && <div className=" flex justify-center space-x-2 mt-2" onClick={handleClick}>
         {action == "Start" ? 
-        <Button className="px-4 py-4 max-sm:w-full bg-black hover:bg-blue-100 hover:text-black text-blue-100 hover:border hover:border-black  shadow-lg"
+        <Button className="px-4 py-4 max-sm:w-full bg-blue-600 dark:text-black text-blue-100  shadow-lg"
           onClick={() => {
             setIsDialogOpen(true)
           }}>
           <span className="" >Start Booking</span> 
         </Button>
         :
-        <Button className="px-4 py-4 max-sm:w-full bg-black hover:bg-blue-100 hover:text-black text-blue-100 hover:border hover:border-black  shadow-lg"
+        <Button className="px-4 py-4 max-sm:w-full bg-blue-600 dark:text-black text-blue-100  shadow-lg"
         onClick={() => {
           setIsDialogOpen(true);
         }}>

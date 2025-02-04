@@ -21,7 +21,7 @@ function Calendar({
       className={cn("p-3", className)}
       classNames={{
         months: "flex flex-col sm:flex-row space-y-4 sm:space-x-4 sm:space-y-0",
-        month: "space-y-4 text-black font-bold",
+        month: "space-y-4 font-bold",
         caption: "flex justify-center pt-1 relative items-center",
         caption_label: "text-sm font-medium",
         nav: "space-x-1 flex items-center",
@@ -44,13 +44,13 @@ function Calendar({
         ),
         day: cn(
           buttonVariants({ variant: "ghost" }),
-          "h-8 w-8 p-0 font-normal hover:bg-gray-300 hover:text-black aria-selected:opacity-100"
+          "h-8 w-8 p-0 font-normal hover:bg-gray-300 dark:hover:bg-gray-700 hover:text-black aria-selected:opacity-100"
         ),
         day_range_start: "day-range-start",
         day_range_end: "day-range-end",
         day_selected:
           "bg-black text-primary-foreground hover:bg-black hover:text-blue-100 focus:bg-black focus:text-blue-100",
-        day_today: "bg-accent text-accent-foreground",
+        day_today: "bg-accent text-gray-700 dark:text-gray-300",
         day_outside:
           "day-outside text-gray-400 aria-selected:bg-accent/50 aria-selected:text-muted-foreground",
         day_disabled: "text-muted-foreground opacity-50",

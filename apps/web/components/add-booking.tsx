@@ -38,9 +38,9 @@ export function CarBookingDialog({isOpen, setIsOpen}: {isOpen: boolean, setIsOpe
 
   return (
     <Dialog open={isOpen} onOpenChange={setIsOpen}>
-      <DialogContent className="sm:max-w-[425px] md:max-w-[600px] h-[95vh] sm:h-auto overflow-y-auto">
+      <DialogContent className="sm:max-w-[425px] md:max-w-[600px] h-[82vh] sm:top-[55%] sm:h-auto overflow-y-auto">
         <DialogHeader>
-          <DialogTitle className="flex items-center gap-2">
+          <DialogTitle className="flex items-center gap-2 mt-30 text-blue-700 dark:text-blue-600">
             <AppointmentIcon className="w-6 h-6 "/>
             Add Booking
           </DialogTitle>
@@ -52,22 +52,22 @@ export function CarBookingDialog({isOpen, setIsOpen}: {isOpen: boolean, setIsOpe
               Select your car
             </Label>
             <Select>
-              <SelectTrigger id="car" className="w-2/3 border-black focus:border-blue-400 focus:ring-blue-400 focus-visible:ring-blue-400 focus:outline-none">
+              <SelectTrigger id="car" className="w-2/3  focus:border-blue-400 focus:ring-blue-400 focus-visible:ring-blue-400 focus:outline-none">
                 <SelectValue placeholder="Select a car" />
               </SelectTrigger>
-              <SelectContent className="">
+              <SelectContent className="dark:border-gray-700">
                 <SelectItem 
-                  className="text-black focus:bg-blue-300 focus:text-black cursor-pointer" 
+                  className=" focus:bg-blue-300 cursor-pointer" 
                   value="sedan"
                   onClick={() => setCar("sedan")}
                   >Sedan</SelectItem>
                 <SelectItem 
-                  className="text-black focus:bg-blue-300 focus:text-black cursor-pointer" 
+                  className=" focus:bg-blue-300 cursor-pointer" 
                   value="suv"
                   onClick={() => setCar("suv")}
                   >SUV</SelectItem>
                 <SelectItem 
-                  className="text-black focus:bg-blue-300 focus:text-black cursor-pointer" 
+                  className=" focus:bg-blue-300 cursor-pointer" 
                   value="sports"
                   onClick={() => setCar("sports")}
                   >Sports Car</SelectItem>
@@ -116,7 +116,7 @@ export function CarBookingDialog({isOpen, setIsOpen}: {isOpen: boolean, setIsOpe
               Name of person booking
             </Label>
             <Input type="text" id="name" value={name} onChange={(e) => setName(e.target.value)} 
-              className="w-2/3 border-black focus:border-blue-400 focus-visible:ring-blue-400 "/>
+              className="w-2/3  focus:border-blue-400 focus-visible:ring-blue-400 "/>
           </div>
 
           
@@ -127,7 +127,7 @@ export function CarBookingDialog({isOpen, setIsOpen}: {isOpen: boolean, setIsOpe
               24 hr price
             </Label>
             <Input type="number" id="price" 
-            className="w-2/3 border-black focus:border-blue-400 focus-visible:ring-blue-400 [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none" 
+            className="w-2/3  focus:border-blue-400 focus-visible:ring-blue-400 [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none" 
             value={price} onChange={(e) => setPrice(Number(e.target.value))}
             />
           </div>
@@ -139,7 +139,7 @@ export function CarBookingDialog({isOpen, setIsOpen}: {isOpen: boolean, setIsOpe
             </Label>
             <Input type="number" id="totalAmount" 
             value={totalAmount} onChange={(e) => setTotalAmount(Number(e.target.value))}
-            className="w-2/3 border-black focus:border-blue-400 focus-visible:ring-blue-400  [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none" />
+            className="w-2/3  focus:border-blue-400 focus-visible:ring-blue-400  [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none" />
           </div>
 
           <div className="flex items-center gap-4">
@@ -149,11 +149,11 @@ export function CarBookingDialog({isOpen, setIsOpen}: {isOpen: boolean, setIsOpe
             </Label>
             <Input type="number" id="securityDeposit" 
             value={securityDeposit} onChange={(e) => setSecurityDeposit(Number(e.target.value))}
-            className="w-2/3 border-black focus:border-blue-400 focus-visible:ring-blue-400  [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none" />
+            className="w-2/3  focus:border-blue-400 focus-visible:ring-blue-400  [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none" />
           </div>
 
-          <Button type="submit" className="text-blue-100 bg-black hover:border border-black hover:bg-blue-50 hover:text-black w-full">
-            Create
+          <Button type="submit" className="bg-blue-600 text-card hover:bg-opacity-80 w-full">
+              Create
           </Button>
         </form>
       </DialogContent>

@@ -65,21 +65,21 @@ export default function BookingStartChecklist() {
   return (
     <div className="max-w-4xl mx-auto p-6">
       <h1 className="text-2xl font-bold mb-6">Booking Start Checklist</h1>
-      <form onSubmit={handleSubmit} className="space-y-6">
+      <form onSubmit={handleSubmit} className="space-y-6 max-sm:mb-12">
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           <div className="space-y-4">
             <div>
               <Label htmlFor="customerName">Customer Name</Label>
               <Input
                 id="customerName"
-                className={cn("border-gray-400 focus-visible:ring-blue-500", "transition-colors duration-200")}
+                className={cn("border-gray-400 dark:border-gray-800 focus-visible:ring-blue-500", "transition-colors duration-200")}
               />
             </div>
             <div>
               <Label htmlFor="bookingId">Booking ID</Label>
               <Input
                 id="bookingId"
-                className={cn("border-gray-400 focus-visible:ring-blue-500", "transition-colors duration-200")}
+                className={cn("border-gray-400 dark:border-gray-800 focus-visible:ring-blue-500", "transition-colors duration-200")}
               />
             </div>
             <div>
@@ -87,7 +87,7 @@ export default function BookingStartChecklist() {
               <Input
                 id="phoneNumber"
                 type="tel"
-                className={cn("border-gray-400 focus-visible:ring-blue-500", "transition-colors duration-200")}
+                className={cn("border-gray-400 dark:border-gray-800 focus-visible:ring-blue-500", "transition-colors duration-200")}
               />
             </div>
             <div>
@@ -95,11 +95,11 @@ export default function BookingStartChecklist() {
               <Select>
                 <SelectTrigger
                   id="selectedCar"
-                  className={cn("border-gray-400 focus-visible:ring-blue-500", "transition-colors duration-200")}
+                  className={cn("border-gray-400 dark:border-gray-800 focus-visible:ring-blue-500", "transition-colors duration-200")}
                 >
                   <SelectValue placeholder="Select a car" />
                 </SelectTrigger>
-                <SelectContent>
+                <SelectContent className="dark:border-gray-800">
                   <SelectItem value="sedan">Sedan</SelectItem>
                   <SelectItem value="suv">SUV</SelectItem>
                   <SelectItem value="sports">Sports Car</SelectItem>
@@ -111,7 +111,7 @@ export default function BookingStartChecklist() {
               <Input
                 id="startDate"
                 type="date"
-                className={cn("border-gray-400 focus-visible:ring-blue-500", "transition-colors duration-200")}
+                className={cn("border-gray-400 dark:border-gray-800 focus-visible:ring-blue-500", "transition-colors duration-200")}
               />
             </div>
             <div>
@@ -119,7 +119,7 @@ export default function BookingStartChecklist() {
               <Input
                 id="startTime"
                 type="time"
-                className={cn("border-gray-400 focus-visible:ring-blue-500", "transition-colors duration-200")}
+                className={cn("border-gray-400 dark:border-gray-800 focus-visible:ring-blue-500", "transition-colors duration-200")}
               />
             </div>
             <div>
@@ -127,7 +127,7 @@ export default function BookingStartChecklist() {
               <Input
                 id="returnDate"
                 type="date"
-                className={cn("border-gray-400 focus-visible:ring-blue-500", "transition-colors duration-200")}
+                className={cn("border-gray-400 dark:border-gray-800 focus-visible:ring-blue-500", "transition-colors duration-200")}
               />
             </div>
             <div>
@@ -135,7 +135,7 @@ export default function BookingStartChecklist() {
               <Input
                 id="returnTime"
                 type="time"
-                className={cn("border-gray-400 focus-visible:ring-blue-500", "transition-colors duration-200")}
+                className={cn("border-gray-400 dark:border-gray-800 focus-visible:ring-blue-500", "transition-colors duration-200")}
               />
             </div>
           </div>
@@ -145,14 +145,14 @@ export default function BookingStartChecklist() {
               <Input
                 id="odometerReading"
                 type="number"
-                className={cn("border-gray-400 focus-visible:ring-blue-500", "transition-colors duration-200")}
+                className={cn("border-gray-400 dark:border-gray-800 focus-visible:ring-blue-500", "transition-colors duration-200")}
               />
             </div>
             <div>
               <Label htmlFor="address">Address</Label>
               <Textarea
                 id="address"
-                className={cn("border-gray-400 focus-visible:ring-blue-500", "transition-colors duration-200")}
+                className={cn("border-gray-400 dark:border-gray-800 focus-visible:ring-blue-500", "transition-colors duration-200")}
               />
             </div>
             <div>
@@ -160,7 +160,7 @@ export default function BookingStartChecklist() {
               <Input
                 id="bookingAmountReceived"
                 type="number"
-                className={cn("border-gray-400 focus-visible:ring-blue-500", "transition-colors duration-200")}
+                className={cn("border-gray-400 dark:border-gray-800 focus-visible:ring-blue-500", "transition-colors duration-200")}
               />
             </div>
             <div>
@@ -168,7 +168,7 @@ export default function BookingStartChecklist() {
               <Input
                 id="dailyRentalCharges"
                 type="number"
-                className={cn("border-gray-400 focus-visible:ring-blue-500", "transition-colors duration-200")}
+                className={cn("border-gray-400 dark:border-gray-800 focus-visible:ring-blue-500", "transition-colors duration-200")}
               />
             </div>
             <div>
@@ -176,7 +176,7 @@ export default function BookingStartChecklist() {
               <Input
                 id="totalAmount"
                 type="number"
-                className={cn("border-gray-400 focus-visible:ring-blue-500", "transition-colors duration-200")}
+                className={cn("border-gray-400 dark:border-gray-800 focus-visible:ring-blue-500", "transition-colors duration-200")}
               />
             </div>
             <div>
@@ -184,11 +184,11 @@ export default function BookingStartChecklist() {
               <Select>
                 <SelectTrigger
                   id="paymentMethod"
-                  className={cn("border-gray-400 focus-visible:ring-blue-500", "transition-colors duration-200")}
+                  className={cn("border-gray-400 dark:border-gray-800 focus-visible:ring-blue-500", "transition-colors duration-200")}
                 >
                   <SelectValue placeholder="Select payment method" />
                 </SelectTrigger>
-                <SelectContent>
+                <SelectContent className="dark:border-gray-800">
                   <SelectItem value="cash">Cash</SelectItem>
                   <SelectItem value="card">Card</SelectItem>
                   <SelectItem value="upi">UPI</SelectItem>
@@ -199,7 +199,7 @@ export default function BookingStartChecklist() {
               <Label htmlFor="notes">Notes (if any)</Label>
               <Textarea
                 id="notes"
-                className={cn("border-gray-400 focus-visible:ring-blue-500", "transition-colors duration-200")}
+                className={cn("border-gray-400 dark:border-gray-800 focus-visible:ring-blue-500", "transition-colors duration-200")}
               />
             </div>
           </div>
@@ -214,7 +214,7 @@ export default function BookingStartChecklist() {
               accept="image/*"
               multiple
               onChange={(e) => handleFileUpload(e, "documents")}
-              className={cn("border-gray-400 focus:border-blue-500 focus:ring-0", "transition-colors duration-200")}
+              className={cn("border-gray-400 dark:border-gray-800 focus:border-blue-500 focus:ring-0", "transition-colors duration-200")}
             />
             {renderFileList("documents")}
           </div>
@@ -226,7 +226,7 @@ export default function BookingStartChecklist() {
               accept="image/*"
               multiple
               onChange={(e) => handleFileUpload(e, "photos")}
-              className={cn("border-gray-400 focus:border-blue-500 focus:ring-0", "transition-colors duration-200")}
+              className={cn("border-gray-400 dark:border-gray-800 focus:border-blue-500 focus:ring-0", "transition-colors duration-200")}
             />
             {renderFileList("photos")}
           </div>
@@ -237,7 +237,7 @@ export default function BookingStartChecklist() {
               type="file"
               accept="image/*"
               onChange={(e) => handleFileUpload(e, "selfie")}
-              className={cn("border-gray-400 focus:border-blue-500 focus:ring-0", "transition-colors duration-200")}
+              className={cn("border-gray-400 dark:border-gray-800 focus:border-blue-500 focus:ring-0", "transition-colors duration-200")}
             />
             {renderFileList("selfie")}
           </div>
@@ -252,9 +252,9 @@ export default function BookingStartChecklist() {
           </label>
         </div>
 
-        <Button type="submit" className="w-full bg-black text-white hover:bg-gray-800">
-          Submit
-        </Button>
+        <Button type="submit" className="bg-blue-600 text-card hover:bg-opacity-80 w-full">
+              Create
+          </Button>
       </form>
     </div>
   )

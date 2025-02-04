@@ -35,8 +35,8 @@ export function DatePicker({currDate,handleDateChange,dateType,className}:{currD
         <PopoverTrigger asChild>
           <Input value={dateText} onChange={handleDateTextChange} type="text"
           className={cn(
-              "p-1 w-[110px] m-0 border-0 focus-visible:ring-0 border-y-4 cursor-text bg-gray-200 rounded-sm hover:bg-gray-300 justify-start text-left font-normal",
-              isPopoverOpen ? "border-t-gray-200 hover:border-t-gray-300 border-b-blue-400" : " border-gray-200 hover:border-gray-300",
+              "p-1 w-[110px] m-0 border-0 focus-visible:ring-0 border-y-4 border-transparent cursor-text bg-gray-200 dark:bg-gray-600 dark:hover:bg-gray-700 rounded-sm hover:bg-gray-300 justify-start text-left font-normal",
+              isPopoverOpen ? " border-b-blue-400" : "" ,
               !date && "text-muted-foreground"
             )}
           ></Input>

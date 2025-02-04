@@ -1,9 +1,11 @@
 "use client"
 import { useEffect, useState } from "react";
 import Logo1 from "../public/logo1.svg"
+import { usePathname } from "next/navigation";
 
 const SplashScreen = () => {
     const [isLoading, setIsLoading] = useState(true);
+    const pathname = usePathname()
     useEffect(() => {
         // Hide the splash screen after 3 seconds
         const timer = setTimeout(() => {
@@ -11,8 +13,11 @@ const SplashScreen = () => {
         }, 3000);
         return () => clearTimeout(timer);
         }, []);
+
     
-    if(!isLoading) return null;
+    if(!isLoading || pathname != '/') return null;
+
+
 
     return (
         <div className="relative">

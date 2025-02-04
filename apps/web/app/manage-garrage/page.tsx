@@ -3,8 +3,10 @@ import Link from "next/link";
 import Image from "next/image"
 import { Card, CardContent } from "@/components/ui/card"
 import { useState } from "react";
-import { Edit } from "lucide-react";
+import { ArrowLeft, Edit } from "lucide-react";
 import { useRouter } from "next/navigation";
+import { Button } from "@/components/ui/button";
+
 
 const userCars = [
     {
@@ -39,21 +41,29 @@ const page = () => {
     const [cars,setCars] = useState(userCars);
     const router = useRouter();
   return (
-    <section className="py-6 px-4">
-            <div className="flex justify-start items-center mb-8 px-4">
-                <h1 style={{ fontFamily: "var(--font-equinox), sans-serif",
-                 }} className="text-3xl font-black text-black font-myfont">MANAGE YOUR GARRAGE</h1>
-                
+    <div className="py-6 px-4 h-screen">
+            <div className="w-full flex gap-6 items-start px-4">
+              <Button 
+                onClick={() => router.back()}
+                className="bg-gray-300 mt-2 ml-6 sm:ml-8 text-black hover:bg-gray-200 dark:hover:bg-blue-500 dark:bg-blue-600 ">
+                <ArrowLeft className=" stroke-[3px] h-6 w-6"/>
+              </Button>
+              <div className="flex justify-start sm:mt-2 mt-[4px] items-center mb-8 ">
+                  <h1 style={{ fontFamily: "var(--font-equinox), sans-serif",
+                  }} className="text-3xl max-sm:text-xl font-black text-black dark:text-white font-myfont">MANAGE YOUR GARRAGE</h1>
+                  
+              </div>
             </div>
+          
             <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
                 {cars.map((car) => (
-                <Link
-                    href={`/car/${car.id}`}
-                    key={car.id}
-                    className="transform transition-all duration-300 hover:scale-105"
-                >
-                    <Card className="w-full">
-                        <CardContent className="p-2 border-black bg-blue-100 rounded-md cursor-pointer">
+                  <Link
+                      href={`/car/${car.id}`}
+                      key={car.id}
+                      className="transform transition-all duration-300 hover:scale-105"
+                  >
+                    <Card className="w-full border-0">
+                        <CardContent className="p-2 border-0 bg-card dark:bg-[#182132]  rounded-md cursor-pointer">
                             <div className="flex sm:flex-col flex-row justify-around sm:px-1 px-8">
                             <div className="relative sm:w-full w-2/3 sm:h-48">
                                 <Image
@@ -66,8 +76,8 @@ const page = () => {
                             </div>
                             <div className="p-4 w-full flex sm:justify-center justify-end items-center"
                                 onClick={() => router.push(`/magane-garrage/${car.id}`)}>
-                                <Edit className="w-4 h-4 text-black mx-2"/>
-                                <h3 className="text-lg font-semibold text-black">{car.name}</h3>
+                                <Edit className="w-4 h-4 text-black dark:text-white mx-2"/>
+                                <h3 className="text-lg max-sm:text-sm font-semibold text-black dark:text-white">{car.name}</h3>
                             </div>
                             </div>
                         </CardContent>
@@ -75,7 +85,7 @@ const page = () => {
                 </Link>
                 ))}
             </div>
-        </section>
+        </div>
   )
 };
 

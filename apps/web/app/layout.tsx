@@ -3,15 +3,16 @@ import { BottomNav } from "@/components/bottom-nav";
 import { NavBar } from "@/components/navbar"
 import { Inter } from "next/font/google";
 import localFont from "next/font/local";
-import { ThemeProvider } from "@/components/theme-provider";
+import { ThemeProvider } from "@/components/theme-provider"
 import SplashScreen from "@/components/SplashScreen";
+import Providers from "@/components/provider";
 
 const inter = Inter({ subsets: ["latin"] })
 
 export const metadata = {
   title: "Jain Car Rentals",
   description: "Track your car bookings with ease",
-  icons:"/favicon.png"
+  icons:"/favicon.ico"
 }
 
 const teratur = localFont({
@@ -52,10 +53,12 @@ export default function RootLayout({
   return (
     <html lang="en">
         <body className={`${inter.className} ${teratur.variable} ${alcova.variable} ${xova.variable} ${equinox.variable} ${alma.variable} antialiased`}>
-          <SplashScreen/>
-          <NavBar/>
-          <BottomNav/>
-          {children}
+          <Providers>
+            <SplashScreen/>
+            <NavBar/>
+            {children}
+            <BottomNav/>
+          </Providers>
           </body>
     </html>
   )

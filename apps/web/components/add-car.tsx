@@ -93,22 +93,22 @@ export function AddCarDialog() {
 
   return (
     <>
-        <section className="py-6 bg-gray-100 px-4">
+        <section className="py-6 bg-muted px-4">
             <div className="flex justify-between items-center mb-8 px-4">
                 <h1 style={{ fontFamily: "var(--font-equinox), sans-serif",
-                 }} className="text-3xl font-black text-black font-myfont">MOHIT's GARRAGE</h1>
-                <Button className="bg-black hover:bg-blue-100 hover:text-black text-blue-100 hover:border hover:border-black  shadow-lg"
+                 }} className="sm:text-3xl text-xl font-black font-myfont">MOHIT's GARRAGE</h1>
+                <Button className="bg-blue-600 text-white dark:text-black hover:bg-opacity-80  shadow-lg"
                   onClick={() => setIsOpen(true)}>
                   <Plus className="mr-2 h-4 w-4 " />
                   <span className="">Add Car</span> 
                 </Button>
             </div>
-            <div className="grid z-[-1] sm:grid-cols-2 lg:grid-cols-3 gap-6">
+            <div style={{zIndex:-9999}} className="grid z-0 sm:grid-cols-2 lg:grid-cols-3 gap-6">
                 {cars.map((car) => (
                 <Link
                     href={`/car/${car.id}`}
                     key={car.id}
-                    className="transform transition-all duration-300 hover:scale-105"
+                    className="transform transition-all z-0 duration-300 hover:scale-105"
                 >
                     <CarCard name={car.name} imageUrl={car.imageUrl} />
                 </Link>
@@ -116,7 +116,7 @@ export function AddCarDialog() {
             </div>
         </section>
         <Dialog open={isOpen} onOpenChange={setIsOpen}>
-        <DialogContent className="h-auto overflow-y-auto">
+        <DialogContent className="h-auto overflow-y-auto dark:border-gray-800 ">
             <form onSubmit={handleSubmit} className="space-y-4">
                 <DialogHeader>
                     <DialogTitle>
@@ -130,7 +130,7 @@ export function AddCarDialog() {
                     value={carBrand} 
                     onChange={(e) => setCarBrand(e.target.value)}
                     placeholder="Add Car Brand"
-                    className="my-4 rounded-none placeholder:text-[30px] text-[30px] md:text-[30px] file:text-[30px] placeholder:text-gray-700 border-0 border-b text-2xl focus-visible:border-b-2 border-b-gray-400 focus-visible:border-b-blue-600  focus-visible:ring-0 focus-visible:ring-offset-0 w-full"
+                    className="my-4 rounded-none placeholder:text-[30px]  text-[30px] max-sm:placeholder:text-[24px]  max-sm:text-[24px] md:text-[30px] file:text-[30px] placeholder:text-gray-700 dark:placeholder:text-gray-400  border-0 border-b text-2xl focus-visible:border-b-2 border-b-gray-400 focus-visible:border-b-blue-600  focus-visible:ring-0 focus-visible:ring-offset-0 w-full"
                     />
                 </div>
                 
@@ -143,7 +143,7 @@ export function AddCarDialog() {
                                 placeholder="Add Car Model"
                                 value={carModel} 
                                 onChange={(e) => setCarModel(e.target.value)}
-                                className="my-4 w-full rounded-none placeholder:text-[14px] text-[14px] md:text-[14px] placeholder:text-gray-700 border-0 border-b text-2xl focus-visible:border-b-2 border-b-gray-400 focus-visible:border-b-blue-600  focus-visible:ring-0 focus-visible:ring-offset-0"
+                                className="my-4 w-full rounded-none placeholder:text-[14px] max-sm:placeholder:text-[12px] max-sm:text-[12px] text-[14px] md:text-[14px] placeholder:text-gray-700 dark:placeholder:text-gray-400  border-0 border-b text-2xl focus-visible:border-b-2 border-b-gray-400 focus-visible:border-b-blue-600  focus-visible:ring-0 focus-visible:ring-offset-0"
                                 />
                                 <Input
                                 type="text"
@@ -151,19 +151,19 @@ export function AddCarDialog() {
                                 placeholder="Add Car Number"
                                 value={carNumber} 
                                 onChange={(e) => setCarNumber(e.target.value)}
-                                className="my-4 w-full rounded-none placeholder:text-[14px] text-[14px] md:text-[14px] placeholder:text-gray-700 border-0 border-b text-2xl focus-visible:border-b-2 border-b-gray-400 focus-visible:border-b-blue-600  focus-visible:ring-0 focus-visible:ring-offset-0"
+                                className="my-4 w-full rounded-none placeholder:text-[14px] max-sm:placeholder:text-[12px] max-sm:text-[12px] text-[14px] md:text-[14px] placeholder:text-gray-700 dark:placeholder:text-gray-400  border-0 border-b text-2xl focus-visible:border-b-2 border-b-gray-400 focus-visible:border-b-blue-600  focus-visible:ring-0 focus-visible:ring-offset-0"
                                 />
                             
                         </div>
                         <div className="flex justify-between items-center gap-6 items-end">
                             <Palette className="w-5 h-5 flex-shrink-0" />
                             <div className="flex flex-col item-center gap-1 max-w-[214px] w-full">
-                              <Label htmlFor="color" >
+                              <Label htmlFor="color" className="max-sm:text-xs">
                                 Select color for booking
                               </Label>
                               <div className="w-2/3 flex  items-center">
                                 <div
-                                  className="w-8 h-8 rounded-md border border-gray-300 cursor-pointer"
+                                  className="w-8 h-8 rounded-md border border-gray-300 dark:border-black cursor-pointer"
                                   style={{ backgroundColor: color }}
                                   onClick={() => document.getElementById("colorPicker")?.click()}
                                 />
@@ -177,11 +177,11 @@ export function AddCarDialog() {
                               </div>
                             </div>
                             <div className=" w-full">
-                                <Label htmlFor="carImage" className="cursor-pointer">Upload image</Label>
+                                <Label htmlFor="carImage" className="cursor-pointer max-sm:text-xs">Upload image</Label>
                                 <div onClick={() => {
                                   document.getElementById('carImage')?.click()
                                   setIsOpen(true);
-                                  }} className=" mx-3 bg-gray-300 w-fit cursor-pointer text-secondary-foreground px-2 py-1 rounded-sm hover:bg-gray-200 transition-colors">
+                                  }} className=" mx-3 bg-gray-300 max-sm:text-sm hover:bg-gray-400 dark:bg-gray-800 dark:hover:bg-gray-900 w-fit cursor-pointer text-secondary-foreground px-2 py-1 rounded-sm hover:bg-gray-200 transition-colors">
                                   <span>Choose file</span>
                                 </div>
                                 <Input
@@ -200,11 +200,11 @@ export function AddCarDialog() {
                     <div className="space-y-4">
                         <div className="flex items-center gap-4 sm:gap-6">
                             <Clock className="h-5 w-5 flex-shrink-0" />
-                            <Label htmlFor="price" className="w-1/3">
+                            <Label htmlFor="price" className="w-1/3 max-sm:text-xs">
                             24 hr price
                             </Label>
                             <Input type="text" id="price" placeholder="0"
-                                className="w-1/3 border-black placeholder:text-gray-700 focus:border-blue-400 focus-visible:ring-blue-400" 
+                                className="w-1/3 border-black dark:border-gray-700 placeholder:text-gray-700 dark:placeholder:text-gray-400  focus:border-blue-400 focus-visible:ring-blue-400" 
                                 value={price} 
                                 onChange={(e) => setPrice((e.target.value))}
                             />
@@ -212,16 +212,16 @@ export function AddCarDialog() {
 
                         <div className="flex items-center gap-4 sm:gap-6">
                             <Fuel className="h-5 w-5 flex-shrink-0" />
-                            <Label htmlFor="totalAmount" className="w-1/3">
+                            <Label htmlFor="totalAmount" className="w-1/3 max-sm:text-xs">
                             Car Mileage
                             </Label>
                             <Input type="text" id="totalAmount" placeholder="0"
                                 value={mileage} 
                                 onChange={(e) => setMileage((e.target.value))}
-                                className="w-1/3 placeholder:text-gray-700 border-black focus:border-blue-400 focus-visible:ring-blue-400 " />
+                                className="w-1/3 placeholder:text-gray-700 dark:placeholder:text-gray-400  border-black dark:border-gray-700 focus:border-blue-400 focus-visible:ring-blue-400 " />
                         </div>
                     </div>
-                    <div className="w-[140px] h-[100px] border border-black relative">
+                    <div className="w-[140px] h-[100px] border border-black dark:border-gray-700 relative">
                         {selectedImage && (
                             <>
                                 <img 
@@ -241,7 +241,7 @@ export function AddCarDialog() {
                     </div>
                 </div>
 
-                <Button type="submit" className="text-blue-100 bg-black hover:border border-black hover:bg-blue-50 hover:text-black w-full">
+                <Button type="submit" className="bg-blue-600 text-card hover:bg-opacity-80 w-full">
                     Create
                 </Button>
             </form>

@@ -13,17 +13,17 @@ export default function Home() {
     <div className="min-h-screen bg-gray-50">
      
       <main>
-        <section className="bg-white py-14">
+        <section className="bg-card py-14">
           <div className="container mx-auto px-4">
             <div className="max-w-3xl mx-auto text-center">
-              <h1 className="text-4xl font-bold text-gray-900 mb-4" style={{ fontFamily: "var(--font-alma), sans-serif",
+              <h1 className="sm:text-4xl text-xl font-bold text-gray-900 dark:text-gray-200 mb-4" style={{ fontFamily: "var(--font-alma), sans-serif",
                  }}>SEAMLESS CAR BOOKINGS</h1>
-              <p className="text-xl text-gray-600 mb-8" >
+              <p className="sm:text-xl text-lg text-muted-foreground mb-8" >
                 Manage your car rentals with ease using our intuitive booking scheduler.
               </p>
               <Link
                 href="/bookings"
-                className="bg-blue-500 text-white px-6 py-3 rounded-md font-semibold hover:bg-blue-600 transition duration-300"
+                className="bg-primary text-primary-foreground px-3 sm:px-6 py-3 rounded-md font-semibold hover:bg-primary/90 transition duration-300"
               >
                 Start Booking Now
               </Link>
@@ -34,15 +34,13 @@ export default function Home() {
           <AddCarDialog/>
         </div>
 
-        <section className="bg-blue-500 py-20">
+        <section className="bg-primary text-primary-foreground py-20">
           <div className="container mx-auto px-4 text-center">
-            <h2 className="text-3xl font-bold text-white mb-4">Ready to streamline your car rentals?</h2>
-            <p className="text-xl text-blue-100 mb-8">
-              Join Us today and experience hassle-free booking management.
-            </p>
+            <h2 className="sm:text-3xl text-xl font-bold mb-4">Ready to streamline your car rentals?</h2>
+            <p className="text-xl max-sm:text-lg mb-8">Join Us today and experience hassle-free booking management.</p>
             <Link
               href="/booking"
-              className="bg-white text-blue-500 px-6 py-3 rounded-md font-semibold hover:bg-gray-100 transition duration-300"
+              className="bg-card  text-card-foreground px-3 sm:px-6 py-3 rounded-md font-semibold hover:bg-muted transition duration-300"
             >
               Get Started
             </Link>
@@ -50,7 +48,7 @@ export default function Home() {
         </section>
       </main>
 
-      <footer className="bg-gray-800 text-white py-8">
+      <footer className="bg-muted text-muted-foreground py-8">
         <div className="container mx-auto px-4 text-center">
           <p>&copy; 2025 Jain Car Rental. All rights reserved.</p>
         </div>

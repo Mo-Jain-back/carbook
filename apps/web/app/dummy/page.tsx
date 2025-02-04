@@ -5,39 +5,7 @@ import { ThemeToggle } from "@/components/theme-toggle"
 export default function Home() {
   return (
     <div className="min-h-screen bg-background text-foreground">
-      <header className="bg-card shadow-sm">
-        <nav className="container mx-auto px-4 py-4 flex justify-between items-center">
-          <Link href="/" className="text-xl font-bold">
-            CarScheduler
-          </Link>
-          <ul className="flex space-x-4 items-center">
-            <li>
-              <Link href="/" className="hover:text-primary">
-                Home
-              </Link>
-            </li>
-            <li>
-              <Link href="/calendar" className="hover:text-primary">
-                Calendar
-              </Link>
-            </li>
-            <li>
-              <Link href="/booking" className="hover:text-primary">
-                Booking
-              </Link>
-            </li>
-            <li>
-              <Link href="/profile" className="hover:text-primary">
-                Profile
-              </Link>
-            </li>
-            <li>
-              <ThemeToggle />
-            </li>
-          </ul>
-        </nav>
-      </header>
-
+      
       <main>
         <section className="bg-card py-20">
           <div className="container mx-auto px-4">

@@ -40,8 +40,8 @@ export default function AddTime({
         <PopoverTrigger asChild >
           <div
             className={cn(
-              "p-1 w-[60px] text-sm m-0 border-0 focus-visible:ring-0 border-y-4 cursor-text bg-gray-200 rounded-sm hover:bg-gray-300 justify-start text-left font-normal",
-              isPopoverOpen ? "border-t-gray-200 hover:border-t-gray-300 border-b-blue-400" : " border-gray-200 hover:border-gray-300",
+              "p-1 w-[60px] text-sm m-0 border-0 focus-visible:ring-0 border-transparent border-y-4 cursor-text bg-gray-200 dark:bg-gray-600 dark:hover:bg-gray-700 rounded-sm hover:bg-gray-300 justify-start text-left font-normal",
+              isPopoverOpen ? "border-b-blue-400" : " ",
             )}>
             {selectedTime}
           </div>
@@ -52,7 +52,7 @@ export default function AddTime({
               {generateTimeIntervals().map((time) => (
                 <div
                   key={time}
-                  className="w-full text-sm cursor-pointer hover:bg-gray-200 rounded-md justify-start p-1 px-4 text-black"
+                  className="w-full text-sm cursor-pointer hover:bg-gray-200 rounded-md justify-start p-1 px-4"
                   onClick={() =>{ 
                     setSelectedTime(time)}}
                 >
