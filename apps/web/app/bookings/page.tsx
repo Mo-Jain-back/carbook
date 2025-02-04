@@ -129,7 +129,7 @@ export default function Bookings() {
             onMouseLeave={() => setIsHovered(false)}
             onClick={() => setIsAddBookingOpen(true)}
           >
-          <button className="bg-black  text-blue-100 hover:border hover:border-gray-700  shadow-lg  rounded-xl w-12 h-12 flex items-center justify-center shadow-lg transition-all duration-300 hover:w-40">
+          <button className="bg-black px-[15px] overflow-hidden  text-blue-100 hover:border hover:border-gray-700  shadow-lg  rounded-xl w-12 h-12 flex items-center shadow-lg transition-all duration-300 hover:w-40">
             <span className={`text-[30px] mt-[-3px] transition-rotate duration-400 flex items-center `}>+</span>
             <span className={` ${isHovered ? "" : "hidden"} ml-2 transition-opacity font-bold duration-300`}
             >Add Booking</span>
@@ -154,8 +154,8 @@ export default function Bookings() {
             </SelectContent>
           </Select>
         </div>
-        <div className=" flex justify-between w-full">
-          <div className="flex gap-2 mb-6 overflow-x-auto pb-2 ">
+        <div className=" flex justify-between w-full scrollbar-hide">
+          <div className="flex gap-2 mb-6 overflow-x-auto pb-2 scrollbar-hide">
             <Button variant={selectedStatus === "all" ? "default" : "outline"} className={selectedStatus === "all" ? "bg-blue-400 hover:bg-blue-500 text-white dark:text-black" : "hover:bg-blue-100 bg-transparent dark:text-white dark:hover:bg-gray-700 text-black"} 
               onClick={() => setSelectedStatus("all")}>
               All
@@ -196,7 +196,7 @@ export default function Bookings() {
         <div className="space-y-4">
           {filteredBookings.map((booking) => (
             <Link href={`/booking/${booking.id}`} key={booking.id}>
-              <Card className="overflow-hidden hover:shadow-md dark:border-gray-700 transition-shadow my-2">
+              <Card className="overflow-hidden hover:shadow-md dark:border-card transition-shadow my-2">
                 <CardContent className="p-0">
                   {/* Rest of the card content remains the same */}
                   <div className="p-4 max-sm:p-2 bg-muted">
@@ -204,17 +204,17 @@ export default function Bookings() {
                     <p className="font-semibold text-[#5B4B49] max-sm:text-sm dark:text-gray-400">{getPickupTime(booking.start)}</p>
                   </div>
                   <hr className="border-t border-border" />
-                  <div className="p-4 max-sm:p-2 bg-white dark:bg-gray-700 flex items-start justify-between">
+                  <div className="p-4 max-sm:p-2 bg-white dark:bg-background flex items-start justify-between">
                     <div className="flex-1">
                       <div className="flex items-center sm:gap-8 gap-2">
                         <div>
-                          <p className="text-sm text-blue-500">From</p>
-                          <p className="font-semibold text-[#5B4B49] text-sm dark:text-gray-400">{formatDateTime(booking.start)}</p>
+                          <p className="text-xs sm:text-sm text-blue-500">From</p>
+                          <p className="font-semibold text-[#5B4B49] text-xs sm:text-sm dark:text-gray-400">{formatDateTime(booking.start)}</p>
                         </div>
                         <ArrowRight className="mt-4 flex-shrink-0" />
                         <div>
-                          <p className="text-sm text-blue-500">To</p>
-                          <p className="font-semibold text-[#5B4B49] text-sm dark:text-gray-400">{formatDateTime(booking.end)}</p>
+                          <p className="sm:text-sm text-xs text-blue-500">To</p>
+                          <p className="font-semibold text-[#5B4B49] text-xs sm:text-sm dark:text-gray-400">{formatDateTime(booking.end)}</p>
                         </div>
                       </div>
                     </div>

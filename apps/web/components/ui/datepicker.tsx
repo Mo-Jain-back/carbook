@@ -41,7 +41,7 @@ export function DatePicker({currDate,handleDateChange,dateType,className}:{currD
             )}
           ></Input>
         </PopoverTrigger>
-        <PopoverContent className="w-auto p-0" align="start">
+        <PopoverContent className="w-auto p-0 dark:border-gray-600" align="start">
           <Calendar
             mode="single"
             selected={date}

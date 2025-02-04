@@ -111,10 +111,10 @@ export function CarDetailsClient({ car }: CarDetailsClientProps) {
   
   return (
     <div >
-      <div className="flex items-center justify-between pb-2 border-b border-gray-300" >
+      <div className="flex items-center justify-between pb-2 border-b border-gray-300 dark:border-gray-700" >
           <div
-            className="mr-2 p-2 rounded-md font-bold text-black cursor-pointer hover:text-white hover:bg-black"
-            onClick={() => router.back()} 
+            className="mr-2 p-2 rounded-md font-bold  cursor-pointer hover:text-white hover:bg-black"
+            onClick={() => router.push('/profile/manage-garrage')} 
           >
             <ArrowLeft className="h-6 w-6" />
           </div>
@@ -168,11 +168,11 @@ export function CarDetailsClient({ car }: CarDetailsClientProps) {
           </>
           }
         </div>
-        <hr className="my-4 border-gray-200" />
+        <hr className="my-4 border-gray-200 dark:border-gray-700" />
 
           <div className="px-4 ">
-            <section className="px-4 py-4 border-b-4 border-gray-200">
-              <h2 className="text-lg font-semibold mb-4 text-black">Booking Details</h2>
+            <section className="px-4 py-4 border-b-4 border-gray-200 dark:border-gray-700">
+              <h2 className="text-lg font-semibold mb-4 ">Booking Details</h2>
               <div className="grid grid-cols-2 gap-4 sm:gap-6">
                 <div className="space-y-3">
                   <p className="text-sm text-blue-500 mb-1">Brand</p>
@@ -184,7 +184,7 @@ export function CarDetailsClient({ car }: CarDetailsClientProps) {
                   <p className="text-sm text-blue-500 mb-1">{!isEditable ? "Color of Bookings" : "Select the Color of Booking"}</p>
                   <div className="flex flex-col item-center gap-1 max-w-[214px] w-full">
                     <div
-                      className={`w-8 h-8 rounded-md border border-gray-300 ${isEditable ? "cursor-pointer" : ""}`}
+                      className={`w-8 h-8 rounded-md border border-gray-300 dark:border-gray-700 ${isEditable ? "cursor-pointer" : ""}`}
                       style={{ backgroundColor: color }}
                       onClick={() => isEditable && document.getElementById("colorPicker")?.click()}
                     />
@@ -203,7 +203,7 @@ export function CarDetailsClient({ car }: CarDetailsClientProps) {
               </div>
             </section>
 
-            <section className="px-4 py-4 border-b-4 border-gray-200">
+            <section className="px-4 py-4 border-b-4 border-gray-200 dark:border-gray-700">
               <h2 className="text-xl font-semibold mb-4">Performance & Pricing</h2>
               <div className="grid grid-cols-2 gap-4 sm:gap-6">
                 <div className="space-y-3">
@@ -214,7 +214,7 @@ export function CarDetailsClient({ car }: CarDetailsClientProps) {
                     :
                     <Input type="text" id="name" value={price} 
                       onChange={(e) => setPrice(e.target.value)} 
-                      className="w-[170px] border-0 p-0 px-1 bg-gray-200 focus-visible:ring-0 border-y-gray-200 border-y-4 focus:border-b-blue-400 " />
+                      className="w-[170px] border-0 p-0 px-1 bg-gray-200 dark:bg-gray-800 focus-visible:ring-0 border-transparent border-y-4 focus:border-b-blue-400 " />
                     }
                   </div>
                   <div>
@@ -228,7 +228,7 @@ export function CarDetailsClient({ car }: CarDetailsClientProps) {
                     :
                     <Input type="text" id="name" value={mileage} 
                       onChange={(e) => setMileage(e.target.value)}
-                      className="w-[170px] border-0 p-0 px-1 bg-gray-200 focus-visible:ring-0 border-y-gray-200 border-y-4 focus:border-b-blue-400 " />
+                      className="w-[170px] border-0 p-0 px-1 bg-gray-200 dark:bg-gray-800 focus-visible:ring-0 border-transparent border-y-4 focus:border-b-blue-400 " />
                     }
                   </div>
                 </div>
@@ -249,25 +249,25 @@ export function CarDetailsClient({ car }: CarDetailsClientProps) {
               <div className=" gap-8 mb-4">
               {car.bookings.map((booking) => (
                   <Link href={`/booking/${booking.id}`} key={booking.id}>
-                    <Card className="overflow-hidden hover:shadow-md transition-shadow my-2">
+                    <Card className="overflow-hidden hover:shadow-md dark:border-gray-700 transition-shadow my-2">
                       <CardContent className="p-0">
                         {/* Rest of the card content remains the same */}
-                        <div className="p-4 bg-blue-100 bg-opacity-20">
-                          <p className="text-sm text-blue-500">Guest shall pickup car by</p>
-                          <p className="font-semibold text-[#5B4B49]">{getPickupTime(booking.start)}</p>
+                        <div className="p-2 bg-muted">
+                          <p className="text-sm max-sm:text-xs text-blue-500">Guest shall pickup car by</p>
+                          <p className="font-semibold text-[#5B4B49] max-sm:text-sm dark:text-gray-400">{getPickupTime(booking.start)}</p>
                         </div>
                         <hr className="border-t border-border" />
-                        <div className="p-4 bg-white flex items-start justify-between">
+                        <div className="p-4 max-sm:p-2 bg-white dark:bg-background flex items-start justify-between">
                           <div className="flex-1">
-                            <div className="flex items-center gap-8">
+                            <div className="flex items-center sm:gap-8 gap-2">
                               <div>
-                                <p className="text-sm text-blue-500">From</p>
-                                <p className="font-semibold text-[#5B4B49]">{formatDateTime(booking.start)}</p>
+                                <p className="text-xs sm:text-sm text-blue-500">From</p>
+                                <p className="font-semibold text-[#5B4B49] text-xs sm:text-sm dark:text-gray-400">{formatDateTime(booking.start)}</p>
                               </div>
-                              <ArrowRight className="mt-4" />
+                              <ArrowRight className="mt-4 flex-shrink-0" />
                               <div>
-                                <p className="text-sm text-blue-500">To</p>
-                                <p className="font-semibold text-[#5B4B49]">{formatDateTime(booking.end)}</p>
+                                <p className="text-xs sm:text-sm text-blue-500">To</p>
+                                <p className="font-semibold text-[#5B4B49] text-xs sm:text-sm dark:text-gray-400">{formatDateTime(booking.end)}</p>
                               </div>
                             </div>
                           </div>
@@ -275,9 +275,9 @@ export function CarDetailsClient({ car }: CarDetailsClientProps) {
                             <Trash2 className="h-6 w-6 hover:text-red-500" />
                           </div>
                         </div>
-                        <div className="p-4 bg-gray-100 flex items-center text-red-600 gap-2">
+                        <div className="p-4 max-sm:p-2 bg-gray-100 flex bg-muted items-center text-red-600 dark:text-red-400 gap-2">
                           <PlaneTakeoff className="h-4 w-4" />
-                          <p className="text-sm">Trip start window opens in {getTimeUntilBooking(booking.start)}</p>
+                          <p className="text-sm max-sm:text-xs ">Trip start window opens in {getTimeUntilBooking(booking.start)}</p>
                         </div>
                       </CardContent>
                     </Card>
@@ -290,7 +290,7 @@ export function CarDetailsClient({ car }: CarDetailsClientProps) {
     
       </div>
         <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
-            <DialogContent className="sm:max-w-[425px] bg-white text-black">
+            <DialogContent className="sm:max-w-[425px] bg-white ">
               <DialogHeader>
                 <DialogTitle>Delete</DialogTitle>
                 <DialogDescription className="text-blue-500">
@@ -308,4 +308,5 @@ export function CarDetailsClient({ car }: CarDetailsClientProps) {
     </div>
   )
 }
+
 

@@ -27,9 +27,10 @@
   }
   
   .dark {
-    --background: 222.2 84% 4.9%;
+    --dark-background: 0°, 0%, 6%;
+    --background: 120, 2%, 11%;
     --foreground: 210 40% 98%;
-    --card: 222.2 84% 4.9%;
+    --card: 8, 16%, 15%;
     --card-foreground: 210 40% 98%;
     --popover: 222.2 84% 4.9%;
     --popover-foreground: 210 40% 98%;
@@ -37,13 +38,13 @@
     --primary-foreground: 222.2 47.4% 11.2%;
     --secondary: 217.2 32.6% 17.5%;
     --secondary-foreground: 210 40% 98%;
-    --muted: 217.2 32.6% 17.5%;
+    --muted: 120, 4%, 20%;
     --muted-foreground: 215 20.2% 65.1%;
     --accent: 217.2 32.6% 17.5%;
     --accent-foreground: 210 40% 98%;
     --destructive: 0 62.8% 30.6%;
     --destructive-foreground: 210 40% 98%;
-    --border: 217.2 32.6% 17.5%;
+    --border: 10, 16%, 29%;
     --input: 217.2 32.6% 17.5%;
     --ring: 224.3 76.3% 48%;
   }
@@ -63,6 +64,20 @@
   select:not(:focus) {
     transition-property: border-color;
     transition-duration: 200ms;
+  }
+
+  .scrollbar-hide::-webkit-scrollbar {
+    display: none;
+  }
+  
+  /* Hide scrollbar for Firefox */
+  .scrollbar-hide {
+    scrollbar-width: none;
+  }
+  
+  /* Optional: Ensure touch-based scrolling works smoothly */
+  .scrollbar-hide {
+    -ms-overflow-style: none;
   }
 
   @keyframes fillWater {

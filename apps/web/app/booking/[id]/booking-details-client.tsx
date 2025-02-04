@@ -106,10 +106,10 @@ export function BookingDetailsClient({ booking }: BookingDetailsClientProps) {
   
   return (
     <div >
-      <div className="flex items-center justify-between px-2 pb-2 border-b border-gray-300 dark:border-gray-600" >
+      <div className="flex items-center justify-between px-2 pb-2 border-b border-gray-300 dark:border-muted" >
           <div
             className="mr-2 p-2 rounded-md font-bold  cursor-pointer dark:hover:bg-gray-800 hover:bg-gray-200"
-            onClick={() => router.back()} 
+            onClick={() => router.push('/bookings')} 
           >
             <ArrowLeft className="h-6 w-6" />
           </div>
@@ -140,7 +140,7 @@ export function BookingDetailsClient({ booking }: BookingDetailsClientProps) {
         </div> {/* Spacer for alignment */}
       </div>
 
-      <div className="px-4 py-4 border-b-4 border-gray-200 dark:border-gray-600" >
+      <div className="px-4 py-4 border-b-4 border-gray-200 dark:border-muted" >
           <div className="flex justify-between items-center">
             <div>
               {bookingStatus === "cancelled" ? (
@@ -175,7 +175,7 @@ export function BookingDetailsClient({ booking }: BookingDetailsClientProps) {
           </div>
       </div>
 
-      <div className="px-4 py-4 border-b-4 border-gray-200 dark:border-gray-600">
+      <div className="px-4 py-4 border-b-4 border-gray-200 dark:border-muted">
           <h3 className="text-lg font-semibold mb-4 ">Booking Details</h3>
           <div className="flex items-center justify-center gap-8 mb-4">
             <div>
@@ -212,7 +212,7 @@ export function BookingDetailsClient({ booking }: BookingDetailsClientProps) {
             }
             </div>
           </div>
-          <hr className="my-4 border-gray-200 dark:border-gray-600" />
+          <hr className="my-4 border-gray-200 dark:border-muted" />
           <div>
             <p className="text-sm text-blue-500 mb-1">Booked by</p>
             { !isEditable ?
@@ -234,7 +234,7 @@ export function BookingDetailsClient({ booking }: BookingDetailsClientProps) {
             }
             
           </div>
-          <hr className="my-4 border-gray-200 dark:border-gray-600" />
+          <hr className="my-4 border-gray-200 dark:border-muted" />
           <div>
             <p className="text-sm text-blue-500 mb-1">Booking Status</p>
             <div >

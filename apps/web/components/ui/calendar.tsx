@@ -18,7 +18,7 @@ function Calendar({
   return (
     <DayPicker
       showOutsideDays={showOutsideDays}
-      className={cn("p-3", className)}
+      className={cn("p-3 dark:bg-gray-800 rounded-md", className)}
       classNames={{
         months: "flex flex-col sm:flex-row space-y-4 sm:space-x-4 sm:space-y-0",
         month: "space-y-4 font-bold",
@@ -49,7 +49,7 @@ function Calendar({
         day_range_start: "day-range-start",
         day_range_end: "day-range-end",
         day_selected:
-          "bg-black text-primary-foreground hover:bg-black hover:text-blue-100 focus:bg-black focus:text-blue-100",
+          "bg-black text-primary-foreground hover:bg-gray-700 dark:hover:bg-gray-900 hover:text-blue-100 focus:bg-black focus:text-blue-100",
         day_today: "bg-accent text-gray-700 dark:text-gray-300",
         day_outside:
           "day-outside text-gray-400 aria-selected:bg-accent/50 aria-selected:text-muted-foreground",

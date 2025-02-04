@@ -2,6 +2,7 @@ import { NavBar } from "@/components/navbar"
 import { BottomNav } from "@/components/bottom-nav"
 import { Suspense } from "react"
 import { CarDetailsClient } from "@/components/car-details-client";
+import LoadingScreen from "@/components/loading-screen";
 
 // This would typically come from a database or API
 const userCars = [
@@ -80,7 +81,7 @@ export default async function CarDetails({ params }: { params: { id: string } })
     <div className="min-h-screen bg-background">
       
       <main className="container mx-auto w-full px-0 py-2 pb-16 sm:pb-8">
-        <Suspense fallback={<div>Loading booking details...</div>}>
+        <Suspense fallback={<div><LoadingScreen/></div>}>
           <CarDetailsClient car={car}  />
         </Suspense>
       </main>

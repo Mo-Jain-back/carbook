@@ -2,6 +2,7 @@ import { NavBar } from "@/components/navbar"
 import { BottomNav } from "@/components/bottom-nav"
 import { Suspense } from "react"
 import { BookingDetailsClient } from "./booking-details-client"
+import LoadingScreen from "@/components/loading-screen"
 
 // This would typically come from a database or API
 const userCars = [
@@ -68,6 +69,7 @@ function getBookingStatus(start: string, end: string) {
 export default async function BookingDetails({ params }: { params: { id: string } }) {
   const bookingId = await Number(params.id); // Resolve params.id synchronously after awaiting params
 
+  
   const booking = userCars
     .flatMap((car) =>
       car.bookings.map((booking) => ({
@@ -92,7 +94,7 @@ export default async function BookingDetails({ params }: { params: { id: string 
     <div className="min-h-screen bg-background">
       
       <main className="container mx-auto px-0 py-2 pb-16 sm:pb-8">
-        <Suspense fallback={<div>Loading booking details...</div>}>
+        <Suspense fallback={<div><LoadingScreen/></div>}>
           <BookingDetailsClient booking={booking} status={status} />
         </Suspense>
       </main>

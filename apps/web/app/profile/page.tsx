@@ -68,8 +68,10 @@ export default function Profile() {
           {user.isLoggedIn &&
           <Card className="overflow-hidden bg-muted dark:border-gray-700 hover:shadow-md transition-shadow my-2">
             <CardContent className="p-4 text-black dark:text-gray-400">
-              <div className="flex items-center justify-between p-2 cursor-pointer dark:hover:bg-gray-700 rounded-md hover:bg-gray-200">
-                <div className="flex items-center" onClick={() => router.push("/manage-garrage")}>
+              <div 
+                className="flex items-center justify-between p-2 cursor-pointer dark:hover:bg-gray-700 rounded-md hover:bg-gray-200"
+                onClick={() => router.push("/profile/manage-garrage")}>
+                <div className="flex items-center" >
                   <span className="w-8 h-8 mx-2 p-[6px] rounded-full text-green-700 dark:text-green-500  bg-blue-200 dark:bg-gray-900">
                     <CarTaxiFrontIcon  className="w-5 h-5 "/>
                   </span>

@@ -46,13 +46,13 @@ export default function AddTime({
             {selectedTime}
           </div>
         </PopoverTrigger>
-      <PopoverContent className=" max-h-40 p-1 overflow-scroll flex flex-col items-center w-24 overflow-x-hidden rounded-md border bg-popover text-popover-foreground shadow-md"
+      <PopoverContent className=" max-h-40 p-1 dark:border-gray-700 overflow-scroll flex flex-col items-center w-24 overflow-x-hidden rounded-md border bg-popover text-popover-foreground shadow-md"
           onClick={() => setIsPopoverOpen(false)}
           style={{ pointerEvents: "auto" }} >
               {generateTimeIntervals().map((time) => (
                 <div
                   key={time}
-                  className="w-full text-sm cursor-pointer hover:bg-gray-200 rounded-md justify-start p-1 px-4"
+                  className="w-full text-sm cursor-pointer hover:bg-gray-200 dark:hover:bg-gray-800 rounded-md justify-start p-1 px-4"
                   onClick={() =>{ 
                     setSelectedTime(time)}}
                 >

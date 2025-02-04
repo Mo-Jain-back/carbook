@@ -41,11 +41,11 @@ const page = () => {
     const [cars,setCars] = useState(userCars);
     const router = useRouter();
   return (
-    <div className="py-6 px-4 h-screen">
-            <div className="w-full flex gap-6 items-start px-4">
+    <div className="py-6 px-4 h-screen dark:bg-muted ">
+            <div className="w-full flex gap-6  items-start">
               <Button 
-                onClick={() => router.back()}
-                className="bg-gray-300 mt-2 ml-6 sm:ml-8 text-black hover:bg-gray-200 dark:hover:bg-blue-500 dark:bg-blue-600 ">
+                onClick={() => router.push('/profile')}
+                className="bg-gray-300 mt-2 flex justify-start text-black hover:bg-gray-200 dark:hover:bg-blue-500 dark:bg-blue-600 ">
                 <ArrowLeft className=" stroke-[3px] h-6 w-6"/>
               </Button>
               <div className="flex justify-start sm:mt-2 mt-[4px] items-center mb-8 ">
@@ -63,7 +63,7 @@ const page = () => {
                       className="transform transition-all duration-300 hover:scale-105"
                   >
                     <Card className="w-full border-0">
-                        <CardContent className="p-2 border-0 bg-card dark:bg-[#182132]  rounded-md cursor-pointer">
+                        <CardContent className="p-2 border-0 dark:bg-card bg-blue-100  rounded-md cursor-pointer">
                             <div className="flex sm:flex-col flex-row justify-around sm:px-1 px-8">
                             <div className="relative sm:w-full w-2/3 sm:h-48">
                                 <Image

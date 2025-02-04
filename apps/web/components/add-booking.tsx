@@ -38,7 +38,7 @@ export function CarBookingDialog({isOpen, setIsOpen}: {isOpen: boolean, setIsOpe
 
   return (
     <Dialog open={isOpen} onOpenChange={setIsOpen}>
-      <DialogContent className="sm:max-w-[425px] md:max-w-[600px] h-[82vh] sm:top-[55%] sm:h-auto overflow-y-auto">
+      <DialogContent className="sm:max-w-[425px] dark:border-gray-700 md:max-w-[600px] h-[82vh] sm:top-[55%] sm:h-auto overflow-y-auto">
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2 mt-30 text-blue-700 dark:text-blue-600">
             <AppointmentIcon className="w-6 h-6 "/>
@@ -57,17 +57,17 @@ export function CarBookingDialog({isOpen, setIsOpen}: {isOpen: boolean, setIsOpe
               </SelectTrigger>
               <SelectContent className="dark:border-gray-700">
                 <SelectItem 
-                  className=" focus:bg-blue-300 cursor-pointer" 
+                  className=" focus:bg-blue-300 dark:focus:bg-blue-900 cursor-pointer" 
                   value="sedan"
                   onClick={() => setCar("sedan")}
                   >Sedan</SelectItem>
                 <SelectItem 
-                  className=" focus:bg-blue-300 cursor-pointer" 
+                  className=" focus:bg-blue-300 dark:focus:bg-blue-900 cursor-pointer" 
                   value="suv"
                   onClick={() => setCar("suv")}
                   >SUV</SelectItem>
                 <SelectItem 
-                  className=" focus:bg-blue-300 cursor-pointer" 
+                  className=" focus:bg-blue-300 dark:focus:bg-blue-900 cursor-pointer" 
                   value="sports"
                   onClick={() => setCar("sports")}
                   >Sports Car</SelectItem>

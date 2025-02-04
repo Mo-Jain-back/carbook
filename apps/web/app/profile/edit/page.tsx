@@ -78,9 +78,9 @@ export default function ProfilePage() {
   }
 
   return (
-    <div className="min-h-screen bg-white dark:bg-opacity-10 " onClick={handleClickOutside}>
+    <div className="min-h-screen bg-white dark:bg-background " onClick={handleClickOutside}>
       {/* Blue section covering ~30% of the page */}
-      <div className="sm:h-[30vh] h-[20vh] bg-muted dark:bg-black text-muted-foreground relative">
+      <div className="sm:h-[30vh] h-[20vh] bg-muted dark:bg-black border-b-[1px] dark:border-muted text-muted-foreground relative">
         {/* Circle for user image or icon */}
     
         <div className="absolute left-1/2 bottom-0 transform -translate-x-1/2 translate-y-1/2">
@@ -99,7 +99,7 @@ export default function ProfilePage() {
       {/* Content area */}
       <div className="max-w-3xl mx-auto">      
         <Button 
-            onClick={() => router.back()}
+            onClick={() => router.push('/profile')}
             className="bg-gray-300 mt-2 ml-6 sm:ml-8 text-black hover:bg-gray-200 dark:hover:bg-blue-500 dark:bg-blue-600 ">
             <ArrowLeft className=" stroke-[3px] h-6 w-6"/>
           </Button>
