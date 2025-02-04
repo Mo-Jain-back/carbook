@@ -3,9 +3,7 @@
 import { useState } from "react"
 import Image from "next/image"
 import Link from "next/link"
-import { ArrowLeft, Edit, Trash2, MoreVertical } from "lucide-react"
-import { Button } from "@/components/ui/button"
-import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu"
+import { ArrowLeft, Edit, Trash2 } from "lucide-react"
 
 // Dummy data for the car
 const carData = {
@@ -25,11 +23,6 @@ export default function CarDetails() {
   const handleDelete = () => {
     // Implement delete functionality here
     console.log("Delete car:", car.id)
-  }
-
-  const handleEdit = () => {
-    // Implement edit functionality here
-    console.log("Edit car:", car.id)
   }
 
   const handleEditPhoto = () => {
@@ -62,24 +55,9 @@ export default function CarDetails() {
               <ArrowLeft size={20} className="mr-2" />
               Back to Cars
             </Link>
-            <DropdownMenu>
-              <DropdownMenuTrigger asChild>
-                <Button variant="ghost" className="h-8 w-8 p-0">
-                  <span className="sr-only">Open menu</span>
-                  <MoreVertical className="h-4 w-4" />
-                </Button>
-              </DropdownMenuTrigger>
-              <DropdownMenuContent align="end">
-                <DropdownMenuItem onClick={handleEdit}>
-                  <Edit className="mr-2 h-4 w-4" />
-                  <span>Edit</span>
-                </DropdownMenuItem>
-                <DropdownMenuItem onClick={handleDelete}>
-                  <Trash2 className="mr-2 h-4 w-4" />
-                  <span>Delete</span>
-                </DropdownMenuItem>
-              </DropdownMenuContent>
-            </DropdownMenu>
+            <button onClick={handleDelete} className="text-destructive hover:text-destructive/90 transition-colors">
+              <Trash2 size={20} />
+            </button>
           </div>
 
           <h1 className="text-3xl font-bold mb-4">

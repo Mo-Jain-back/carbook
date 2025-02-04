@@ -1,19 +1,15 @@
 import { NavBar } from "@/components/navbar"
 import { BottomNav } from "@/components/bottom-nav"
 import { Suspense } from "react"
-import { CarDetailsClient } from "@/components/car-details-client";
+import { BookingDetailsClient } from "./booking-details-client"
 
 // This would typically come from a database or API
 const userCars = [
   {
     id: 1,
-    brand: "Tesla",
-    model:" Model 3",
+    name: "Tesla Model 3",
     plateNumber: "ABC 123",
-    color:"green",
-    imageUrl: "https://hips.hearstapps.com/hmg-prod/images/2025-tesla-model-s-1-672d42e172407.jpg?crop=0.465xw:0.466xh;0.285xw,0.361xh&resize=1200",
-    mileage:"320",
-    price:"150",
+    imageUrl: "/placeholder.svg?height=200&width=300",
     bookings: [
       {
         id: 101,
@@ -35,13 +31,9 @@ const userCars = [
   },
   {
     id: 2,
-    brand: "Ford",
-    model:" Mustang",
-    color:"blue",
+    name: "Ford Mustang",
     plateNumber: "XYZ 789",
-    imageUrl: "https://platform.cstatic-images.com/in/v2/stock_photos/602375aa-858e-4b71-a9eb-f77ca929c9d0/2fb5b283-ca73-41c1-812d-151a80af3953.png",
-    mileage: "320",
-    price: "150",
+    imageUrl: "/placeholder.svg?height=200&width=300",
     bookings: [
       {
         id: 201,
@@ -63,25 +55,45 @@ const userCars = [
   },
 ]
 
+function getBookingStatus(start: string, end: string) {
+  const now = new Date()
+  const startDate = new Date(start)
+  const endDate = new Date(end)
 
+  if (now < startDate) return "Booking Yet to Start"
+  if (now >= startDate && now <= endDate) return "Booking Ongoing"
+  return "Booking Completed"
+}
 
-export default async function CarDetails({ params }: { params: { id: string } }) {
-  const carId = await Number(params.id); // Resolve params.id synchronously after awaiting params
+export default async function BookingDetails({ params }: { params: { id: string } }) {
+  const bookingId = await Number(params.id); // Resolve params.id synchronously after awaiting params
 
-  const car = userCars
-    .find((b) => b.id === carId);
+  const booking = userCars
+    .flatMap((car) =>
+      car.bookings.map((booking) => ({
+        ...booking,
+        car: {
+          id: car.id,
+          name: car.name,
+          plateNumber: car.plateNumber,
+          imageUrl: car.imageUrl,
+        },
+      }))
+    )
+    .find((b) => b.id === bookingId)
 
-  if (!car) {
-    return <div>Car not found</div>
+  if (!booking) {
+    return <div>Booking not found</div>
   }
 
+  const status = getBookingStatus(booking.start, booking.end)
 
   return (
     <div className="min-h-screen bg-background">
       
-      <main className="container mx-auto w-full px-0 py-2 pb-16 sm:pb-8">
+      <main className="container mx-auto px-0 py-2 pb-16 sm:pb-8">
         <Suspense fallback={<div>Loading booking details...</div>}>
-          <CarDetailsClient car={car}  />
+          <BookingDetailsClient booking={booking} status={status} />
         </Suspense>
       </main>
     </div>

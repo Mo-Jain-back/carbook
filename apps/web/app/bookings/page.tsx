@@ -3,12 +3,13 @@
 import { NavBar } from "@/components/navbar"
 import { BottomNav } from "@/components/bottom-nav"
 import { Card, CardContent } from "@/components/ui/card"
+import Link from "next/link"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Button } from "@/components/ui/button"
 import { ArrowRight, Clock, LogIn, PlaneTakeoff, PlusCircle, PlusIcon } from "lucide-react"
 import Image from "next/image"
 import { useState } from "react"
-import Link from "next/link"
+import { CarBookingDialog } from "@/components/add-booking"
 
 // This would typically come from a database or API
 const userCars = [
@@ -119,11 +120,14 @@ export default function Bookings() {
 
   return (
     <div className="min-h-screen bg-background">
-      
+
+      {/* Add Booking Dialog */}
+        <CarBookingDialog isOpen={isAddBookingOpen} setIsOpen={setIsAddBookingOpen} />
         {/* Add Booking button */}
         <div className="fixed sm:hidden bottom-[70px] right-5 flex items-center justify-start whitespace-nowrap"
             onMouseEnter={() => setIsHovered(true)}
             onMouseLeave={() => setIsHovered(false)}
+            onClick={() => setIsAddBookingOpen(true)}
           >
           <button className="bg-black  text-blue-100 hover:border hover:border-black  shadow-lg  rounded-xl w-12 h-12 flex items-center justify-center shadow-lg transition-all duration-300 hover:w-40">
             <span className={`text-[30px] mt-[-3px] transition-rotate duration-400 flex items-center `}>+</span>
@@ -135,7 +139,7 @@ export default function Bookings() {
       
       <main className="container mx-auto px-4 py-8 pb-16 sm:pb-8">
         <div className="flex justify-between items-center mb-6">
-          <h1 className="text-3xl font-bold">My Bookings</h1>
+          <h1 style={{fontFamily:"var(--font-equinox)"}} className="text-3xl font-black">MY BOOKINGS</h1>
           <Select value={selectedCar} onValueChange={setSelectedCar} >
             <SelectTrigger className="w-[180px]">
               <SelectValue placeholder="Select car"  className="bg-blue-100"/>
@@ -191,7 +195,7 @@ export default function Bookings() {
 
         <div className="space-y-4">
           {filteredBookings.map((booking) => (
-            <Link href={`/bookings/${booking.id}`} key={booking.id}>
+            <Link href={`/booking/${booking.id}`} key={booking.id}>
               <Card className="overflow-hidden hover:shadow-md transition-shadow my-2">
                 <CardContent className="p-0">
                   {/* Rest of the card content remains the same */}
@@ -237,7 +241,6 @@ export default function Bookings() {
           ))}
         </div>
       </main>
-      <BottomNav />
     </div>
   )
 }

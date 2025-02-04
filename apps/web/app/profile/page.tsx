@@ -76,11 +76,11 @@ export default function Profile() {
           <Card className="overflow-hidden hover:shadow-md transition-shadow my-2">
             <CardContent className="p-4 text-black">
               <div className="flex items-center justify-between p-2 cursor-pointer">
-                <div className="flex">
+                <div className="flex" onClick={() => router.push("/manage-garrage")}>
                   <span className="w-8 h-8 mx-2 p-[6px] rounded-full bg-blue-100">
                     <CarTaxiFrontIcon color={"green"} className="w-5 h-5 "/>
                   </span>
-                  <span className="mx-2">View Cars</span>
+                  <span className="mx-2">Manage Garrage</span>
                 </div>
                 <div className="border-t-2 border-r-2 rotate-45 w-2 h-2 border-black"></div>
               </div>
@@ -90,7 +90,7 @@ export default function Profile() {
                   <span className="w-8 h-8 mx-2 p-[6px] rounded-full bg-blue-100">
                     <User color={"green"} className="w-5 h-5 "/>
                   </span>
-                  <span className="mx-2">View Profile Details</span>
+                  <span className="mx-2">Manage Profile</span>
                 </div>
                 <div className="border-t-2 border-r-2 rotate-45 w-2 h-2 border-black"></div>
               </div>
@@ -108,7 +108,6 @@ export default function Profile() {
           }
         </div>
       </main>
-      <BottomNav />
     </div>
   )
 }

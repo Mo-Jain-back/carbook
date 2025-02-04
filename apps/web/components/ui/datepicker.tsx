@@ -47,6 +47,7 @@ export function DatePicker({currDate,handleDateChange,dateType,className}:{currD
             selected={date}
             onSelect={(date) => setDate(date || new Date())}
             initialFocus
+            style={{ pointerEvents: "auto" }} 
           />
         </PopoverContent>
       </Popover>

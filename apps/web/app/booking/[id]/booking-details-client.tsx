@@ -2,17 +2,20 @@
 
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button"
-import { ArrowLeft, ArrowRight, Edit } from "lucide-react"
+import { ArrowLeft, ArrowRight, Edit, MoreVertical, Trash2 } from "lucide-react"
 import Image from "next/image"
-import { useRouter } from "next/navigation"
+import { useParams, useRouter } from "next/navigation"
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
-import { useState } from "react";
+import { act, useState } from "react";
 import { DatePicker } from "@/components/ui/datepicker";
 import dayjs from "dayjs";
 import AddTime from "@/components/add-time";
 import { useEffect } from "react";
 import { useRef } from "react";
 import { StatusInput } from "@/components/ui/status-input";
+import { Input } from "@/components/ui/input";
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu"
+
 
 
 interface BookingDetailsClientProps {
@@ -49,21 +52,26 @@ function formatDateTime(date: Date) {
 export function BookingDetailsClient({ booking }: BookingDetailsClientProps) {
   const router = useRouter();
   const [isDialogOpen, setIsDialogOpen] = useState(false);
-  const [action,setAction] = useState<"Start"| "Stop">("Start");
-  const [status,setStatus] = useState<"Start"| "Stop">("Start");
   const [isEditable, setIsEditable] = useState(false);
   const [startDate, setStartDate] = useState(new Date(booking.start));
   const [endDate,setEndDate] = useState(new Date(booking.end));
   const [startTime,setStartTime] = useState(booking.start.split("T")[1].slice(0, 5));
   const [endTime,setEndTime] = useState(booking.end.split("T")[1].slice(0, 5));
   const [bookingStatus, setBookingStatus] = useState(booking.status);
+  const [action,setAction] = useState<"Start"| "Stop">(bookingStatus === "ongoing" ? "Stop" : "Start");
+  const [name,setName] = useState<string>(booking.bookedBy.name);
+  const [number,setNumber] = useState<string>(booking.bookedBy.contact);
+  const idObj = useParams();
 
-
+  
 
   function handleAction() {
     //add code to stop or start the booking
-    const newStatus  = action == "Start" ? "Stop" : "Start";
-    setStatus(newStatus);
+    if(action === "Start") {
+      router.push(`/booking/start/form/${booking.id}`);
+    } else {
+      router.push(`/booking/end/form/${booking.id}`);
+    }
     return;
   }
 
@@ -86,35 +94,49 @@ export function BookingDetailsClient({ booking }: BookingDetailsClientProps) {
     setIsEditable(!isEditable);
     setStartDate(new Date(booking.start));
     setEndDate(new Date(booking.end));
-    setBookingStatus(booking.status)
+    setBookingStatus(booking.status);
+    setName(booking.bookedBy.name);
+    setNumber(booking.bookedBy.contact);
     return;
   }
-  function handleStatusChange(e: React.ChangeEvent<HTMLInputElement>) {
-    setBookingStatus(e.target.value);
+
+  function handleDelete() {
+    return;
   }
-
-
   
   return (
     <div >
       <div className="flex items-center justify-between px-2 pb-2 border-b border-gray-300" >
           <div
-            className="mr-2 p-2 rounded-md font-bold text-black cursor-pointer max-sm:hidden  hover:text-white hover:bg-black"
+            className="mr-2 p-2 rounded-md font-bold text-black cursor-pointer hover:text-white hover:bg-black"
             onClick={() => router.back()} 
           >
             <ArrowLeft className="h-6 w-6" />
           </div>
-          <div
-            className="mr-2 p-2 sm:hidden "
-          >
-            <div className="h-6 w-6" />
-          </div>
+         
         <div className="text-center">
           <h2 className="text-xl font-bold text-black">Booking {bookingStatus}</h2>
           <p className="text-sm text-blue-500">Booking ID: {booking.id}</p>
         </div>
-        <div className="rounded-md mr-4 p-2 cursor-pointer text-black hover:bg-black hover:text-blue-100" onClick={handleCancel}>
-          <Edit  className="h-6 w-6 " />
+        <div className="mr-4">
+          <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <Button variant="ghost" className="h-8 w-8 p-0">
+                    <span className="sr-only">Open menu</span>
+                    <MoreVertical className="h-4 w-4" />
+                  </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="end">
+                  <DropdownMenuItem className="cursor-pointer" onClick={handleCancel}>
+                    <Edit className="mr-2 h-4 w-4" />
+                    <span>Edit</span>
+                  </DropdownMenuItem>
+                  <DropdownMenuItem className="cursor-pointer" onClick={handleDelete}>
+                    <Trash2 className="mr-2 h-4 w-4" />
+                    <span>Delete</span>
+                  </DropdownMenuItem>
+                </DropdownMenuContent>
+              </DropdownMenu>
         </div> {/* Spacer for alignment */}
       </div>
 
@@ -193,8 +215,24 @@ export function BookingDetailsClient({ booking }: BookingDetailsClientProps) {
           <hr className="my-4 border-gray-200" />
           <div>
             <p className="text-sm text-blue-500 mb-1">Booked by</p>
-            <p className="font-semibold">{booking.bookedBy.name}</p>
-            <p className="text-sm">{booking.bookedBy.contact}</p>
+            { !isEditable ?
+            <>
+              <p className="font-semibold">{booking.bookedBy.name}</p>
+              <p className="text-sm">{booking.bookedBy.contact}</p>
+            </>
+            :
+            <>
+              <Input type="text" id="name" value={name} 
+                onChange={(e) => setName(e.target.value)} 
+                className="w-[170px] border-0 p-0 px-1 bg-gray-200 focus-visible:ring-0 border-y-gray-200 border-y-4 focus:border-b-blue-400 " />
+              <Input type="text" id="number" value={number} 
+                onChange={(e) => setNumber(e.target.value)} 
+                className="w-[170px] border-0 p-0 px-1 my-1 bg-gray-200 focus-visible:ring-0  border-y-gray-200 border-y-4 focus:border-b-blue-400
+                [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none
+                " />
+            </>
+            }
+            
           </div>
           <hr className="my-4 border-gray-200" />
           <div>
@@ -211,10 +249,9 @@ export function BookingDetailsClient({ booking }: BookingDetailsClientProps) {
           
       </div>
       {!isEditable && <div className=" flex justify-center space-x-2 mt-2" onClick={handleClick}>
-        {status == "Start" ? 
+        {action == "Start" ? 
         <Button className="px-4 py-4 max-sm:w-full bg-black hover:bg-blue-100 hover:text-black text-blue-100 hover:border hover:border-black  shadow-lg"
           onClick={() => {
-            setAction("Start")
             setIsDialogOpen(true)
           }}>
           <span className="" >Start Booking</span> 
@@ -223,7 +260,6 @@ export function BookingDetailsClient({ booking }: BookingDetailsClientProps) {
         <Button className="px-4 py-4 max-sm:w-full bg-black hover:bg-blue-100 hover:text-black text-blue-100 hover:border hover:border-black  shadow-lg"
         onClick={() => {
           setIsDialogOpen(true);
-          setAction("Stop");
         }}>
           <span className="">Stop Booking</span> 
         </Button>}
