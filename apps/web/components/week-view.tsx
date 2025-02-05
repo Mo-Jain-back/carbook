@@ -1,3 +1,4 @@
+"use client"
 import { getHours, getWeekDays } from "@/lib/getTime";
 import { useDateStore, useEventRows, useEventStore, useWrappedEvent, WrappedEvent } from "@/lib/store";
 import { cn } from "@/lib/utils";

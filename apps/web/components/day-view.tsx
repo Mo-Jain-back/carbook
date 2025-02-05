@@ -1,3 +1,4 @@
+"use client"
 import { CalendarEventType, useDateStore, useEventStore } from "@/lib/store";
 import { cn } from "@/lib/utils";
 import dayjs, { Dayjs } from "dayjs";

@@ -12,8 +12,8 @@ export default function SideBar() {
         className={cn(
           "border-border py-3 transition-all  max-lg:w-0 duration-300 ease-in-out",
           {
-            "lg:ml-[-220px] opacity-0 ": !isSideBarOpen,
-            "ml-0  ": isSideBarOpen,
+            "lg:ml-[-220px] opacity-0 ": isSideBarOpen,
+            "ml-0  ": !isSideBarOpen,
           }
         )}
         style={{ overflow: 'hidden' }}

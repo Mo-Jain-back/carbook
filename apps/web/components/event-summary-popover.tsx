@@ -87,7 +87,7 @@ export function EventSummaryPopup({ event, isOpen, onClose }: EventSummaryPopupP
       <DialogContent className="sm:max-w-[425px] max-sm:min-h-[70%] flex flex-col p-0 items-center ">
         <DialogHeader className="flex flex-row justify-between items-center w-full px-6 py-0">
           <DialogTitle >
-            <span className="flex justify-start w-full whitespace-nowrap mt-2">{event.title} Summary</span>
+            <div className="flex justify-start w-full whitespace-nowrap mt-2">{event.title} Summary</div>
           </DialogTitle>
           <div className="flex justify-end w-full items-center w-full mr-4 mb-2">
           <div className="flex space-x-2">

@@ -120,7 +120,7 @@
 
   #water {
     fill:#039BE5;
-    animation: fillWater 3s ease-in-out forwards;
+    animation: fillWater 2s ease-in-out forwards;
     stroke-width: 1px;
     z-index:1;
   }
