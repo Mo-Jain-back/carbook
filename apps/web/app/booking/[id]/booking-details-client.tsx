@@ -1,8 +1,7 @@
 "use client"
 
-import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button"
-import { ArrowLeft, ArrowRight, Edit, MoreVertical, Trash2 } from "lucide-react"
+import {  Edit, MoreVertical, Trash2 } from "lucide-react"
 import Image from "next/image"
 import { useParams, useRouter } from "next/navigation"
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
@@ -10,12 +9,11 @@ import { act, useState } from "react";
 import { DatePicker } from "@/components/ui/datepicker";
 import dayjs from "dayjs";
 import AddTime from "@/components/add-time";
-import { useEffect } from "react";
-import { useRef } from "react";
-import { StatusInput } from "@/components/ui/status-input";
+import ArrowRight from "../../../public/right_arrow.svg"
 import { Input } from "@/components/ui/input";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu"
-
+import BackArrow from "../../../public/back-arrow.svg";
+import { StatusInput } from "@/components/ui/status-input"
 
 
 interface BookingDetailsClientProps {
@@ -108,10 +106,14 @@ export function BookingDetailsClient({ booking }: BookingDetailsClientProps) {
     <div >
       <div className="flex items-center justify-between px-2 pb-2 border-b border-gray-300 dark:border-muted" >
           <div
-            className="mr-2 p-2 rounded-md font-bold  cursor-pointer dark:hover:bg-gray-800 hover:bg-gray-200"
+            className="mr-2 rounded-md font-bold  cursor-pointer dark:hover:bg-gray-800 hover:bg-gray-200"
             onClick={() => router.push('/bookings')} 
           >
-            <ArrowLeft className="h-6 w-6" />
+            <div className="h-12 w-12 flex justify-center items-center rounded-full  ">
+              <div className="h-9 w-9 p-1 rounded-full" >
+                <BackArrow className="h-7 w-7 stroke-0 fill-gray-800 dark:fill-blue-300" />
+              </div>
+            </div>
           </div>
          
         <div className="text-center">
@@ -194,7 +196,7 @@ export function BookingDetailsClient({ booking }: BookingDetailsClientProps) {
               </div>
               }
             </div>
-            <ArrowRight className="mt-4" />
+            <ArrowRight className="mt-4 w-12 stroke-0 fill-blue-400 flex-shrink-0" />
             <div>
               <p className="text-sm text-blue-500">To</p>
               {!isEditable ?

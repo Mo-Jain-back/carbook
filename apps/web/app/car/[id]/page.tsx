@@ -3,6 +3,7 @@ import { BottomNav } from "@/components/bottom-nav"
 import { Suspense } from "react"
 import { CarDetailsClient } from "@/components/car-details-client";
 import LoadingScreen from "@/components/loading-screen";
+import CarNotFound from "@/components/car-not-found";
 
 // This would typically come from a database or API
 const userCars = [
@@ -73,7 +74,7 @@ export default async function CarDetails({ params }: { params: { id: string } })
     .find((b) => b.id === carId);
 
   if (!car) {
-    return <div>Car not found</div>
+    return <div><CarNotFound/></div>
   }
 
 

@@ -1,11 +1,11 @@
 import { HiOutlineUsers } from "react-icons/hi";
 import { Input } from "../ui/input";
-import { CarFrontIcon } from "lucide-react";
+import  CarFrontIcon  from "../../public/car-front.svg";
 
 export default function SearchUsers() {
   return (
     <div className="relative ">
-      <CarFrontIcon className="absolute left-2.5 top-3 h-4 w-4 text-slate-600 dark:text-slate-300" />
+      <CarFrontIcon className="absolute left-0 top-2 h-4 w-8 fill-slate-600 stroke-slate-600 dark:fill-slate-300 dark:stroke-slate-300" />
       <Input
         type="search"
         placeholder="Search for Cars"

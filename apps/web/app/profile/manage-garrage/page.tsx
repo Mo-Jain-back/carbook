@@ -6,7 +6,7 @@ import { useState } from "react";
 import { ArrowLeft, Edit } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
-
+import BackArrow from "../../../public/back-arrow.svg";
 
 const userCars = [
     {
@@ -45,8 +45,8 @@ const page = () => {
             <div className="w-full flex gap-6  items-start">
               <Button 
                 onClick={() => router.push('/profile')}
-                className="bg-gray-300 mt-2 flex justify-start text-black hover:bg-gray-200 dark:hover:bg-blue-500 dark:bg-blue-600 ">
-                <ArrowLeft className=" stroke-[3px] h-6 w-6"/>
+                className=" mt-2 flex bg-transparent shadow-none justify-start text-black border dark:border-card border-gray-200 hover:bg-gray-200 dark:hover:bg-card ">
+                    <BackArrow className="h-7 w-7 stroke-0 fill-gray-800 dark:fill-blue-300" />
               </Button>
               <div className="flex justify-start sm:mt-2 mt-[4px] items-center mb-8 ">
                   <h1 style={{ fontFamily: "var(--font-equinox), sans-serif",
@@ -71,7 +71,7 @@ const page = () => {
                                 alt={car.name}
                                 fill
                                 style={{ objectFit: "cover" }}
-                                className="rounded-lg  "
+                                className="rounded-lg border-gray-400 dark:border-background border-[1px]  "
                                 />
                             </div>
                             <div className="p-4 w-full flex sm:justify-center justify-end items-center"

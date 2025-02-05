@@ -1,6 +1,6 @@
 "use client"
 import { Button } from "@/components/ui/button"
-import { ArrowLeft, ArrowRight, Edit, MoreVertical, PlaneTakeoff, Trash2 } from "lucide-react"
+import {  Edit, MoreVertical, PlaneTakeoff, Trash2 } from "lucide-react"
 import Image from "next/image"
 import {  useRouter } from "next/navigation"
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
@@ -8,6 +8,8 @@ import {  useState } from "react";
 import { Input } from "@/components/ui/input"
 import { Card, CardContent } from "@/components/ui/card"
 import Link from "next/link"
+import BackArrow from "../public/back-arrow.svg";
+import ArrowRight from "../public/right_arrow.svg"
 
 
 
@@ -113,10 +115,14 @@ export function CarDetailsClient({ car }: CarDetailsClientProps) {
     <div >
       <div className="flex items-center justify-between pb-2 border-b border-gray-300 dark:border-gray-700" >
           <div
-            className="mr-2 p-2 rounded-md font-bold  cursor-pointer hover:text-white hover:bg-black"
+            className="mr-2 rounded-md font-bold  cursor-pointer hover:bg-gray-200 dark:hover:bg-muted"
             onClick={() => router.push('/profile/manage-garrage')} 
           >
-            <ArrowLeft className="h-6 w-6" />
+            <div className="h-12 w-12 flex justify-center items-center rounded-full  ">
+              <div className="h-9 w-9 p-1 rounded-full" >
+                <BackArrow className="h-7 w-7 stroke-0 fill-gray-800 dark:fill-blue-300" />
+              </div>
+            </div>
           </div>
          
         <div className="text-center w-5 h-5">
@@ -264,7 +270,7 @@ export function CarDetailsClient({ car }: CarDetailsClientProps) {
                                 <p className="text-xs sm:text-sm text-blue-500">From</p>
                                 <p className="font-semibold text-[#5B4B49] text-xs sm:text-sm dark:text-gray-400">{formatDateTime(booking.start)}</p>
                               </div>
-                              <ArrowRight className="mt-4 flex-shrink-0" />
+                              <ArrowRight className="mt-4 w-12 stroke-0 fill-blue-400 flex-shrink-0" />
                               <div>
                                 <p className="text-xs sm:text-sm text-blue-500">To</p>
                                 <p className="font-semibold text-[#5B4B49] text-xs sm:text-sm dark:text-gray-400">{formatDateTime(booking.end)}</p>

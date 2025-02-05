@@ -8,7 +8,7 @@ import Image from "next/image"
 import { useState } from "react"
 import { Card, CardContent } from "@/components/ui/card"
 import { useRouter } from "next/navigation";
-import AppointmentIcon from "../../public/appointment.svg"
+import CarFrontIcon from "../../public/car-front.svg"
 
 // This would typically come from your auth system
 const mockUser = {
@@ -73,7 +73,7 @@ export default function Profile() {
                 onClick={() => router.push("/profile/manage-garrage")}>
                 <div className="flex items-center" >
                   <span className="w-8 h-8 mx-2 p-[6px] rounded-full text-green-700 dark:text-green-500  bg-blue-200 dark:bg-gray-900">
-                    <CarTaxiFrontIcon  className="w-5 h-5 "/>
+                    <CarFrontIcon  className="w-5 h-4 fill-green-700 dark:fill-green-500 dark:stroke-green-500"/>
                   </span>
                   <span className="mx-2 max-sm:text-sm">Manage Garrage</span>
                 </div>

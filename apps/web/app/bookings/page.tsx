@@ -6,10 +6,11 @@ import { Card, CardContent } from "@/components/ui/card"
 import Link from "next/link"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Button } from "@/components/ui/button"
-import { ArrowRight, Clock, LogIn, PlaneTakeoff, PlusCircle, PlusIcon } from "lucide-react"
+import {  Clock, LogIn, PlaneTakeoff, PlusCircle, PlusIcon } from "lucide-react"
 import Image from "next/image"
 import { useState } from "react"
-import { CarBookingDialog } from "@/components/add-booking"
+import { CarBookingDialog } from "@/components/add-booking";
+import ArrowRight from "../../public/right_arrow.svg"
 
 // This would typically come from a database or API
 const userCars = [
@@ -211,7 +212,7 @@ export default function Bookings() {
                           <p className="text-xs sm:text-sm text-blue-500">From</p>
                           <p className="font-semibold text-[#5B4B49] text-xs sm:text-sm dark:text-gray-400">{formatDateTime(booking.start)}</p>
                         </div>
-                        <ArrowRight className="mt-4 flex-shrink-0" />
+                        <ArrowRight className="mt-4 w-12 stroke-0 fill-blue-400 flex-shrink-0" />
                         <div>
                           <p className="sm:text-sm text-xs text-blue-500">To</p>
                           <p className="font-semibold text-[#5B4B49] text-xs sm:text-sm dark:text-gray-400">{formatDateTime(booking.end)}</p>

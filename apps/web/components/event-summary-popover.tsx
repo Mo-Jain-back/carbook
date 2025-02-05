@@ -10,7 +10,8 @@ import { Input } from "@/components/ui/input"
 import dayjs from "dayjs"
 import { Clock, CheckCircle, XCircle, Loader2 } from "lucide-react";
 import { DatePicker } from "@/components/ui/datepicker";
-import AddTime from "./add-time"
+import AddTime from "./add-time";
+import CarFrontIcon from "../public/car-front.svg";
 
 enum Status {
   pending = "pending",
@@ -159,7 +160,7 @@ export function EventSummaryPopup({ event, isOpen, onClose }: EventSummaryPopupP
               </div>
             </div>
             <div className="flex items-start space-x-2">
-              <Car className="h-5 w-5 mt-1 mr-3" />
+            <CarFrontIcon className="w-8 h-4 dark:stroke-blue-200 dark:fill-blue-200 stroke-black fill-black" /> 
               <div>
                 <p className="text-sm font-medium">Car</p>
                 <p className="text-sm">{car}</p>

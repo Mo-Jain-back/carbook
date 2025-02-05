@@ -8,7 +8,8 @@ import { Label } from "@/components/ui/label"
 import { Car, Clock, Plus, Fuel, X, Palette } from "lucide-react"
 import { CarCard } from "./car-card"
 import Link from "next/link";
-import { cn } from "@/lib/utils"
+import { cn } from "@/lib/utils";
+import CarIcon from "../public/car-icon.svg";
 
 const userCars = [
     {
@@ -136,7 +137,7 @@ export function AddCarDialog() {
                 
                 <div className="gap-4 w-10/11">
                         <div className="flex justify-between gap-6 items-center">
-                            <Car className="w-5 h-5 flex-shrink-0" />
+                          <CarIcon className="w-16 h-4 dark:stroke-blue-200 dark:fill-blue-200 stroke-black fill-black" /> 
                             <Input
                                 type="text"
                                 name="title"

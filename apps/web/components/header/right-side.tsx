@@ -9,8 +9,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { useViewStore } from "@/lib/store";
-import { Car } from "lucide-react";
-import { cn } from "@/lib/utils";
+import CarIcon from "../../public/car-icon.svg";
 import {
   Popover,
   PopoverContent,
@@ -56,7 +55,8 @@ export default function HeaderRight(
     <div className="lg:hidden">
       <Popover>
         <PopoverTrigger className="w-[50px] p-2 rounded-sm border border-border" >
-        <Car className="h-5 w-5 " />
+        <CarIcon className="w-8 h-5 dark:stroke-blue-200 dark:fill-blue-200 stroke-primary fill-primary" /> 
+
         </PopoverTrigger>
         <PopoverContent className="border-border bg-background" >
           <CarsFilters/>

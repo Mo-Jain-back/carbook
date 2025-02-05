@@ -10,7 +10,8 @@ import { Car, Calendar, Clock, User, Palette, DollarSign, Shield } from "lucide-
 import AppointmentIcon from "../public/pending-appointment.svg"
 import { DatePicker } from "./ui/datepicker"
 import AddTime from "./add-time"
-import dayjs from "dayjs"
+import dayjs from "dayjs";
+import CarIcon from "../public/car-icon.svg";
 
 export function CarBookingDialog({isOpen, setIsOpen}: {isOpen: boolean, setIsOpen: React.Dispatch<React.SetStateAction<boolean>>}) {
   const [color, setColor] = useState("#000000");
@@ -47,7 +48,7 @@ export function CarBookingDialog({isOpen, setIsOpen}: {isOpen: boolean, setIsOpe
         </DialogHeader>
         <form onSubmit={handleSubmit} className="space-y-4">
           <div className="flex items-center gap-4">
-            <Car className="h-5 w-5 flex-shrink-0" />
+          <CarIcon className="w-6 h-4 dark:stroke-blue-200 dark:fill-blue-200 stroke-black fill-black flex-shrink-0" /> 
             <Label htmlFor="car" className="w-1/3">
               Select your car
             </Label>

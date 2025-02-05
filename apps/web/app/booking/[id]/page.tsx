@@ -3,6 +3,7 @@ import { BottomNav } from "@/components/bottom-nav"
 import { Suspense } from "react"
 import { BookingDetailsClient } from "./booking-details-client"
 import LoadingScreen from "@/components/loading-screen"
+import BookingNotFound from "@/components/booking-not-found"
 
 // This would typically come from a database or API
 const userCars = [
@@ -85,7 +86,7 @@ export default async function BookingDetails({ params }: { params: { id: string 
     .find((b) => b.id === bookingId)
 
   if (!booking) {
-    return <div>Booking not found</div>
+  return <div><BookingNotFound/></div>
   }
 
   const status = getBookingStatus(booking.start, booking.end)
