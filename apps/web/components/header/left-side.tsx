@@ -118,7 +118,7 @@ export default function HeaderLeft(
       </div>
 
       {/* Today Button */}
-      <Button variant="outline" className="text-xs select-none sm:text-sm px-4 rounded-lg py-1" onClick={handleTodayClick}>
+      <Button variant="outline" className="text-xs select-none bg-transparent border-border sm:text-sm px-4 rounded-lg py-1" onClick={handleTodayClick}>
         Today
       </Button>
 

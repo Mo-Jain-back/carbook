@@ -33,10 +33,16 @@ export function BottomNav() {
             <span className="text-xs">Home</span>
           </Link>
           <Link href="/bookings" className={`flex flex-col items-center ${selectedTab=="bookings" ? "text-primary" : "text-white"} hover:text-primary`}>
-          <span color="white" className=" flex flex-col items-center">
-            <AppointmentIcon className="w-6 h-6 "/>
-            <span className="text-xs">Bookings</span>
-          </span>
+            <span color="white" className=" flex flex-col items-center">
+              <AppointmentIcon className="w-6 h-6 "/>
+              <span className="text-xs">Bookings</span>
+            </span>
+          </Link>
+          <Link href="/calendar" className={`flex flex-col items-center ${selectedTab=="calendar" ? "text-primary" : "text-white"} hover:text-primary`}>
+            <span color="white" className=" flex flex-col items-center">
+              <Calendar className="w-6 h-6 "/>
+              <span className="text-xs">Calendar</span>
+            </span>
           </Link>
           <Link href="/profile" className={`flex flex-col items-center ${selectedTab=="profile" ? "text-primary" : "text-white"} hover:text-primary`}>
             <User className="h-6 w-6" />

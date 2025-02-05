@@ -19,11 +19,11 @@ export default function MyCars() {
   
   return (
     <Accordion type="single" collapsible>
-      <AccordionItem value="item-1">
+      <AccordionItem value="item-1" className="border-border">
         <AccordionTrigger className="justify-normal gap-32 text-sm hover:no-underline">
           My Cars
         </AccordionTrigger>
-        <AccordionContent className="grid gap-2">
+        <AccordionContent className="grid gap-2 ">
           <CarsFilters/>
         </AccordionContent>
       </AccordionItem>

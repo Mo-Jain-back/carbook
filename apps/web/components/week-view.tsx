@@ -12,7 +12,7 @@ import HeaderEvent from "./week-header-event";
 
 export default function WeekView() {
   const [currentTime, setCurrentTime] = useState(dayjs());
-  const { openPopover, events } = useEventStore();
+  const { events } = useEventStore();
   const [isEventHidden, setIsEventHidden] = useState(true);
   const { userSelectedDate, setDate } = useDateStore();
 
@@ -38,10 +38,10 @@ export default function WeekView() {
 
   return (
     <>
-      <div className="grid grid-cols-[auto_1fr_1fr_1fr_1fr_1fr_1fr_1fr] border-b border-gray-300 px-4  py-2">
-        <div className="w-16 border-r border-gray-400 flex flex-col items-center justify-between">
+      <div className="grid grid-cols-[auto_1fr_1fr_1fr_1fr_1fr_1fr_1fr] border-b border-border px-4  py-2">
+        <div className="w-16 border-r border-border flex flex-col items-center justify-between">
           <div className="relative h-[64px]">
-            <div className="absolute top-2 text-xs text-gray-600">GMT +2</div>
+            <div className="absolute top-2 text-xs text-gray-600 dark:text-gray-300">GMT +2</div>
           </div>
           <div>
           {isEventHidden ?
@@ -66,10 +66,10 @@ export default function WeekView() {
       <ScrollArea className="h-[70vh]">
         <div className="grid grid-cols-[auto_1fr_1fr_1fr_1fr_1fr_1fr_1fr] px-4 py-2">
           {/* Time Column */}
-          <div className="w-16 border-r border-gray-300">
+          <div className="w-16 border-r border-border">
             {getHours.map((hour, index) => (
               <div key={index} className="relative h-16">
-                <div className="absolute -top-2 text-xs text-gray-600">
+                <div className="absolute -top-2 text-xs text-gray-600 dark:text-gray-300">
                   {hour.format("HH:mm")}
                 </div>
               </div>
@@ -84,17 +84,16 @@ export default function WeekView() {
                 .startOf("week")
                 .add(index, "day");
                 return (
-                  <div key={index} className="relative border-1 border-black border-r border-gray-300">
+                  <div key={index} className="relative border-1 border-black border-r border-border">
                   {getHours.map((hour, i) => {
                     const filteredEvents = getFormatedEvents(events,dayDate.hour(hour.hour()));
                     return(
                     <div
                       key={i}
                       style={{ overflow: 'visible' }} // Add this style
-                      className="relative flex h-[64px]  cursor-pointer flex-col items-center gap-y-2 border-b border-gray-300 hover:bg-gray-100"
+                      className="relative flex h-[64px]  cursor-pointer flex-col items-center gap-y-2 border-b border-border hover:bg-gray-100 dark:hover:bg-background"
                       onClick={() => {
                         setDate(dayDate.hour(hour.hour()));
-                        openPopover();
                       }}
                     > 
                       <EventRenderer

@@ -91,7 +91,7 @@ export default function CarsFilters() {
               <div className="flex items-center">
                 <label
                   htmlFor={car.id}
-                  className="text-sm font-medium text-center py-2 leading-none text-gray-600 peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
+                  className="text-sm font-medium text-center py-2 leading-none text-gray-600 dark:text-gray-200 peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
                 >
                   {car.title}
                 </label>

@@ -10,7 +10,7 @@ import { ChevronDown, ChevronUp } from "lucide-react";
 
 export default function DayView() {
   const [currentTime, setCurrentTime] = useState(dayjs());
-  const { openPopover, events } = useEventStore();
+  const {  events } = useEventStore();
   const { userSelectedDate, setDate } = useDateStore();
   const { openEventSummary } = useEventStore();
   const [filteredEvents,setFilteredEvents] = useState<CalendarEventType[]>([]);
@@ -107,7 +107,7 @@ export default function DayView() {
       <ScrollArea className="h-[70vh]">
         <div className="grid grid-cols-[auto_1fr] p-4">
           {/* Time Column */}
-          <div className="w-16 border-r border-gray-300">
+          <div className="w-16 border-r border-muted">
             {getHours.map((hour, index) => (
               <div key={index} className="relative h-[64px]">
                 <div className="absolute -top-2 text-xs text-gray-600">
@@ -118,14 +118,13 @@ export default function DayView() {
           </div>
 
           {/* Day/Boxes Column */}
-          <div className="relative border-r border-gray-300">
+          <div className="relative border-r border-muted">
             {getHours.map((hour, i) => (
               <div
                 key={i}
-                className="relative flex h-[64px] cursor-pointer flex-col items-center gap-y-2 border-b border-gray-300 hover:bg-gray-100"
+                className="relative flex h-[64px] cursor-pointer flex-col items-center gap-y-2 border-b border-muted hover:bg-background"
                 onClick={() => {
                   setDate(userSelectedDate.hour(hour.hour()));
-                  openPopover();
                 }}
               >
                 <EventRenderer

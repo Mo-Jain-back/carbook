@@ -12,7 +12,7 @@ export default function MonthViewBox({
   day: dayjs.Dayjs | null;
   rowIndex: number;
 }) {
-  const { openPopover, events } = useEventStore();
+  const {  events } = useEventStore();
   
   const { setDate } = useDateStore();
 
@@ -29,14 +29,13 @@ export default function MonthViewBox({
   const handleClick = (e: React.MouseEvent) => {
     e.preventDefault();
     setDate(day);
-    openPopover();
   };
 
   return (
     <div
       className={cn(
-        "group  relative min-h-28 flex flex-col items-center border",
-        "transition-all hover:bg-violet-50 ",
+        "group  relative min-h-28 flex flex-col items-center border border-border",
+        "transition-all hover:bg-violet-50 dark:hover:bg-background ",
       )}
       onClick={handleClick}
     >

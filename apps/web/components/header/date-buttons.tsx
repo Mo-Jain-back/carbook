@@ -42,14 +42,14 @@ const DateButtons = ({open}:{open:boolean}) => {
           {
             isSmallScreen && 
             <div className={`${open ? "mt-0 " : "sm:mt-[-58px] mt-[-60px] opacity-0 " }  duration-300 ease-in-out`}>
-              <div className={`${(selectedView != "month" && !open) ? "mt-[-370px] opacity-0" : "mt-[-30px] mb-[0]" } my-0 duration-300 ease-in-out`} >
+              <div className={`${(selectedView != "month" && !open) ? "mt-[-290px] opacity-0" : "mt-[-30px] mb-[0]" } my-0 duration-300 ease-in-out`} >
                   {selectedView != "month" &&
                     <SideBarCalendar/>}
               </div>
               <div className=" flex mt-[-25px] w-full justify-around p-2 overflow-scroll scrollbar-hide">
                   { 
                   months.map((month,index) => (
-                      <div key={index} className={`p-1 text-sm ${selectedMonth===month ?"bg-gray-200":"bg-white"} cursor-pointer px-2 border border-gray-400 rounded-md`}
+                      <div key={index} className={`p-1 text-sm ${selectedMonth===month ?"bg-primary":"bg-transparent"} cursor-pointer px-2 border border-border rounded-md`}
                       onClick = {() => handleClick(month,index)}
                       >
                       {month}

@@ -44,10 +44,10 @@ export default function HeaderRight(
     <div className="flex items-center space-x-4 pr-2">
     {/* <SearchComponent /> */}
     <Select onValueChange={(v) => handleStreamView(v) }>
-      <SelectTrigger className="sm:w-24 select-none w-18 p-1 sm:p-2 text-xs sm:text-sm focus-visible:ring-0 focus-visible:ring-ring focus-visible:ring-offset-0">
+      <SelectTrigger className="sm:w-24 select-none w-18 p-1 sm:p-2 border-border text-xs sm:text-sm focus-visible:ring-0 focus-visible:ring-ring focus-visible:ring-offset-0">
         <SelectValue placeholder="Month" />
       </SelectTrigger>
-      <SelectContent>
+      <SelectContent className="border-border bg-background">
         <SelectItem value="month">Month</SelectItem>
         <SelectItem value="week">Week</SelectItem>
         <SelectItem value="day">Day</SelectItem>
@@ -55,10 +55,10 @@ export default function HeaderRight(
     </Select>
     <div className="lg:hidden">
       <Popover>
-        <PopoverTrigger className="w-[50px] p-2 rounded-sm border" >
+        <PopoverTrigger className="w-[50px] p-2 rounded-sm border border-border" >
         <Car className="h-5 w-5 " />
         </PopoverTrigger>
-        <PopoverContent >
+        <PopoverContent className="border-border bg-background" >
           <CarsFilters/>
         </PopoverContent>
       </Popover>

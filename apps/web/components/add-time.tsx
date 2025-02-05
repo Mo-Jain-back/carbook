@@ -40,19 +40,19 @@ export default function AddTime({
         <PopoverTrigger asChild >
           <div
             className={cn(
-              "p-1 w-[60px] text-sm m-0 border-0 focus-visible:ring-0 border-transparent border-y-4 cursor-text bg-gray-200 dark:bg-gray-600 dark:hover:bg-gray-700 rounded-sm hover:bg-gray-300 justify-start text-left font-normal",
+              "p-1 sm:w-[60px] sm:text-sm text-xs m-0 h-[36px] p-[6px] border-0 focus-visible:ring-0 border-transparent border-y-4 cursor-text bg-muted dark:hover:bg-card rounded-sm hover:bg-gray-300 justify-start text-left font-normal",
               isPopoverOpen ? "border-b-blue-400" : " ",
             )}>
             {selectedTime}
           </div>
         </PopoverTrigger>
-      <PopoverContent className=" max-h-40 p-1 dark:border-gray-700 overflow-scroll flex flex-col items-center w-24 overflow-x-hidden rounded-md border bg-popover text-popover-foreground shadow-md"
+      <PopoverContent className=" max-h-40 p-1 dark:border-muted overflow-scroll flex flex-col items-center w-24 overflow-x-hidden rounded-md border bg-popover dark:bg-gray-800 text-popover-foreground shadow-md"
           onClick={() => setIsPopoverOpen(false)}
           style={{ pointerEvents: "auto" }} >
               {generateTimeIntervals().map((time) => (
                 <div
                   key={time}
-                  className="w-full text-sm cursor-pointer hover:bg-gray-200 dark:hover:bg-gray-800 rounded-md justify-start p-1 px-4"
+                  className="w-full sm:text-sm text-xs cursor-pointer dark:hover:bg-card rounded-md justify-start p-1 px-4"
                   onClick={() =>{ 
                     setSelectedTime(time)}}
                 >

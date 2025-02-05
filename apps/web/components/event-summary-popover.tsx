@@ -4,7 +4,7 @@ import type React from "react"
 import { useState } from "react"
 import { X, Edit2, Trash2, Users, Car } from "lucide-react"
 import { Button } from "@/components/ui/button"
-import { Dialog, DialogContent } from "@/components/ui/dialog"
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog"
 import { useEventStore, type CalendarEventType } from "@/lib/store"
 import { Input } from "@/components/ui/input"
 import dayjs from "dayjs"
@@ -83,8 +83,13 @@ export function EventSummaryPopup({ event, isOpen, onClose }: EventSummaryPopupP
 
   return (
     <Dialog open={isOpen}  onOpenChange={onClose}>
-      <DialogContent className="sm:max-w-[425px] max-sm:min-h-[70%] flex flex-col items-center ">
-        <div className="flex justify-between items-center mb-4 w-full">
+      
+      <DialogContent className="sm:max-w-[425px] max-sm:min-h-[70%] flex flex-col p-0 items-center ">
+        <DialogHeader className="flex flex-row justify-between items-center w-full px-6 py-0">
+          <DialogTitle >
+            <span className="flex justify-start w-full whitespace-nowrap mt-2">{event.title} Summary</span>
+          </DialogTitle>
+          <div className="flex justify-end w-full items-center w-full mr-4 mb-2">
           <div className="flex space-x-2">
             <Button variant="ghost" size="icon" onClick={handleEdit}>
               <Edit2 className="h-4 w-4" />
@@ -93,85 +98,89 @@ export function EventSummaryPopup({ event, isOpen, onClose }: EventSummaryPopupP
               <Trash2 className="h-4 w-4" />
             </Button>
           </div>
-          
         </div>
 
-        <div className="flex items-start space-x-4 w-[90%]">
-          <div className="w-6 h-6 rounded-md mt-2" style={{ backgroundColor: color }} />
-          <div className="flex-1">
-            <h2 className="text-lg font-semibold mb-2">Your booking starts from</h2>
-            {isEditing ? (
-              <div className="space-y-2 flex items-center justify-around max-h-[38px]">
-                <div className="mt-[7px]">
-                  <DatePicker currDate={startDate} handleDateChange={handleDateChange} dateType="start"/>
-                </div>
-                {!event.allDay && (
-                  <div className="mt-[-10px] mx-2">
-                    <AddTime className="p-0 m-0 w-[50px] border-none bg-gray-200 hover:bg-gray-300 rounded-sm" selectedTime={startTime} setSelectedTime={setStartTime} />
-                    <input type="hidden" name="time" value={startTime} />
-                  </div>
-                )}
-                <div className="text-center mt-[-8px]"> -</div>
-                <div className="flex items-center justify-center mt-[-9px]">
-                  <DatePicker  currDate={endDate} handleDateChange={handleDateChange} dateType="end"/>
-                </div>
-                {!event.allDay && (
-                  <div className="mt-[-10px] mx-2">
-                    <AddTime className="p-0 m-0 w-[50px] border-none bg-gray-200 hover:bg-gray-300 rounded-sm" selectedTime={endTime} setSelectedTime={setStartTime} />
-                    <input type="hidden" name="time" value={endTime} />
-                  </div>
-                )}
-              </div>
-            ) : (
-              <p className="text-sm">
-                {event.allDay
-                  ? `${startDate.format("MMM D, YYYY")} - ${endDate.format("MMM D, YYYY")}`
-                  : `${startDate.format("MMM D, YYYY")} ${startTime} - ${endDate.format("MMM D, YYYY")} ${endTime}`}
-              </p>
-            )}
-          </div>
-        </div>
+        </DialogHeader>
 
-        <div className="mt-4 space-y-4 w-[90%]">
-          <div className="flex items-start space-x-2">
-            
-            <Users className="h-5 w-5 mt-1 mr-3" />
-            <div>
-              <p className="text-sm font-medium">Booked by</p>
+        <div className="p-4 h-full w-full max-sm:mt-6">
+        
+          <div className="flex items-start space-x-4 w-[90%]">
+            <div className={`w-6 h-6 rounded-md mt-2 ${isEditing ? "hidden" : ""}`} style={{ backgroundColor: color }} />
+            <div className="flex-1">
+              <h2 className="text-lg font-semibold mb-2">Your booking starts from</h2>
               {isEditing ? (
-                <Input
-                  name="bookedBy"
-                  value={bookedBy}
-                  onChange={(e) => setBookedBy(e.target.value)}
-                  className="bg-gray-100"
-                />
+                <div className="space-y-2 flex items-center justify-around max-h-[38px]">
+                  <div className="mt-[7px]">
+                    <DatePicker currDate={startDate} handleDateChange={handleDateChange} dateType="start"/>
+                  </div>
+                  {!event.allDay && (
+                    <div className="mt-[-10px] mx-2">
+                      <AddTime className="p-0 m-0 w-[50px] border-none bg-gray-200 hover:bg-gray-300 rounded-sm" selectedTime={startTime} setSelectedTime={setStartTime} />
+                      <input type="hidden" name="time" value={startTime} />
+                    </div>
+                  )}
+                  <div className="text-center mt-[-8px]"> -</div>
+                  <div className="flex items-center justify-center mt-[-9px]">
+                    <DatePicker  currDate={endDate} handleDateChange={handleDateChange} dateType="end"/>
+                  </div>
+                  {!event.allDay && (
+                    <div className="mt-[-10px] mx-2">
+                      <AddTime className="p-0 m-0 w-[50px] border-none bg-gray-200 hover:bg-gray-300 rounded-sm" selectedTime={endTime} setSelectedTime={setStartTime} />
+                      <input type="hidden" name="time" value={endTime} />
+                    </div>
+                  )}
+                </div>
               ) : (
-                <p className="text-sm">{bookedBy}</p>
+                <p className="text-sm">
+                  {event.allDay
+                    ? `${startDate.format("MMM D, YYYY")} - ${endDate.format("MMM D, YYYY")}`
+                    : `${startDate.format("MMM D, YYYY")} ${startTime} - ${endDate.format("MMM D, YYYY")} ${endTime}`}
+                </p>
               )}
             </div>
           </div>
-          <div className="flex items-start space-x-2">
-            <Car className="h-5 w-5 mt-1 mr-3" />
-            <div>
-              <p className="text-sm font-medium">Car</p>
-              <p className="text-sm">{car}</p>
-            </div>
-          </div>
-          <div className="flex items-start space-x-2">
-            <BookingStatusIcon status={Status.pending} className="h-5 w-5 mt-1 mr-3" />
-            <div>
-              <p className="text-sm font-medium">Booking yet to Start</p>
-            </div>
-          </div>
-        </div>
 
-        {isEditing && (
-          <div className="mt-4">
-            <Button onClick={handleUpdate} className="w-full">
-              Save Changes
-            </Button>
+          <div className="mt-4 space-y-4 w-[90%]">
+            <div className="flex items-start space-x-2">
+              
+              <Users className="h-5 w-5 mt-1 mr-3" />
+              <div>
+                <p className="text-sm font-medium">Booked by</p>
+                {isEditing ? (
+                  <Input
+                    name="bookedBy"
+                    value={bookedBy}
+                    onChange={(e) => setBookedBy(e.target.value)}
+                    className="bg-muted text-sm"
+                  />
+                ) : (
+                  <p className="text-sm">{bookedBy}</p>
+                )}
+              </div>
+            </div>
+            <div className="flex items-start space-x-2">
+              <Car className="h-5 w-5 mt-1 mr-3" />
+              <div>
+                <p className="text-sm font-medium">Car</p>
+                <p className="text-sm">{car}</p>
+              </div>
+            </div>
+            <div className="flex items-start space-x-2">
+              <BookingStatusIcon status={Status.pending} className="h-5 w-5 mt-1 mr-3" />
+              <div>
+                <p className="text-sm font-medium">Booking yet to Start</p>
+              </div>
+            </div>
           </div>
-        )}
+
+          {isEditing && (
+            <div className="mt-4">
+              <Button onClick={handleUpdate} className="w-full">
+                Save Changes
+              </Button>
+            </div>
+          )}
+        </div>
       </DialogContent>
     </Dialog>
   )

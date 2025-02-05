@@ -60,9 +60,9 @@ export default function SideBarCalendar() {
       </div>
 
       {/* Main Content: Weeks and Days */}
-      <div className="mt-2 grid grid-cols-[auto_1fr] font-medium text-gray-600 text-xs">
+      <div className="mt-2 grid grid-cols-[auto_1fr] font-medium text-gray-600 dark:text-gray-400 text-xs">
         {/* Week Number  column */}
-        <div className="grid w-6 grid-rows-5 gap-1 gap-y-1 rounded-sm bg-gray-100 p-1">
+        <div className="grid w-6 grid-rows-5 gap-1 gap-y-1 rounded-sm bg-gray-100 dark:bg-muted p-1">
           {weeksOfMonth.map((week, i) => (
             <span key={i} className="flex h-5 w-5 items-center">
               {week}
@@ -72,21 +72,21 @@ export default function SideBarCalendar() {
 
         {/* Dates grid */}
 
-        <div className="grid grid-cols-7 grid-rows-5 gap-1 gap-y-1 rounded-sm p-1 text-xs">
+        <div className="grid grid-cols-7 grid-rows-5 gap-1 gap-y-1 justify-items-center rounded-sm p-1 text-xs">
           {twoDMonthArray.map((row, i) => (
             <Fragment key={i}>
               {row.map((day, index) => (
-                <button
+                <div
                   key={index}
                   className={cn(
-                    "flex h-5 w-5 items-center justify-center text-center justify-center rounded-full",
+                    "flex h-5 w-5 flex items-center justify-center rounded-full",
                     day.format("DD-MM-YY") === dayjs().format("DD-MM-YY") &&
                       "bg-blue-600 text-white",
                   )}
                   onClick={() => handleDateClick(day)}
                 >
                   <span>{day.format("D")}</span>
-                </button>
+                </div>
               ))}
             </Fragment>
           ))}
