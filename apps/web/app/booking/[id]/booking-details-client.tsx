@@ -9,10 +9,10 @@ import { act, useState } from "react";
 import { DatePicker } from "@/components/ui/datepicker";
 import dayjs from "dayjs";
 import AddTime from "@/components/add-time";
-import ArrowRight from "../../../public/right_arrow.svg"
+import ArrowRight from "@/public/right_arrow.svg"
 import { Input } from "@/components/ui/input";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu"
-import BackArrow from "../../../public/back-arrow.svg";
+import BackArrow from "@/public/back-arrow.svg";
 import { StatusInput } from "@/components/ui/status-input"
 
 
@@ -109,10 +109,8 @@ export function BookingDetailsClient({ booking }: BookingDetailsClientProps) {
             className="mr-2 rounded-md font-bold  cursor-pointer dark:hover:bg-gray-800 hover:bg-gray-200"
             onClick={() => router.push('/bookings')} 
           >
-            <div className="h-12 w-12 flex justify-center items-center rounded-full  ">
-              <div className="h-9 w-9 p-1 rounded-full" >
+            <div className="h-10 w-9 flex border-border border justify-center items-center rounded-md ">
                 <BackArrow className="h-7 w-7 stroke-0 fill-gray-800 dark:fill-blue-300" />
-              </div>
             </div>
           </div>
          
@@ -157,7 +155,7 @@ export function BookingDetailsClient({ booking }: BookingDetailsClientProps) {
                   <p className="text-sm text-blue-500">
                     {bookingStatus === "completed" ? "Guest returned at" : "Guest shall return by"}
                   </p>
-                  <p className="font-semibold">{formatDateTime(endDate)}</p>
+                  <p className="font-semibold max-sm:text-sm">{formatDateTime(endDate)}</p>
                 </>
               )}
             </div>
@@ -183,7 +181,7 @@ export function BookingDetailsClient({ booking }: BookingDetailsClientProps) {
             <div>
               <p className="text-sm text-blue-500">From</p>
               {!isEditable ?
-              <p className="font-semibold">{formatDateTime(startDate)}</p>
+              <p className="font-semibold max-sm:text-sm">{formatDateTime(startDate)}</p>
               : 
               <div className="flex space-x-2">
                 <div className="">
@@ -200,7 +198,7 @@ export function BookingDetailsClient({ booking }: BookingDetailsClientProps) {
             <div>
               <p className="text-sm text-blue-500">To</p>
               {!isEditable ?
-              <p className="font-semibold">{formatDateTime(endDate)}</p>
+              <p className="font-semibold max-sm:text-sm">{formatDateTime(endDate)}</p>
               :
               <div className="flex space-x-2">
                 <div className="">

@@ -2,8 +2,8 @@
 
 import Link from "next/link"
 import { Button } from "@/components/ui/button"
-import Logo1 from "../public/logo1.svg"
-import LogoText from "../public/logo_text.svg"
+import Logo1 from "@/public/logo1.svg"
+import LogoText from "@/public/logo_text.svg"
 import { usePathname, useRouter } from "next/navigation"
 import { ThemeToggle } from "./theme-toggle"
 import { useEffect, useState } from "react"
@@ -51,7 +51,7 @@ export function NavBar() {
           <div className={`px-2 hover:text-blue-700 ${selectedTab == "profile" ? "text-blue-700 border-b-blue-700": ""} border-transparent transition-all border duration-300 border-y-4 p-2 cursor-pointer font-bold`} 
                 onClick={() => router.push('/profile')}> Profile</div>
         </div>
-        <div className="max-sm:ml-[-50px]">
+        <div className="">
           <ThemeToggle />
         </div>
       </div>

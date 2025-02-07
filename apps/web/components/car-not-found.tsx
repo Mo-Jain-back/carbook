@@ -3,8 +3,8 @@ import { ArrowLeft, Car } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
 import { ThemeToggle } from "@/components/theme-toggle"
-import CarIcon from "../public/car-icon.svg"
-import BackArrow from "../public/back-arrow.svg";
+import CarIcon from "@/public/car-icon.svg"
+import BackArrow from "@/public/back-arrow.svg";
 
 
 export default function CarNotFound() {
@@ -18,7 +18,7 @@ export default function CarNotFound() {
           </div>
         </CardHeader>
         <CardContent className="flex flex-col items-center space-y-4">
-          <CarIcon className="w-60 dark:stroke-blue-200 dark:fill-blue-200 stroke-primary fill-primary" /> 
+          <CarIcon className="w-60 dark:stroke-blue-200  dark:fill-blue-200 stroke-primary fill-primary" /> 
           <p className="text-center text-muted-foreground">
             We're sorry, but the car you're looking for doesn't exist or has been removed.
           </p>

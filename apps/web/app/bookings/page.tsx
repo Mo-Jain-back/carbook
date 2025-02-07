@@ -6,11 +6,11 @@ import { Card, CardContent } from "@/components/ui/card"
 import Link from "next/link"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Button } from "@/components/ui/button"
-import {  Clock, LogIn, PlaneTakeoff, PlusCircle, PlusIcon } from "lucide-react"
+import {  Clock, LogIn, PlaneTakeoff, Plus, PlusCircle, PlusIcon, PlusSquare } from "lucide-react"
 import Image from "next/image"
 import { useState } from "react"
 import { CarBookingDialog } from "@/components/add-booking";
-import ArrowRight from "../../public/right_arrow.svg"
+import ArrowRight from "@/public/right_arrow.svg"
 
 // This would typically come from a database or API
 const userCars = [
@@ -130,11 +130,12 @@ export default function Bookings() {
             onMouseLeave={() => setIsHovered(false)}
             onClick={() => setIsAddBookingOpen(true)}
           >
-          <button className="bg-black px-[15px] overflow-hidden  text-blue-100 hover:border hover:border-gray-700  shadow-lg  rounded-xl w-12 h-12 flex items-center shadow-lg transition-all duration-300 hover:w-40">
-            <span className={`text-[30px] mt-[-3px] transition-rotate duration-400 flex items-center `}>+</span>
-            <span className={` ${isHovered ? "" : "hidden"} ml-2 transition-opacity font-bold duration-300`}
+          <div className="bg-black px-[15px] overflow-hidden  text-blue-100 hover:border hover:border-gray-700  shadow-lg  rounded-xl w-12 h-12 flex items-center shadow-lg transition-all duration-300 hover:w-40">
+            {/*<span className={`text-[30px] mt-[-3px] transition-rotate rotate-0 hover:rotate-180 duration-400 flex items-center `}>+</span> */}
+            <Plus className="w-8 h-8 stroke-10" />
+            <span className={` ${isHovered ? "opacity-100" : "hidden opacity-0"} ml-2 transition-opacity font-bold duration-300`}
             >Add Booking</span>
-          </button>
+          </div>
         </div>
 
       
@@ -188,7 +189,7 @@ export default function Bookings() {
           </div>
           <Button className="max-sm:hidden bg-blue-600 text-white hover:bg-opacity-10 dark:text-black shadow-lg"
             onClick={() => setIsAddBookingOpen(true)}>
-            <span className={`text-[24px] mt-[-2px] `}>+</span>
+            <PlusSquare className="h-12 w-12" />
             <span className="">Add Booking</span> 
           </Button>
         </div>

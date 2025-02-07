@@ -6,7 +6,7 @@ import { useState } from "react";
 import { ArrowLeft, Edit } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
-import BackArrow from "../../../public/back-arrow.svg";
+import BackArrow from "@/public/back-arrow.svg";
 
 const userCars = [
     {

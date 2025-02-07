@@ -9,7 +9,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { useViewStore } from "@/lib/store";
-import CarIcon from "../../public/car-icon.svg";
+import CarIcon from "@/public/car-icon.svg";
 import {
   Popover,
   PopoverContent,
@@ -55,7 +55,7 @@ export default function HeaderRight(
     <div className="lg:hidden">
       <Popover>
         <PopoverTrigger className="w-[50px] p-2 rounded-sm border border-border" >
-        <CarIcon className="w-8 h-5 dark:stroke-blue-200 dark:fill-blue-200 stroke-primary fill-primary" /> 
+        <CarIcon className="w-8 h-5 stroke-[4px] dark:stroke-blue-200 dark:fill-blue-200 stroke-primary fill-primary" /> 
 
         </PopoverTrigger>
         <PopoverContent className="border-border bg-background" >

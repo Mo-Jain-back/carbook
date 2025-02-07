@@ -2,10 +2,12 @@
 
 import { useState, useRef, useEffect } from "react"
 import Image from "next/image"
-import { User, Edit, Eye, EyeOff, ArrowLeft } from "lucide-react"
+import {  Edit, Eye, EyeOff, ArrowLeft } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import type React from "react" // Added import for React
-import { useRouter } from "next/navigation"
+import { useRouter } from "next/navigation";
+import BackArrow from "@/public/back-arrow.svg";
+import UserIcon from "@/public/user.svg"
 
 export default function ProfilePage() {
   const [isEditingUsername, setIsEditingUsername] = useState(false)
@@ -88,7 +90,7 @@ export default function ProfilePage() {
             {user.image ? (
               <Image src={user.image || "/placeholder.svg"} alt={user.name} fill className="object-cover" />
             ) : (
-              <User className="w-16 h-16 text-blue-600" />
+              <UserIcon className="w-28 h-28 stroke-[12px] stroke-blue-600 fill-blue-600" />
             )}
           </div>
         </div>
@@ -98,10 +100,10 @@ export default function ProfilePage() {
 
       {/* Content area */}
       <div className="max-w-3xl mx-auto">      
-        <Button 
+          <Button 
             onClick={() => router.push('/profile')}
-            className="bg-gray-300 mt-2 ml-6 sm:ml-8 text-black hover:bg-gray-200 dark:hover:bg-blue-500 dark:bg-blue-600 ">
-            <ArrowLeft className=" stroke-[3px] h-6 w-6"/>
+            className=" mt-2 flex ml-4 bg-transparent w-fit rounded-md cursor-pointer shadow-none justify-start text-black border dark:border-card border-gray-200 hover:bg-gray-200 dark:hover:bg-card ">
+                <BackArrow className="h-6 w-6 stroke-0 fill-gray-800 dark:fill-blue-300" />
           </Button>
       <div className="max-w-3xl mx-auto pt-12 px-4 sm:px-6 lg:px-8 pb-12  ">
         <h1 className="text-3xl font-bold text-center text-gray-900 sm:text-4xl mb-8 dark:text-white">{user.name}</h1>

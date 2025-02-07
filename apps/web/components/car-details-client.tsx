@@ -8,8 +8,8 @@ import {  useState } from "react";
 import { Input } from "@/components/ui/input"
 import { Card, CardContent } from "@/components/ui/card"
 import Link from "next/link"
-import BackArrow from "../public/back-arrow.svg";
-import ArrowRight from "../public/right_arrow.svg"
+import BackArrow from "@/public/back-arrow.svg";
+import ArrowRight from "@/public/right_arrow.svg"
 
 
 

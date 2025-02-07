@@ -1,5 +1,7 @@
 import Link from "next/link"
 import { AddCarDialog } from "@/components/add-car"
+import StarryBackground from "@/components/starry-background"
+import ThemeBg from "@/components/theme-bg"
 
 export default function Home() {
   
@@ -7,9 +9,13 @@ export default function Home() {
     <div className="min-h-screen bg-gray-50">
      
       <main>
-        <section className="bg-background py-14">
+        <section style={{zIndex:0}} className="bg-background z-0 py-14 relative overflow-hidden">
+          <div style={{zIndex:-10}} className="z-[-10]">
+            <StarryBackground/>
+            <ThemeBg/>
+          </div>
           <div className="container mx-auto px-4">
-            <div className="max-w-3xl mx-auto text-center">
+            <div style={{zIndex:3}} className="max-w-3xl z-[3] mx-auto text-center">
               <h1 className="sm:text-4xl text-2xl font-bold text-gray-900 dark:text-gray-200 mb-4" style={{ fontFamily: "var(--font-alma), sans-serif",
                  }}>SEAMLESS CAR BOOKINGS</h1>
               <p className="sm:text-xl text-sm text-muted-foreground mb-8" >
@@ -17,7 +23,7 @@ export default function Home() {
               </p>
               <Link
                 href="/bookings"
-                className="bg-primary max-sm:text-sm text-primary-foreground px-3 sm:px-6 py-3 rounded-md font-semibold hover:bg-primary/90 transition duration-300"
+                className="bg-primary z-10 max-sm:text-sm text-primary-foreground px-3 sm:px-6 py-3 rounded-md font-semibold hover:bg-primary/90 transition duration-300"
               >
                 Start Booking Now
               </Link>

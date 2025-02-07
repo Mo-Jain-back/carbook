@@ -1,6 +1,6 @@
 "use client"
 import { useEffect, useState } from "react";
-import Logo1 from "../public/logo1.svg"
+import Logo1 from "@/public/logo1.svg"
 import { usePathname } from "next/navigation";
 
 const SplashScreen = () => {

@@ -2,7 +2,7 @@
 
 import type React from "react"
 import { useState } from "react"
-import { X, Edit2, Trash2, Users, Car } from "lucide-react"
+import { X, Edit2, Trash2,  Car } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog"
 import { useEventStore, type CalendarEventType } from "@/lib/store"
@@ -11,7 +11,8 @@ import dayjs from "dayjs"
 import { Clock, CheckCircle, XCircle, Loader2 } from "lucide-react";
 import { DatePicker } from "@/components/ui/datepicker";
 import AddTime from "./add-time";
-import CarFrontIcon from "../public/car-front.svg";
+import CarFrontIcon from "@/public/car-front.svg";
+import UserIcon from "@/public/user.svg"
 
 enum Status {
   pending = "pending",
@@ -144,7 +145,7 @@ export function EventSummaryPopup({ event, isOpen, onClose }: EventSummaryPopupP
           <div className="mt-4 space-y-4 w-[90%]">
             <div className="flex items-start space-x-2">
               
-              <Users className="h-5 w-5 mt-1 mr-3" />
+              <UserIcon className="h-6 w-6 mt-1 mr-3 stroke-[12px] fill-black dark:fill-white stroke-black dark:stroke-white" />
               <div>
                 <p className="text-sm font-medium">Booked by</p>
                 {isEditing ? (
@@ -160,7 +161,7 @@ export function EventSummaryPopup({ event, isOpen, onClose }: EventSummaryPopupP
               </div>
             </div>
             <div className="flex items-start space-x-2">
-            <CarFrontIcon className="w-8 h-4 dark:stroke-blue-200 dark:fill-blue-200 stroke-black fill-black" /> 
+            <CarFrontIcon className="w-7 h-4 mr-[8px] stroke-[6px] ml-[-2px] dark:stroke-blue-200 dark:fill-blue-200 stroke-black fill-black" /> 
               <div>
                 <p className="text-sm font-medium">Car</p>
                 <p className="text-sm">{car}</p>

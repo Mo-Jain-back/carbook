@@ -8,7 +8,7 @@ export default function Header() {
   const [openMonthButtons,setOpenMonthButtons] = useState(false);
   return (
     <div>
-      <div className={`absolute  z-10 top-15 border border-border left-0 w-[100%] bg-white dark:bg-background flex items-center justify-between py-2 scrollbar-hide `}>
+      <div className={`absolute overflow-x-hidden  z-10 top-15 border border-border left-0 w-[100%] bg-white dark:bg-background flex items-center justify-between py-2 scrollbar-hide `}>
         <HeaderLeft open={openMonthButtons} setOpen={setOpenMonthButtons}/>
         <HeaderRight setOpen={setOpenMonthButtons}/>
       </div>

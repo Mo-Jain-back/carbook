@@ -6,12 +6,16 @@ import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
-import { Car, Calendar, Clock, User, Palette, DollarSign, Shield } from "lucide-react"
-import AppointmentIcon from "../public/pending-appointment.svg"
+import Price from "@/public/price-tag.svg"
 import { DatePicker } from "./ui/datepicker"
 import AddTime from "./add-time"
 import dayjs from "dayjs";
-import CarIcon from "../public/car-icon.svg";
+import CarFrontIcon from "@/public/car-front.svg";
+import UserIcon from "@/public/user.svg";
+import Calendar from "@/public/date-and-time.svg"
+import Rupee from "@/public/rupee-symbol.svg";
+import Shield from "@/public/shield.svg";
+import Booking from "@/public/online-booking.svg"
 
 export function CarBookingDialog({isOpen, setIsOpen}: {isOpen: boolean, setIsOpen: React.Dispatch<React.SetStateAction<boolean>>}) {
   const [color, setColor] = useState("#000000");
@@ -42,13 +46,13 @@ export function CarBookingDialog({isOpen, setIsOpen}: {isOpen: boolean, setIsOpe
       <DialogContent className="sm:max-w-[425px] dark:border-gray-700 md:max-w-[600px] h-[82vh] sm:top-[55%] sm:h-auto overflow-y-auto">
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2 mt-30 text-blue-700 dark:text-blue-600">
-            <AppointmentIcon className="w-6 h-6 "/>
+            <Booking className="w-6 h-6 flex-shrink-0 stroke-[6px] stroke-blue-600 fill-blue-600" />
             Add Booking
           </DialogTitle>
         </DialogHeader>
         <form onSubmit={handleSubmit} className="space-y-4">
           <div className="flex items-center gap-4">
-          <CarIcon className="w-6 h-4 dark:stroke-blue-200 dark:fill-blue-200 stroke-black fill-black flex-shrink-0" /> 
+          <CarFrontIcon className="w-6 h-4 dark:stroke-blue-200 dark:fill-blue-200 stroke-[6px] stroke-black fill-black flex-shrink-0" /> 
             <Label htmlFor="car" className="w-1/3">
               Select your car
             </Label>
@@ -78,7 +82,7 @@ export function CarBookingDialog({isOpen, setIsOpen}: {isOpen: boolean, setIsOpe
 
           <div className="space-y-2">
             <div className="flex items-center gap-4">
-              <Calendar className="h-5 w-5 flex-shrink-0" />
+              <Calendar className="h-5 w-5 flex-shrink-0 fill-black dark:fill-white stroke-black dark:stroke-white stroke-[1px]" />
               <Label className="w-1/3">Select date and time</Label>
             </div>
             <div className="flex items-center gap-2 ml-9">
@@ -112,7 +116,7 @@ export function CarBookingDialog({isOpen, setIsOpen}: {isOpen: boolean, setIsOpe
           </div>
 
           <div className="flex items-center gap-4">
-            <User className="h-5 w-5 flex-shrink-0" />
+            <UserIcon className="h-5 w-5 flex-shrink-0 stroke-[12px] stroke-black fill-black dark:stroke-white dark:fill-white" />
             <Label htmlFor="name" className="w-1/3">
               Name of person booking
             </Label>
@@ -123,7 +127,7 @@ export function CarBookingDialog({isOpen, setIsOpen}: {isOpen: boolean, setIsOpe
           
 
           <div className="flex items-center gap-4">
-            <Clock className="h-5 w-5 flex-shrink-0" />
+            <Price className="h-6 w-6 mr-[-2px] flex-shrink-0 stroke-[12px] stroke-black fill-black dark:stroke-white dark:fill-white" />
             <Label htmlFor="price" className="w-1/3">
               24 hr price
             </Label>
@@ -134,7 +138,7 @@ export function CarBookingDialog({isOpen, setIsOpen}: {isOpen: boolean, setIsOpe
           </div>
 
           <div className="flex items-center gap-4">
-            <DollarSign className="h-5 w-5 flex-shrink-0" />
+            <Rupee className="h-6 w-6 mr-[-2px] flex-shrink-0 stroke-[2px] stroke-black fill-black dark:stroke-white dark:fill-white" />
             <Label htmlFor="totalAmount" className="w-1/3">
               Total amount
             </Label>
@@ -144,7 +148,7 @@ export function CarBookingDialog({isOpen, setIsOpen}: {isOpen: boolean, setIsOpe
           </div>
 
           <div className="flex items-center gap-4">
-            <Shield className="h-5 w-5 flex-shrink-0" />
+            <Shield className="h-6 w-6 mr-[-2px] flex-shrink-0 stroke-[0px] stroke-black fill-black dark:stroke-white dark:fill-white" />
             <Label htmlFor="securityDeposit" className="w-1/3">
               Security deposit
             </Label>

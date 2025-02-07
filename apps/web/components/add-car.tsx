@@ -5,11 +5,14 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from 
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
-import { Car, Clock, Plus, Fuel, X, Palette } from "lucide-react"
+import { Car, Clock, Plus, Fuel, X, Palette, PlusSquare } from "lucide-react"
 import { CarCard } from "./car-card"
 import Link from "next/link";
 import { cn } from "@/lib/utils";
-import CarIcon from "../public/car-icon.svg";
+import CarFrontIcon from "@/public/car-front.svg";
+import Color from "@/public/color.svg";
+import Price from "@/public/price-tag.svg";
+import Speedometer  from "@/public/performance.svg";
 
 const userCars = [
     {
@@ -100,7 +103,7 @@ export function AddCarDialog() {
                  }} className="sm:text-3xl text-xl font-black font-myfont">MOHIT's GARRAGE</h1>
                 <Button className="bg-blue-600 text-white dark:text-black hover:bg-opacity-80  shadow-lg"
                   onClick={() => setIsOpen(true)}>
-                  <Plus className="mr-2 h-4 w-4 " />
+                  <PlusSquare className="text-20 h-12 w-12" />
                   <span className="">Add Car</span> 
                 </Button>
             </div>
@@ -137,7 +140,7 @@ export function AddCarDialog() {
                 
                 <div className="gap-4 w-10/11">
                         <div className="flex justify-between gap-6 items-center">
-                          <CarIcon className="w-16 h-4 dark:stroke-blue-200 dark:fill-blue-200 stroke-black fill-black" /> 
+                          <CarFrontIcon className="w-16 h-4 stroke-[6px] dark:stroke-white dark:fill-white  stroke-black fill-black" /> 
                             <Input
                                 type="text"
                                 name="title"
@@ -157,7 +160,7 @@ export function AddCarDialog() {
                             
                         </div>
                         <div className="flex justify-between items-center gap-6 items-end">
-                            <Palette className="w-5 h-5 flex-shrink-0" />
+                            <Color className="w-16 h-16 stroke-[6px] dark:stroke-white dark:fill-white  stroke-black fill-black" /> 
                             <div className="flex flex-col item-center gap-1 max-w-[214px] w-full">
                               <Label htmlFor="color" className="max-sm:text-xs">
                                 Select color for booking
@@ -182,7 +185,7 @@ export function AddCarDialog() {
                                 <div onClick={() => {
                                   document.getElementById('carImage')?.click()
                                   setIsOpen(true);
-                                  }} className=" mx-3 bg-gray-300 max-sm:text-sm hover:bg-gray-400 dark:bg-gray-800 dark:hover:bg-gray-900 w-fit cursor-pointer text-secondary-foreground px-2 py-1 rounded-sm hover:bg-gray-200 transition-colors">
+                                  }} className="  bg-gray-300 max-sm:text-sm hover:bg-gray-400 dark:bg-muted dark:hover:bg-gray-900 w-fit cursor-pointer text-secondary-foreground px-2 py-1 rounded-sm hover:bg-gray-200 transition-colors">
                                   <span>Choose file</span>
                                 </div>
                                 <Input
@@ -200,26 +203,26 @@ export function AddCarDialog() {
                 <div className="flex items-center gap-0 w-full">
                     <div className="space-y-4">
                         <div className="flex items-center gap-4 sm:gap-6">
-                            <Clock className="h-5 w-5 flex-shrink-0" />
+                            <Price className="w-7 h-7 stroke-[6px] dark:stroke-white dark:fill-white  stroke-black fill-black" /> 
                             <Label htmlFor="price" className="w-1/3 max-sm:text-xs">
                             24 hr price
                             </Label>
                             <Input type="text" id="price" placeholder="0"
-                                className="w-1/3 border-black dark:border-gray-700 placeholder:text-gray-700 dark:placeholder:text-gray-400  focus:border-blue-400 focus-visible:ring-blue-400" 
+                                className="w-1/3 border-black max-sm:text-xs dark:border-gray-700 placeholder:text-gray-700 dark:placeholder:text-gray-400  focus:border-blue-400 focus-visible:ring-blue-400" 
                                 value={price} 
                                 onChange={(e) => setPrice((e.target.value))}
                             />
                         </div>
 
                         <div className="flex items-center gap-4 sm:gap-6">
-                            <Fuel className="h-5 w-5 flex-shrink-0" />
+                            <Speedometer className="w-7 h-7 dark:stroke-white dark:fill-white  stroke-black fill-black" /> 
                             <Label htmlFor="totalAmount" className="w-1/3 max-sm:text-xs">
                             Car Mileage
                             </Label>
                             <Input type="text" id="totalAmount" placeholder="0"
                                 value={mileage} 
                                 onChange={(e) => setMileage((e.target.value))}
-                                className="w-1/3 placeholder:text-gray-700 dark:placeholder:text-gray-400  border-black dark:border-gray-700 focus:border-blue-400 focus-visible:ring-blue-400 " />
+                                className="w-1/3 max-sm:text-xs placeholder:text-gray-700 dark:placeholder:text-gray-400  border-black dark:border-gray-700 focus:border-blue-400 focus-visible:ring-blue-400 " />
                         </div>
                     </div>
                     <div className="w-[140px] h-[100px] border border-black dark:border-gray-700 relative">

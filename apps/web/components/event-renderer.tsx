@@ -208,8 +208,8 @@ export function EventRenderer({ date, view, events, hour}: EventRendererProps) {
               })}
             <div
               className="z-10 line-clamp-1 h-[18px] max-sm:h-[12px] w-full m-0 flex justify-start 
-                items-center cursor-pointer rounded-sm hover:bg-gray-300 text-[7px] font-semibold sm:text-xs p-[2px]
-                text-gray-700 px-1"
+                items-center cursor-pointer rounded-sm hover:bg-gray-300 dark:hover:bg-gray-700 text-[7px] font-semibold sm:text-xs p-[2px]
+                text-gray-700 dark:text-gray-300 px-1"
               onClick={(e) => {
                 e.stopPropagation();
                 // Add logic to open a modal or show more events for the day

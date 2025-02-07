@@ -3,12 +3,13 @@
 import { NavBar } from "@/components/navbar"
 import { BottomNav } from "@/components/bottom-nav"
 import { Button } from "@/components/ui/button"
-import { Car, CarTaxiFrontIcon, Edit, Pencil, User } from "lucide-react"
+import { Edit } from "lucide-react"
 import Image from "next/image"
 import { useState } from "react"
 import { Card, CardContent } from "@/components/ui/card"
 import { useRouter } from "next/navigation";
-import CarFrontIcon from "../../public/car-front.svg"
+import CarFrontIcon from "@/public/car-front.svg";
+import UserIcon from "@/public/user.svg"
 
 // This would typically come from your auth system
 const mockUser = {
@@ -31,7 +32,7 @@ export default function Profile() {
               {user.image ? (
                 <Image src={user.image || "/placeholder.svg"} alt="Profile" fill className="object-cover" />
               ) : (
-                <User className="w-16 h-16 text-blue-600" />
+                <UserIcon className="w-28 h-28 stroke-[12px] stroke-blue-600 fill-blue-600" />
               )}
             </div>
             {user.isLoggedIn && (
@@ -73,7 +74,7 @@ export default function Profile() {
                 onClick={() => router.push("/profile/manage-garrage")}>
                 <div className="flex items-center" >
                   <span className="w-8 h-8 mx-2 p-[6px] rounded-full text-green-700 dark:text-green-500  bg-blue-200 dark:bg-gray-900">
-                    <CarFrontIcon  className="w-5 h-4 fill-green-700 dark:fill-green-500 dark:stroke-green-500"/>
+                    <CarFrontIcon  className="w-5 h-4 fill-green-700 Stroke-green-700 dark:fill-green-500 dark:stroke-green-500 stroke-[6px]"/>
                   </span>
                   <span className="mx-2 max-sm:text-sm">Manage Garrage</span>
                 </div>
@@ -83,7 +84,7 @@ export default function Profile() {
                     onClick={() => router.push("/profile/edit")}>
                 <div className="flex items-center">
                   <span className="w-8 h-8 mx-2 p-[6px] rounded-full text-green-700 dark:text-green-500  bg-blue-200 dark:bg-gray-900">
-                    <User  className="w-5 h-5 "/>
+                    <UserIcon  className="w-5 h-5 stroke-[12px] stroke-green-700 dark:stroke-green-500 fill-green-700 dark:fill-green-500 "/>
                   </span>
                   <span className="mx-2 max-sm:text-sm">Manage Profile</span>
                 </div>

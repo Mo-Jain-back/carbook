@@ -1,6 +1,8 @@
 import Link from "next/link"
-import { Calendar, Car, User } from "lucide-react"
+import { Car } from "lucide-react"
+import Calendar from "@/public/calendar.svg"
 import { ThemeToggle } from "@/components/theme-toggle"
+import UserIcon from "@/public/user.svg"
 
 export default function Home() {
   return (
@@ -34,12 +36,12 @@ export default function Home() {
                 <p className="text-muted-foreground">Book your desired car with just a few clicks.</p>
               </div>
               <div className="bg-card p-6 rounded-lg shadow-md">
-                <Calendar className="w-12 h-12 text-primary mb-4" />
+                <Calendar className="w-12 h-12 stroke-primary fill-primary mb-4 mb-4" />
                 <h3 className="text-xl font-semibold mb-2">Calendar View</h3>
                 <p className="text-muted-foreground">Visualize all bookings in an intuitive calendar interface.</p>
               </div>
               <div className="bg-card p-6 rounded-lg shadow-md">
-                <User className="w-12 h-12 text-primary mb-4" />
+                <UserIcon className="w-12 h-12 stroke-[12px] stroke-primary fill-primary mb-4" />
                 <h3 className="text-xl font-semibold mb-2">User Profiles</h3>
                 <p className="text-muted-foreground">Manage your account and booking history with ease.</p>
               </div>
