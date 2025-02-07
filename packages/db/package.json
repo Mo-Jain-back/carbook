@@ -5,6 +5,9 @@
   "scripts": {
     "build": "tsc -b"
   },
+  "exports": {
+    "./client": "./src/index.ts"
+  },
   "keywords": [],
   "author": "",
   "license": "ISC",

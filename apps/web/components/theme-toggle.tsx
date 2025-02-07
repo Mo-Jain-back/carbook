@@ -14,17 +14,17 @@ export function ThemeToggle() {
           onClick={() => setTheme(theme === "light" ? "dark" : "light")}
         >
           <PoylyEdge
-            className={`w-full h-full stroke-0 fill-gray-700 dark:fill-white absolute top-0 left-0 transition-all duration-500 ${
+            className={`w-full h-full stroke-0 fill-yellow-400 dark:fill-white absolute top-0 left-0 transition-all duration-500 ${
               theme === "light" ? "scale-1 rotate-0" : "scale-0 rotate-180"
             }`}
           />
           <OutCircle
-            className={`w-full h-full stroke-0 fill-gray-700 dark:fill-white absolute top-0 left-0 transition-all duration-500 ${
+            className={`w-full h-full stroke-0 fill-yellow-400 dark:fill-white absolute top-0 left-0 transition-all duration-500 ${
               theme === "light" ? "scale-[0.44]" : "scale-[0.66]"
             }`}
           />
           <InnerCicle
-            className={`w-full h-full stroke-0 fill-gray-700 dark:fill-white absolute top-0 left-0 transition-all scale-[0.40] duration-500 ${
+            className={`w-full h-full stroke-0 fill-yellow-400 dark:fill-white absolute top-0 left-0 transition-all scale-[0.40] duration-500 ${
               theme === "light" ? "" : "translate-x-[11%] translate-y-[-9%]"
             }`}
           />

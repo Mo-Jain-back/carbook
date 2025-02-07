@@ -7,7 +7,7 @@ import { useTheme } from "next-themes"
 const StarryBackground: React.FC = () => {
   const { theme, systemTheme } = useTheme()
   const [mounted, setMounted] = useState(false)
-  const stars = Array.from({ length: 50 }, (_, i) => i)
+  const stars = Array.from({ length: 220 }, (_, i) => i)
 
   useEffect(() => {
     setMounted(true)

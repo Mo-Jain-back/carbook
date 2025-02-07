@@ -1,5 +1,5 @@
 datasource db {
-  provider = "postgresql"
+  provider = "postgres"
   url      = env("DATABASE_URL")
 }
 
@@ -25,8 +25,8 @@ model Car {
   mileage           Int
   imageUrl          String
   bookings          Booking[]
+  cancelledBy       String?
 }
-
 
 
 model Booking {
@@ -36,19 +36,22 @@ model Booking {
   startTime         String
   endTime           String
   allDay            Boolean
+  status            String
   car               Car      @relation(fields: [carId], references: [id])
   carId             Int
   user              User     @relation(fields: [userId], references: [id])
   userId            Int
-  createdAt         DateTime @default(now())
-  updatedAt         DateTime @updatedAt
+  advancePayment    Int
   earnings          Int
   customerName      String
   securityDeposit   String
   customerContact   String
-  customerAddress   String
   dailyRentalPrice  Int
+  customerAddress   String
   paymentMethod     String
   drivingLicence    String
   aadharCard        String
+  odometerReading   String  
+  notes             String?
 }
+

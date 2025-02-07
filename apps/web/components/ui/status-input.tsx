@@ -30,19 +30,19 @@ export function StatusInput({status,setStatus,className}:
         <PopoverTrigger asChild>
           <div
           className={cn(
-              "p-1 w-[110px] m-0 border-0 focus-visible:ring-0 border-y-4 cursor-pointer bg-gray-200 rounded-sm hover:bg-gray-300 justify-start text-left font-normal",
-              isPopoverOpen ? "border-t-gray-200 hover:border-t-gray-300 border-b-blue-400" : " border-gray-200 hover:border-gray-300",
+              "p-1 w-[110px] m-0 border-0 text-sm focus-visible:ring-0 border-y-4 border-transparent cursor-pointer bg-muted dark:hover:bg-card rounded-sm hover:bg-gray-300 justify-start text-left font-normal",
+              isPopoverOpen ? "border-b-blue-400" : "",
             )}
           >
             {status}
           </div>
         </PopoverTrigger>
-        <PopoverContent className="w-auto p-[8px]" align="start">
+        <PopoverContent className="w-auto p-[8px] border-border" align="start">
           <div key={"option"}>
             {statusOptions.map((option,index) => {
               return (
                 <div key={index}
-                className="p-1 text-black cursor-pointer rounded-md hover:bg-gray-200"
+                className="p-1 cursor-pointer text-sm rounded-md hover:bg-muted dark:hover:bg-card"
                 onClick={() => {
                   setStatus(option);
                 }}

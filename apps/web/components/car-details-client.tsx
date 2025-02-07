@@ -178,7 +178,7 @@ export function CarDetailsClient({ car }: CarDetailsClientProps) {
 
           <div className="px-4 ">
             <section className="px-4 py-4 border-b-4 border-gray-200 dark:border-gray-700">
-              <h2 className="text-lg font-semibold mb-4 ">Booking Details</h2>
+              <h2 className="text-lg font-semibold mb-4 ">Car Details</h2>
               <div className="grid grid-cols-2 gap-4 sm:gap-6">
                 <div className="space-y-3">
                   <p className="text-sm text-blue-500 mb-1">Brand</p>
