@@ -74,7 +74,7 @@ export default function Profile() {
                 onClick={() => router.push("/profile/manage-garrage")}>
                 <div className="flex items-center" >
                   <span className="w-8 h-8 mx-2 p-[6px] rounded-full text-green-700 dark:text-green-500  bg-blue-200 dark:bg-gray-900">
-                    <CarFrontIcon  className="w-5 h-4 fill-green-700 Stroke-green-700 dark:fill-green-500 dark:stroke-green-500 stroke-[6px]"/>
+                    <CarFrontIcon  className="w-5 h-4 fill-green-700 stroke-green-700 dark:fill-green-500 dark:stroke-green-500 stroke-[10px]"/>
                   </span>
                   <span className="mx-2 max-sm:text-sm">Manage Garrage</span>
                 </div>

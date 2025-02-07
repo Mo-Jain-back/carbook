@@ -1,17 +1,34 @@
-import { NavBar } from "@/components/navbar"
-import { BottomNav } from "@/components/bottom-nav"
-import { Suspense } from "react"
+"use client"
+import { Suspense, useEffect, useState } from "react"
 import { BookingDetailsClient } from "./booking-details-client"
 import LoadingScreen from "@/components/loading-screen"
 import BookingNotFound from "@/components/booking-not-found"
+import { useParams } from "next/navigation"
 
+interface Booking {
+  car: {
+      id: number;
+      name: string;
+      plateNumber: string;
+      imageUrl: string;
+  };
+  id: number;
+  start: string;
+  end: string;
+  bookedBy: {
+      name: string;
+      contact: string;
+  };
+  status: string;
+  cancelledBy: string |null;
+}
 // This would typically come from a database or API
 const userCars = [
   {
     id: 1,
     name: "Tesla Model 3",
     plateNumber: "ABC 123",
-    imageUrl: "/placeholder.svg?height=200&width=300",
+    imageUrl: "",
     bookings: [
       {
         id: 101,
@@ -35,7 +52,7 @@ const userCars = [
     id: 2,
     name: "Ford Mustang",
     plateNumber: "XYZ 789",
-    imageUrl: "/placeholder.svg?height=200&width=300",
+    imageUrl: "",
     bookings: [
       {
         id: 201,
@@ -67,23 +84,39 @@ function getBookingStatus(start: string, end: string) {
   return "Booking Completed"
 }
 
-export default async function BookingDetails({ params }: { params: { id: string } }) {
-  const bookingId = await Number(params.id); // Resolve params.id synchronously after awaiting params
+export default function BookingDetails() {
+  // const bookingId = await Number(params.id); // Resolve params.id synchronously after awaiting params
+  const Booking =  useParams();
+  const [booking, setBooking] = useState<Booking>();
 
-  
-  const booking = userCars
-    .flatMap((car) =>
-      car.bookings.map((booking) => ({
-        ...booking,
-        car: {
-          id: car.id,
-          name: car.name,
-          plateNumber: car.plateNumber,
-          imageUrl: car.imageUrl,
-        },
-      }))
-    )
-    .find((b) => b.id === bookingId)
+  useEffect(() => {
+    if(!Booking?.id) return;
+    async function fetchData() {
+      try {
+        const filteredBooking = userCars
+          .flatMap((car) =>
+            car.bookings.map((booking) => ({
+              ...booking,
+              car: {
+                id: car.id,
+                name: car.name,
+                plateNumber: car.plateNumber,
+                imageUrl: car.imageUrl ,
+              },
+            })),
+          )
+          .find((b) => b.id === Number(Booking?.id))
+        
+        setBooking(filteredBooking);
+      }
+      catch (error) {
+        console.log(error);
+      }
+    }
+    
+    fetchData();
+    
+  }, [Booking]);
 
   if (!booking) {
   return <div><BookingNotFound/></div>

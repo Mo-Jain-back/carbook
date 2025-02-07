@@ -1,10 +1,28 @@
-import { NavBar } from "@/components/navbar"
-import { BottomNav } from "@/components/bottom-nav"
-import { Suspense } from "react"
+"use client"
+import { Suspense, useEffect, useState } from "react"
 import { CarDetailsClient } from "@/components/car-details-client";
 import LoadingScreen from "@/components/loading-screen";
 import CarNotFound from "@/components/car-not-found";
+import { useParams } from "next/navigation";
 
+interface Car {
+  id: number;
+  brand: string;
+  model: string;
+  plateNumber: string;
+  color: string;
+  imageUrl: string;
+  mileage: string;
+  price: string;
+  bookings: {
+    id: number;
+    start: string;
+    end: string;
+    bookedBy: { name: string; contact: string },
+    status: string;
+  cancelledBy: null | string;
+  }[];
+}
 // This would typically come from a database or API
 const userCars = [
   {
@@ -67,25 +85,35 @@ const userCars = [
 
 
 
-export default async function CarDetails({ params }: { params: { id: string } }) {
-  const carId = await Number(params.id); // Resolve params.id synchronously after awaiting params
+export default function CarDetails() {
+  const Car = useParams();
+  const [car, setCar] = useState<Car | null>(null);
 
-  const car = userCars
-    .find((b) => b.id === carId);
+  useEffect(() => {
+    if (!Car?.id) return;
+    async function fetchData() {
+      try {
+        const filteredCar = userCars.find((b) => b.id === Number(Car.id));
+        setCar(filteredCar || null);
+      } catch (error) {
+        console.log(error);
+      }
+    }
+
+    fetchData();
+  }, [Car]);
 
   if (!car) {
-    return <div><CarNotFound/></div>
+    return <div><CarNotFound /></div>;
   }
-
 
   return (
     <div className="min-h-screen bg-background">
-      
       <main className="container mx-auto w-full px-0 py-2 pb-16 sm:pb-8">
-        <Suspense fallback={<div><LoadingScreen/></div>}>
-          <CarDetailsClient car={car}  />
+        <Suspense fallback={<div><LoadingScreen /></div>}>
+          <CarDetailsClient car={car} />
         </Suspense>
       </main>
     </div>
-  )
+  );
 }

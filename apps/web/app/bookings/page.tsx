@@ -10,7 +10,8 @@ import {  Clock, LogIn, PlaneTakeoff, Plus, PlusCircle, PlusIcon, PlusSquare } f
 import Image from "next/image"
 import { useState } from "react"
 import { CarBookingDialog } from "@/components/add-booking";
-import ArrowRight from "@/public/right_arrow.svg"
+import ArrowRight from "@/public/right_arrow.svg";
+import CarIcon from "@/public/car-icon.svg"
 
 // This would typically come from a database or API
 const userCars = [
@@ -18,7 +19,7 @@ const userCars = [
     id: 1,
     name: "Tesla Model 3",
     plateNumber: "ABC 123",
-    imageUrl: "/placeholder.svg?height=200&width=300",
+    imageUrl:"",
     bookings: [
       {
         id: 101,
@@ -42,7 +43,7 @@ const userCars = [
     id: 2,
     name: "Ford Mustang",
     plateNumber: "XYZ 789",
-    imageUrl: "/placeholder.svg?height=200&width=300",
+    imageUrl:"",
     bookings: [
       {
         id: 201,
@@ -109,7 +110,7 @@ export default function Bookings() {
           id: car.id,
           name: car.name,
           plateNumber: car.plateNumber,
-          imageUrl: car.imageUrl,
+          imageUrl: car.imageUrl == "" ? undefined : car.imageUrl,
         },
       })),
     )
@@ -221,13 +222,17 @@ export default function Bookings() {
                       </div>
                     </div>
                     <div className="text-center ml-4">
-                      <div className="relative sm:w-20 sm:h-20 w-12 h-12 mb-2">
-                        <Image
-                          src={booking.car.imageUrl || "/placeholder.svg"}
+                      <div className="relative sm:w-24 flex items-center sm:h-20 rounded-md border border-border w-12 h-12 mb-2"> 
+                        { booking.car.imageUrl ?
+                          <Image
+                          src={booking.car.imageUrl}
                           alt={booking.car.name}
                           fill
-                          className="object-cover rounded"
+                          className="object-cover rounded w-full"
                         />
+                        :
+                        <CarIcon className="w-full dark:stroke-blue-200  dark:fill-blue-200 p-1 stroke-black fill-black" /> 
+                        }
                       </div>
                       <p className="text-sm max-sm:text-xs font-semibold">{booking.car.name}</p>
                       <p className="text-xs text-blue-400 max-sm:text-[10px]">{booking.car.plateNumber}</p>

@@ -1,4 +1,3 @@
-"use client"
 
 import { Button } from "@/components/ui/button"
 import {  Edit, MoreVertical, Trash2 } from "lucide-react"
@@ -13,7 +12,8 @@ import ArrowRight from "@/public/right_arrow.svg"
 import { Input } from "@/components/ui/input";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu"
 import BackArrow from "@/public/back-arrow.svg";
-import { StatusInput } from "@/components/ui/status-input"
+import { StatusInput } from "@/components/ui/status-input";
+import CarIcon from "@/public/car-icon.svg"
 
 
 interface BookingDetailsClientProps {
@@ -160,15 +160,18 @@ export function BookingDetailsClient({ booking }: BookingDetailsClientProps) {
               )}
             </div>
             <div className="text-right">
-              <div className="relative w-20 h-20 mb-2">
-                <Image
-                  src={booking.car.imageUrl || "/placeholder.svg"}
-                  alt={booking.car.name}
-                  priority
-                  fill
-                  className="object-cover rounded"
-                />
-              </div>
+            <div className="relative sm:w-24 flex items-center sm:h-20 rounded-md border border-border w-12 h-12 mb-2"> 
+                  { booking.car.imageUrl !== "" ?
+                    <Image
+                    src={booking.car.imageUrl}
+                    alt={booking.car.name}
+                    fill
+                    className="object-cover rounded w-full"
+                  />
+                  :
+                  <CarIcon className="w-full dark:stroke-blue-200 p-1  dark:fill-blue-200 stroke-black fill-black" /> 
+                  }
+                </div>
               <p className="text-sm font-semibold text-[#4B4237] dark:text-gray-400">{booking.car.name}</p>
               <p className="text-xs text-blue-500">{booking.car.plateNumber}</p>
             </div>
