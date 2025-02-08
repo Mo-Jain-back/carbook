@@ -41,17 +41,17 @@ model Booking {
   carId             Int
   user              User     @relation(fields: [userId], references: [id])
   userId            Int
-  advancePayment    Int
-  earnings          Int
+  advancePayment    Int?
+  earnings          Int?
   customerName      String
   securityDeposit   String
   customerContact   String
   dailyRentalPrice  Int
-  customerAddress   String
-  paymentMethod     String
-  drivingLicence    String
-  aadharCard        String
-  odometerReading   String  
+  customerAddress   String?
+  paymentMethod     String?
+  drivingLicence    String?
+  aadharCard        String?
+  odometerReading   String? 
   notes             String?
 }
 
