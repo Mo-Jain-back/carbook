@@ -8,6 +8,15 @@ interface ViewStoreType {
   setView: (value: string) => void;
 }
 
+interface UserStore {
+  username: string;
+  setUsername: (value: string) => void;
+  password: string;
+  setPassword: (value: string) => void;
+  name: string;
+  setName: (value: string) => void;
+}
+
 interface DateStoreType {
   userSelectedDate: Dayjs;
   setDate: (value: Dayjs) => void;
@@ -38,7 +47,7 @@ type EventStore = {
 
 interface ToggleSideBarType {
   isSideBarOpen: boolean;
-  setSideBarOpen: () => void;
+  setSideBarOpen: (flag:boolean) => void;
 }
 
 type EventRow = { id: string; rowIndex: number };
@@ -69,6 +78,27 @@ export const useWrappedEvent = create<WrappedEventStore>((set) => ({
   setWrappedEvents: (wrappedEvents) => set({ wrappedEvents }),
 }));
 
+export const useUserStore = create<UserStore>()(
+  devtools(
+    persist(
+      (set) => ({
+        username: "",
+        setUsername: (value: string) => {
+          set({ username: value });
+        },
+        password: "",
+        setPassword: (value: string) => {
+          set({ password: value });
+        },
+        name: "",
+        setName: (value: string) => {
+          set({ name: value });
+        },
+      }),
+      { name: "user_data", skipHydration: true },
+    ),
+  ),
+);
 
 
 export const useViewStore = create<ViewStoreType>()(
@@ -116,10 +146,16 @@ export const useEventStore = create<EventStore>((set) => ({
 }));
 
 export const useToggleSideBarStore = create<ToggleSideBarType>()(
-  (set, get) => ({
-    isSideBarOpen: true,
-    setSideBarOpen: () => {
-      set({ isSideBarOpen: !get().isSideBarOpen });
-    },
-  }),
+  devtools(
+    persist(
+      (set, get) => ({
+        isSideBarOpen: true,
+        setSideBarOpen: (flag:boolean) => {
+          set({ isSideBarOpen: flag });
+        },
+      }),
+      { name: "sidebar_state" } 
+    )
+  )
 );
+

@@ -28,6 +28,7 @@ export function CarBookingDialog({isOpen, setIsOpen}: {isOpen: boolean, setIsOpe
   const [totalAmount,setTotalAmount] = useState<number>(0);
   const [securityDeposit,setSecurityDeposit] = useState<number>(0);
   const [name,setName] = useState<string>("");
+  const [contact,setContact] = useState<string>("");
 
   const handleSubmit = (event: React.FormEvent) => {
 
@@ -57,7 +58,7 @@ export function CarBookingDialog({isOpen, setIsOpen}: {isOpen: boolean, setIsOpe
               Select your car
             </Label>
             <Select>
-              <SelectTrigger id="car" className="w-2/3  focus:border-blue-400 focus:ring-blue-400 focus-visible:ring-blue-400 focus:outline-none">
+              <SelectTrigger id="car" className="w-2/3 border-input  focus:border-blue-400 focus:ring-blue-400 focus-visible:ring-blue-400 focus:outline-none">
                 <SelectValue placeholder="Select a car" />
               </SelectTrigger>
               <SelectContent className="dark:border-gray-700">
@@ -117,11 +118,22 @@ export function CarBookingDialog({isOpen, setIsOpen}: {isOpen: boolean, setIsOpe
 
           <div className="flex items-center gap-4">
             <UserIcon className="h-5 w-5 flex-shrink-0 stroke-[12px] stroke-black fill-black dark:stroke-white dark:fill-white" />
-            <Label htmlFor="name" className="w-1/3">
-              Name of person booking
-            </Label>
-            <Input type="text" id="name" value={name} onChange={(e) => setName(e.target.value)} 
-              className="w-2/3  focus:border-blue-400 focus-visible:ring-blue-400 "/>
+            <div className="flex w-full gap-2 sm:gap-4">
+              <div>
+                <Label htmlFor="name" className="w-1/3">
+                  Customer Name
+                </Label>
+                <Input type="text" id="name" value={name} onChange={(e) => setName(e.target.value)} 
+                  className="w-2/3 border-input min-w-[130px] w-full focus:border-blue-400 focus-visible:ring-blue-400 "/>
+              </div>
+              <div>
+                <Label htmlFor="name" className="w-1/3">
+                  Contact
+                </Label>
+                <Input type="text" id="name" value={contact} onChange={(e) => setContact(e.target.value)} 
+                  className="w-2/3 border-input min-w-[130px] w-full focus:border-blue-400 focus-visible:ring-blue-400 "/>
+              </div>
+            </div>
           </div>
 
           
@@ -132,7 +144,7 @@ export function CarBookingDialog({isOpen, setIsOpen}: {isOpen: boolean, setIsOpe
               24 hr price
             </Label>
             <Input type="number" id="price" 
-            className="w-2/3  focus:border-blue-400 focus-visible:ring-blue-400 [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none" 
+            className="w-2/3 border-input  focus:border-blue-400 focus-visible:ring-blue-400 [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none" 
             value={price} onChange={(e) => setPrice(Number(e.target.value))}
             />
           </div>
@@ -144,18 +156,10 @@ export function CarBookingDialog({isOpen, setIsOpen}: {isOpen: boolean, setIsOpe
             </Label>
             <Input type="number" id="totalAmount" 
             value={totalAmount} onChange={(e) => setTotalAmount(Number(e.target.value))}
-            className="w-2/3  focus:border-blue-400 focus-visible:ring-blue-400  [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none" />
+            className="w-2/3 border-input  focus:border-blue-400 focus-visible:ring-blue-400  [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none" />
           </div>
 
-          <div className="flex items-center gap-4">
-            <Shield className="h-6 w-6 mr-[-2px] flex-shrink-0 stroke-[0px] stroke-black fill-black dark:stroke-white dark:fill-white" />
-            <Label htmlFor="securityDeposit" className="w-1/3">
-              Security deposit
-            </Label>
-            <Input type="number" id="securityDeposit" 
-            value={securityDeposit} onChange={(e) => setSecurityDeposit(Number(e.target.value))}
-            className="w-2/3  focus:border-blue-400 focus-visible:ring-blue-400  [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none" />
-          </div>
+          
 
           <Button type="submit" className="bg-blue-600 text-card hover:bg-opacity-80 w-full">
               Create

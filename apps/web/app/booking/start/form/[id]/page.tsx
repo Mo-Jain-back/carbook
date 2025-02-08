@@ -8,15 +8,33 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Textarea } from "@/components/ui/textarea"
 import { Checkbox } from "@/components/ui/checkbox"
 import { cn } from "@/lib/utils"
-import { Cross, Image } from "lucide-react"
+import {  Image } from "lucide-react"
 
 export default function BookingStartChecklist() {
-  const [uploadedFiles, setUploadedFiles] = useState<{ [key: string]: File[] }>({
+    const [customerName, setCustomerName] = useState("");
+    const [bookingId, setBookingId] = useState("");
+    const [phoneNumber, setPhoneNumber] = useState("");
+    const [selectedCar, setSelectedCar] = useState("");
+    const [startDate, setStartDate] = useState("");
+    const [startTime, setStartTime] = useState("");
+    const [returnDate, setReturnDate] = useState("");
+    const [returnTime, setReturnTime] = useState("");
+    const [securityDeposit,setSecurityDeposit] = useState("");
+    const [odometerReading, setOdometerReading] = useState("");
+    const [address, setAddress] = useState("");
+    const [bookingAmountReceived, setBookingAmountReceived] = useState("");
+    const [dailyRentalCharges, setDailyRentalCharges] = useState("");
+    const [totalAmount, setTotalAmount] = useState("");
+    const [paymentMethod, setPaymentMethod] = useState("");
+    const [notes, setNotes] = useState("");
+    const [termsAccepted, setTermsAccepted] = useState(false);
+    const [uploadedFiles, setUploadedFiles] = useState<{ [key: string]: File[] }>({
     documents: [],
     photos: [],
     selfie: [],
-  })
+  });
 
+  
   const handleFileUpload = (event: React.ChangeEvent<HTMLInputElement>, type: string) => {
     const files = event.target.files
     if (files) {
@@ -68,38 +86,25 @@ export default function BookingStartChecklist() {
       <form onSubmit={handleSubmit} className="space-y-6 max-sm:mb-12">
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           <div className="space-y-4">
-            <div>
+          <div>
               <Label htmlFor="customerName">Customer Name</Label>
-              <Input
-                id="customerName"
-                className={cn("border-gray-400 dark:border-gray-800 focus-visible:ring-blue-500", "transition-colors duration-200")}
-              />
+              <Input id="customerName" value={customerName} onChange={(e) => setCustomerName(e.target.value)} />
             </div>
             <div>
               <Label htmlFor="bookingId">Booking ID</Label>
-              <Input
-                id="bookingId"
-                className={cn("border-gray-400 dark:border-gray-800 focus-visible:ring-blue-500", "transition-colors duration-200")}
-              />
+              <Input id="bookingId" value={bookingId} onChange={(e) => setBookingId(e.target.value)} />
             </div>
             <div>
               <Label htmlFor="phoneNumber">Phone Number</Label>
-              <Input
-                id="phoneNumber"
-                type="tel"
-                className={cn("border-gray-400 dark:border-gray-800 focus-visible:ring-blue-500", "transition-colors duration-200")}
-              />
+              <Input id="phoneNumber" type="tel" value={phoneNumber} onChange={(e) => setPhoneNumber(e.target.value)} />
             </div>
             <div>
               <Label htmlFor="selectedCar">Selected Car</Label>
-              <Select>
-                <SelectTrigger
-                  id="selectedCar"
-                  className={cn("border-gray-400 dark:border-gray-800 focus-visible:ring-blue-500", "transition-colors duration-200")}
-                >
+              <Select onValueChange={setSelectedCar}>
+                <SelectTrigger id="selectedCar" value={selectedCar}>
                   <SelectValue placeholder="Select a car" />
                 </SelectTrigger>
-                <SelectContent className="dark:border-gray-800">
+                <SelectContent>
                   <SelectItem value="sedan">Sedan</SelectItem>
                   <SelectItem value="suv">SUV</SelectItem>
                   <SelectItem value="sports">Sports Car</SelectItem>
@@ -108,35 +113,27 @@ export default function BookingStartChecklist() {
             </div>
             <div>
               <Label htmlFor="startDate">Start Date</Label>
-              <Input
-                id="startDate"
-                type="date"
-                className={cn("border-gray-400 dark:border-gray-800 focus-visible:ring-blue-500", "transition-colors duration-200")}
-              />
+              <Input id="startDate" type="date" value={startDate} onChange={(e) => setStartDate(e.target.value)} />
             </div>
             <div>
               <Label htmlFor="startTime">Start Time</Label>
-              <Input
-                id="startTime"
-                type="time"
-                className={cn("border-gray-400 dark:border-gray-800 focus-visible:ring-blue-500", "transition-colors duration-200")}
-              />
+              <Input id="startTime" type="time" value={startTime} onChange={(e) => setStartTime(e.target.value)} />
             </div>
             <div>
               <Label htmlFor="returnDate">Return Date</Label>
-              <Input
-                id="returnDate"
-                type="date"
-                className={cn("border-gray-400 dark:border-gray-800 focus-visible:ring-blue-500", "transition-colors duration-200")}
-              />
+              <Input id="returnDate" type="date" value={returnDate} onChange={(e) => setReturnDate(e.target.value)} />
             </div>
             <div>
               <Label htmlFor="returnTime">Return Time</Label>
-              <Input
-                id="returnTime"
-                type="time"
-                className={cn("border-gray-400 dark:border-gray-800 focus-visible:ring-blue-500", "transition-colors duration-200")}
-              />
+              <Input id="returnTime" type="time" value={returnTime} onChange={(e) => setReturnTime(e.target.value)} />
+            </div>
+            <div >
+              <Label htmlFor="securityDeposit" className="w-1/3">
+                Security deposit
+              </Label>
+              <Input type="text" id="securityDeposit" 
+                value={securityDeposit} onChange={(e) => setSecurityDeposit(e.target.value)}
+                />
             </div>
           </div>
           <div className="space-y-4">
@@ -144,47 +141,43 @@ export default function BookingStartChecklist() {
               <Label htmlFor="odometerReading">Odometer Reading</Label>
               <Input
                 id="odometerReading"
-                type="number"
-                className={cn("border-gray-400 dark:border-gray-800 focus-visible:ring-blue-500", "transition-colors duration-200")}
+                type="text" value={odometerReading} onChange={(e) => setOdometerReading(e.target.value)}
               />
             </div>
             <div>
               <Label htmlFor="address">Address</Label>
               <Textarea
-                id="address"
-                className={cn("border-gray-400 dark:border-gray-800 focus-visible:ring-blue-500", "transition-colors duration-200")}
-              />
+                id="address" value={address} onChange={(e) => setAddress(e.target.value)}
+                className="h-28 sm:max-h-28 sm:max-h-28"
+                 />
             </div>
             <div>
               <Label htmlFor="bookingAmountReceived">Booking Amount Received</Label>
               <Input
                 id="bookingAmountReceived"
-                type="number"
-                className={cn("border-gray-400 dark:border-gray-800 focus-visible:ring-blue-500", "transition-colors duration-200")}
+                type="text" value={bookingAmountReceived} onChange={(e) => setBookingAmountReceived(e.target.value)}
               />
             </div>
             <div>
               <Label htmlFor="dailyRentalCharges">Daily Rental Charges</Label>
               <Input
                 id="dailyRentalCharges"
-                type="number"
-                className={cn("border-gray-400 dark:border-gray-800 focus-visible:ring-blue-500", "transition-colors duration-200")}
+                type="text" value={dailyRentalCharges} onChange={(e) => setDailyRentalCharges(e.target.value)}
               />
             </div>
             <div>
               <Label htmlFor="totalAmount">Total Amount</Label>
               <Input
                 id="totalAmount"
-                type="number"
-                className={cn("border-gray-400 dark:border-gray-800 focus-visible:ring-blue-500", "transition-colors duration-200")}
+                type="text" value={totalAmount} onChange={(e) => setTotalAmount(e.target.value)}
               />
             </div>
             <div>
               <Label htmlFor="paymentMethod">Payment Method</Label>
-              <Select>
+              <Select onValueChange={setPaymentMethod}>
                 <SelectTrigger
                   id="paymentMethod"
-                  className={cn("border-gray-400 dark:border-gray-800 focus-visible:ring-blue-500", "transition-colors duration-200")}
+                  value={paymentMethod}
                 >
                   <SelectValue placeholder="Select payment method" />
                 </SelectTrigger>
@@ -198,8 +191,8 @@ export default function BookingStartChecklist() {
             <div>
               <Label htmlFor="notes">Notes (if any)</Label>
               <Textarea
-                id="notes"
-                className={cn("border-gray-400 dark:border-gray-800 focus-visible:ring-blue-500", "transition-colors duration-200")}
+                id="notes" value={notes} onChange={(e) => setNotes(e.target.value)}
+                className="h-28 sm:max-h-28"
               />
             </div>
           </div>
@@ -214,7 +207,6 @@ export default function BookingStartChecklist() {
               accept="image/*"
               multiple
               onChange={(e) => handleFileUpload(e, "documents")}
-              className={cn("border-gray-400 dark:border-gray-800 focus:border-blue-500 focus:ring-0", "transition-colors duration-200")}
             />
             {renderFileList("documents")}
           </div>
@@ -226,7 +218,6 @@ export default function BookingStartChecklist() {
               accept="image/*"
               multiple
               onChange={(e) => handleFileUpload(e, "photos")}
-              className={cn("border-gray-400 dark:border-gray-800 focus:border-blue-500 focus:ring-0", "transition-colors duration-200")}
             />
             {renderFileList("photos")}
           </div>
@@ -237,13 +228,12 @@ export default function BookingStartChecklist() {
               type="file"
               accept="image/*"
               onChange={(e) => handleFileUpload(e, "selfie")}
-              className={cn("border-gray-400 dark:border-gray-800 focus:border-blue-500 focus:ring-0", "transition-colors duration-200")}
             />
             {renderFileList("selfie")}
           </div>
         </div>
         <div className="flex items-center space-x-2">
-          <Checkbox id="terms" />
+          <Checkbox id="terms" checked={termsAccepted} onCheckedChange={() => setTermsAccepted(!termsAccepted)} />
           <label
             htmlFor="terms"
             className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
@@ -251,10 +241,15 @@ export default function BookingStartChecklist() {
             I agree to the terms and conditions mentioned above
           </label>
         </div>
+        <div className="flex items-center space-x-2">
 
-        <Button type="submit" className="bg-blue-600 text-card hover:bg-opacity-80 w-full">
-              Create
-          </Button>
+          <Button type="submit" className="bg-blue-600 text-card hover:bg-opacity-80 w-full">
+                Create
+            </Button>
+            <Button  className="bg-red-600 text-card hover:bg-opacity-80 w-full">
+              Cancel
+            </Button>
+          </div>
       </form>
     </div>
   )

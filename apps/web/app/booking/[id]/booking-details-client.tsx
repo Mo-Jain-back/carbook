@@ -31,7 +31,6 @@ interface BookingDetailsClientProps {
       contact: string
     }
   },
-  status?: string
 }
 
 function formatDateTime(date: Date) {

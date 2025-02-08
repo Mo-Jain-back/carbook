@@ -37,7 +37,7 @@ export default function Home() {
             </div>
           </div>
         </section>
-        <div className="z-[-2]">
+        <div className="-z-2">
           <AddCarDialog/>
         </div>
 

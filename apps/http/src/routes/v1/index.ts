@@ -1,44 +1,32 @@
 
 import { Router } from "express";
 import jwt from "jsonwebtoken";
-import { ENTERPRISE_FOLDER_ID, JWT_PASSWORD, USER_GUIDE_FOLDER_ID } from "../../config";
-import { SigninSchema, SignupSchema } from "../../types";
-import {hash, compare} from "../../scrypt";
-import { middleware } from "./middleware";
+import { JWT_PASSWORD } from "../../config";
+import { CarsSchema, SigninSchema, SignupSchema, UpdateUserSchema } from "../../types";
+import { middleware } from "../../middleware";
 import client from "@repo/db/client";
+import { carRouter } from "./car";
+import { bookingRouter } from "./booking";
 
 
 export const router = Router();
 
-export const formatItem = (item: any, isFolder: boolean) => ({
-    id: item.id,
-    name: item.name,
-    type: isFolder ? "folder" : item.type,
-    items: isFolder ? item.subfolders.length + item.files.length + " items" : undefined,
-    size: !isFolder ? item.size : undefined,
-    modified: item.createdAt,
-    isFavorite: item.isFavorite,
-    contentType: item.contentType ?? undefined
-});
-
 
 router.post("/signup", async (req, res) => {
-    console.log("inside signup")
     // check the user
     const parsedData = SignupSchema.safeParse(req.body)
     if (!parsedData.success) {
         console.log("parsed data incorrect")
-        res.status(400).json({message: "Validation failed"})
+        res.status(400).json({message: "Wrong Input type"})
         return
     }
 
     try {
-        const hashedPassword = await hash(parsedData.data.password)
         
         const user = await client.user.create({
             data: {
-                usermail: parsedData.data.username,
-                password: hashedPassword,
+                username: parsedData.data.username,
+                password: parsedData.data.password,
                 name: parsedData.data.name,
             }
         })
@@ -50,13 +38,10 @@ router.post("/signup", async (req, res) => {
         res.json({
             message:"User created successfully",
             token,
-            username:user.usermail,
             name:user.name,
-            userId:user.id
         })
     } catch(e) {
-        console.log("error thrown")
-        console.log(e)
+     
         res.status(400).json({message: "User already exists"})
     }
 })
@@ -64,25 +49,20 @@ router.post("/signup", async (req, res) => {
 router.post("/signin", async (req, res) => {
     const parsedData = SigninSchema.safeParse(req.body)
     if (!parsedData.success) {
-        res.status(403).json({message: "Validation failed"})
+        res.status(403).json({message: "Wrong Input type"})
         return
     }
 
     try {
         const user = await client.user.findFirst({
             where: {
-                usermail: parsedData.data.username
+                username: parsedData.data.username,
+                password: parsedData.data.password
             }
         })
         
         if (!user) {
-            res.status(403).json({message: "User not found"})
-            return
-        }
-        const isValid = await compare(parsedData.data.password, user.password)
-
-        if (!isValid) {
-            res.status(403).json({message: "Invalid password"})
+            res.status(403).json({message: "Invalid username or password"})
             return
         }
 
@@ -94,9 +74,49 @@ router.post("/signin", async (req, res) => {
         res.json({
             message:"User signed in successfully",
             token,
-            username:user.usermail,
             name:user.name,
-            userId:user.id
+        })
+    } catch(e) {
+        res.status(400).json({message: "Internal server error"})
+    }
+})
+
+router.get("/me", middleware,async (req, res) => {
+    try {
+        const user = await client.user.findFirst({
+            where: {
+                id: req.userId
+            }
+        })
+        res.json({
+            message:"User fetched successfully",
+            user
+        })
+    } catch(e) {
+        res.status(400).json({message: "Internal server error"})
+    }
+})
+
+router.put("/me", middleware,async (req, res) => {
+    const parsedData = UpdateUserSchema.safeParse(req.body)
+    if (!parsedData.success) {
+        res.status(403).json({message: "Wrong Input type"})
+        return
+    }
+    try {
+
+        const user = await client.user.update({
+                        where: {
+                            id: req.userId
+                        },
+                        data: {
+                            password: parsedData.data.password,
+                            name: parsedData.data.name,
+                            username: parsedData.data.username
+                        },
+                    })
+        res.json({
+            message:"User data updated successfully",
         })
     } catch(e) {
         res.status(400).json({message: "Internal server error"})
@@ -104,7 +124,9 @@ router.post("/signin", async (req, res) => {
     }
 })
 
-router.post("/cars",async (req,res) => {
-    const parsedData = SigninSchema.safeParse(req.body)
-})
+router.use("/car",carRouter)
+router.use("/booking",bookingRouter)
+
+
+
 

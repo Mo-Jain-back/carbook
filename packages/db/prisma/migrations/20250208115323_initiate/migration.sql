@@ -4,6 +4,7 @@ CREATE TABLE "User" (
     "username" TEXT NOT NULL,
     "name" TEXT,
     "password" TEXT NOT NULL,
+    "imageUrl" TEXT,
 
     CONSTRAINT "User_pkey" PRIMARY KEY ("id")
 );
@@ -18,14 +19,14 @@ CREATE TABLE "Car" (
     "price" INTEGER NOT NULL,
     "mileage" INTEGER NOT NULL,
     "imageUrl" TEXT NOT NULL,
-    "cancelledBy" TEXT,
+    "userId" INTEGER NOT NULL,
 
     CONSTRAINT "Car_pkey" PRIMARY KEY ("id")
 );
 
 -- CreateTable
 CREATE TABLE "Booking" (
-    "id" SERIAL NOT NULL,
+    "id" INTEGER NOT NULL DEFAULT (floor(random() * (9999999 - 1000000 + 1)) + 1000000)::int,
     "startDate" TIMESTAMP(3) NOT NULL,
     "endDate" TIMESTAMP(3) NOT NULL,
     "startTime" TEXT NOT NULL,
@@ -34,17 +35,18 @@ CREATE TABLE "Booking" (
     "status" TEXT NOT NULL,
     "carId" INTEGER NOT NULL,
     "userId" INTEGER NOT NULL,
-    "advancePayment" INTEGER NOT NULL,
-    "earnings" INTEGER NOT NULL,
     "customerName" TEXT NOT NULL,
     "securityDeposit" TEXT NOT NULL,
     "customerContact" TEXT NOT NULL,
     "dailyRentalPrice" INTEGER NOT NULL,
-    "customerAddress" TEXT NOT NULL,
-    "paymentMethod" TEXT NOT NULL,
-    "drivingLicence" TEXT NOT NULL,
-    "aadharCard" TEXT NOT NULL,
-    "odometerReading" TEXT NOT NULL,
+    "cancelledBy" TEXT,
+    "advancePayment" INTEGER,
+    "totalPrice" INTEGER,
+    "customerAddress" TEXT,
+    "paymentMethod" TEXT,
+    "drivingLicence" TEXT,
+    "aadharCard" TEXT,
+    "odometerReading" TEXT,
     "notes" TEXT,
 
     CONSTRAINT "Booking_pkey" PRIMARY KEY ("id")
@@ -52,6 +54,12 @@ CREATE TABLE "Booking" (
 
 -- CreateIndex
 CREATE UNIQUE INDEX "User_username_key" ON "User"("username");
+
+-- CreateIndex
+CREATE UNIQUE INDEX "Booking_id_key" ON "Booking"("id");
+
+-- AddForeignKey
+ALTER TABLE "Car" ADD CONSTRAINT "Car_userId_fkey" FOREIGN KEY ("userId") REFERENCES "User"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
 
 -- AddForeignKey
 ALTER TABLE "Booking" ADD CONSTRAINT "Booking_carId_fkey" FOREIGN KEY ("carId") REFERENCES "Car"("id") ON DELETE RESTRICT ON UPDATE CASCADE;

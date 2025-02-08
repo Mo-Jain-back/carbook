@@ -129,7 +129,7 @@ export default function BookingDetails() {
       
       <main className="container mx-auto px-0 py-2 pb-16 sm:pb-8">
         <Suspense fallback={<div><LoadingScreen/></div>}>
-          <BookingDetailsClient booking={booking} status={status} />
+          <BookingDetailsClient booking={booking} />
         </Suspense>
       </main>
     </div>

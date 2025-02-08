@@ -15,7 +15,7 @@ export function NavBar() {
 
   useEffect(() => {
     console.log("pathname",pathname)
-    if (pathname.startsWith("/bookings")) {
+    if (pathname.startsWith("/booking")) {
       setSelectedTab("bookings")
     } else if (pathname.startsWith("/profile")) {
       setSelectedTab("profile")

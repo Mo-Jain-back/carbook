@@ -25,12 +25,12 @@ export default function HeaderLeft(
   const { userSelectedDate, setDate, setMonth, selectedMonthIndex } =
     useDateStore();
 
-  const { setSideBarOpen } = useToggleSideBarStore();
+  const {isSideBarOpen, setSideBarOpen } = useToggleSideBarStore();
 
   const { selectedView } = useViewStore();
 
   useEffect(()=>{
-    setSideBarOpen();
+    setSideBarOpen(true);
   },[])
 
   const handleTodayClick = () => {
@@ -109,7 +109,7 @@ export default function HeaderLeft(
         <Button
           variant="ghost"
           className="rounded-full p-2"
-          onClick={() => setSideBarOpen()}
+          onClick={() => setSideBarOpen(!isSideBarOpen)}
         >
           <Menu className="size-6" />
         </Button>
