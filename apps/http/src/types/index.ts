@@ -46,6 +46,7 @@ export const BookingSchema = z.object({
     customerName: z.string(),
     customerContact: z.string(),
     dailyRentalPrice: z.number(),
+    totalAmount:z.number()
 })
 
 export const BookingUpdateSchema = z.object({

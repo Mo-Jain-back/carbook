@@ -23,6 +23,7 @@ bookingRouter.post("/",middleware,async (req,res) => {
                 customerName: parsedData.data.customerName,
                 customerContact: parsedData.data.customerContact,
                 dailyRentalPrice: parsedData.data.dailyRentalPrice,
+                totalEarnings:parsedData.data.totalAmount,
                 userId: req.userId!,
                 status:"Upcoming"
             }

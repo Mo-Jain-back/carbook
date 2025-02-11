@@ -5,6 +5,33 @@ import { middleware } from "../../middleware";
 
 export const carRouter = Router();
 
+function calculateEarnings(bookings:any[]){
+    const currDate = new Date();
+    const oneWeekBeforeDate =  new Date(currDate.setDate(currDate.getDate() - 7));
+    const oneMonthBeforeDate = new Date(currDate.setMonth(currDate.getMonth() - 1));
+    const sixMonthBeforeDate = new Date(currDate.setMonth(currDate.getMonth() - 6));
+
+    let oneWeekEarnings = 0;
+    let oneMonthEarnings = 0;
+    let sixMonthEarnings = 0;
+    let totalEarnings = 0;
+    for(const booking in bookings ){
+        if(booking.startDate >= sixMonthBeforeDate){
+            if(booking.startDate >= oneMonthBeforeDate){
+                if(booking.startDate >= oneWeekBeforeDate){
+                    oneWeekEarnings += booking.totalEarnings
+                }
+                oneMonthEarnings += booking.totalEarnings
+            }
+            sixMonthEarnings += booking.totalEarnings
+        }
+        totalEarnings += booking.totalEarnings
+    }
+
+    return {oneWeekEarnings,oneMonthEarnings,sixMonthEarnings,totalEarnings}
+
+}
+
 carRouter.post("/",middleware,async (req,res) => {
     const parsedData = CarsSchema.safeParse(req.body);
     if (!parsedData.success) {
@@ -73,7 +100,7 @@ carRouter.get("/:id",middleware,async (req,res) => {
             }
         })
         if(!car) {
-            res.status(400).json({message: "Car not found"});
+            res.status(404).json({message: "Car not found"});
             return
         }
 
@@ -99,6 +126,36 @@ carRouter.get("/:id",middleware,async (req,res) => {
     }
 })
 
+carRouter.get("/earnings/:id",middleware, async(req,res) => {
+    try {
+        const car = await client.car.findFirst({
+            where: {
+                id:parseInt(req.params.id),
+                userId: req.userId!
+            }
+        }) 
+
+        if(!car){
+            res.status(404).json({message:"Car not found"})
+        }
+
+        const earnings = calculateEarnings(car.bookings);
+
+        if(!earnings){
+            res.status(400).json({message:"Error while finding earnings"})
+        }
+
+        res.json({
+            message:"Car earnings fetched successfully",
+            earnings
+        })
+    }
+    catch (e) {
+        console.log(e);
+        res.status(400).json({message: "Internal server error"})
+    }
+})
+
 carRouter.put("/:id",middleware,async (req,res) => {
     const parsedData = CarsUpdateSchema.safeParse(req.body);
     if (!parsedData.success) {
@@ -114,7 +171,7 @@ carRouter.put("/:id",middleware,async (req,res) => {
         })
 
         if(!car) {
-            res.status(400).json({message: "Car not found"})
+            res.status(404).json({message: "Car not found"})
             return
         }
 
@@ -136,7 +193,6 @@ carRouter.put("/:id",middleware,async (req,res) => {
         })
     } catch(e) {
         res.status(400).json({message: "Internal server error"})
-        
     }
 })
 
@@ -150,7 +206,7 @@ carRouter.delete("/:id",middleware,async (req,res) => {
         })
 
         if(!car) {
-            res.status(400).json({message: "Car not found"})
+            res.status(404).json({message: "Car not found"})
             return
         }
 
