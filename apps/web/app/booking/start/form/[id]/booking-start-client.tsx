@@ -60,14 +60,14 @@ export default function BookingStartClient({booking,bookingId} : {
     const [startTime, setStartTime] = useState(booking.startTime);
     const [returnDate, setReturnDate] = useState(new Date(booking.end));
     const [returnTime, setReturnTime] = useState(booking.endTime);
-    const [securityDeposit, setSecurityDeposit] = useState(booking.securityDeposit);
-    const [odometerReading, setOdometerReading] = useState(booking.odometerReading);
+    const [securityDeposit, setSecurityDeposit] = useState(booking.securityDeposit || "");
+    const [odometerReading, setOdometerReading] = useState(Number(booking.odometerReading) || 0);
     const [address, setAddress] = useState(booking.customerAddress);
     const [notes, setNotes] = useState(booking.notes);
-    const [bookingAmountReceived, setBookingAmountReceived] = useState("");
-    const [dailyRentalCharges, setDailyRentalCharges] = useState("");
-    const [totalAmount, setTotalAmount] = useState("");
-    const [paymentMethod, setPaymentMethod] = useState("");
+    const [bookingAmountReceived, setBookingAmountReceived] = useState(booking.advancePayment || 0);
+    const [dailyRentalCharges, setDailyRentalCharges] = useState(booking.dailyRentalPrice || 0);
+    const [totalAmount, setTotalAmount] = useState(booking.totalPrice || 0);
+    const [paymentMethod, setPaymentMethod] = useState(booking.paymentMethod);
     const [termsAccepted, setTermsAccepted] = useState(false);
     const [errors, setErrors] = useState<FormErrors>({});
     const router = useRouter();
@@ -132,16 +132,16 @@ export default function BookingStartClient({booking,bookingId} : {
       }
 
       try {
-        await axios.post(`${BASE_URL}/api/v1/booking/${bookingId}/start`, {
+        await axios.put(`${BASE_URL}/api/v1/booking/${bookingId}/start`, {
           customerName,
           phoneNumber,
           selectedCar,
-          startDate,
+          startDate:startDate.toLocaleDateString('en-US'),
           startTime,
-          returnDate,
+          returnDate:returnDate.toLocaleDateString('en-US'),
           returnTime,
           securityDeposit,
-          odometerReading,
+          odometerReading:odometerReading.toString(),
           address,
           bookingAmountReceived,
           dailyRentalCharges,
@@ -166,7 +166,7 @@ export default function BookingStartClient({booking,bookingId} : {
         {uploadedFiles[type].map((file, index) => (
           <div
             key={index}
-            className="flex w-fit max-w-[200px] max-h-[40px] my-1 items-center gap-2 bg-gray-200 p-2 rounded-md"
+            className="flex w-fit max-w-[200px] max-h-[40px] my-1 items-center gap-2 bg-gray-200 dark:bg-muted p-2 rounded-md"
           >
             <span className="min-w-4">
               <Image className="w-4 h-4" />
@@ -266,7 +266,7 @@ export default function BookingStartClient({booking,bookingId} : {
               <div className="flex justify-between space-x-2 items-center">
                 <div className="w-full">
                   <Label className="max-sm:text-xs" htmlFor="selectedCar">Selected Car <span className="text-red-500">*</span></Label>
-                  <Select onValueChange={(value) => {
+                  <Select value={selectedCar.toString()} onValueChange={(value) => {
                     setSelectedCar(Number(value));
                     setErrors(prev => ({ ...prev, selectedCar: "" }));
                   }}>
@@ -286,7 +286,8 @@ export default function BookingStartClient({booking,bookingId} : {
                 </div>
                 <div className="w-full">
                   <Label className="max-sm:text-xs" htmlFor="paymentMethod">Payment Method <span className="text-red-500">*</span></Label>
-                  <Select onValueChange={(value) => {
+                  <Select value={paymentMethod}
+                  onValueChange={(value) => {
                     setPaymentMethod(value);
                     setErrors(prev => ({ ...prev, paymentMethod: "" }));
                   }}>
@@ -326,13 +327,15 @@ export default function BookingStartClient({booking,bookingId} : {
                   <Label className="max-sm:text-xs" htmlFor="odometerReading">Odometer Reading <span className="text-red-500">*</span></Label>
                   <Input
                     id="odometerReading"
-                    type="text" 
+                    type="number" 
                     value={odometerReading} 
                     onChange={(e) => {
-                      setOdometerReading(e.target.value);
+                      setOdometerReading(Number(e.target.value));
                       setErrors(prev => ({ ...prev, odometerReading: "" }));
                     }}
-                    className={inputClassName("odometerReading")}
+                    className={cn(inputClassName("odometerReading"),
+                      "[appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
+                     )}
                   />
                   {errors.odometerReading && <p className="text-red-500 text-sm mt-1">{errors.odometerReading}</p>}
                 </div>
@@ -341,13 +344,15 @@ export default function BookingStartClient({booking,bookingId} : {
                   <Label className="max-sm:text-xs" htmlFor="bookingAmountReceived">Amount Received <span className="text-red-500">*</span></Label>
                   <Input
                     id="bookingAmountReceived"
-                    type="text" 
+                    type="number" 
                     value={bookingAmountReceived} 
                     onChange={(e) => {
-                      setBookingAmountReceived(e.target.value);
+                      setBookingAmountReceived(Number(e.target.value));
                       setErrors(prev => ({ ...prev, bookingAmountReceived: "" }));
                     }}
-                    className={inputClassName("bookingAmountReceived")}
+                    className={cn(inputClassName("bookingAmountReceived"),
+                      "[appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
+                     )}
                   />
                   {errors.bookingAmountReceived && <p className="text-red-500 text-sm mt-1">{errors.bookingAmountReceived}</p>}
                 </div>
@@ -357,13 +362,15 @@ export default function BookingStartClient({booking,bookingId} : {
                   <Label className="max-sm:text-xs" htmlFor="dailyRentalCharges">Daily Rental Charges <span className="text-red-500">*</span></Label>
                   <Input
                     id="dailyRentalCharges"
-                    type="text" 
+                    type="number" 
                     value={dailyRentalCharges} 
                     onChange={(e) => {
-                      setDailyRentalCharges(e.target.value);
+                      setDailyRentalCharges(Number(e.target.value));
                       setErrors(prev => ({ ...prev, dailyRentalCharges: "" }));
                     }}
-                    className={inputClassName("dailyRentalCharges")}
+                    className={cn(inputClassName("dailyRentalCharges"),
+                      "[appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
+                     )}
                   />
                   {errors.dailyRentalCharges && <p className="text-red-500 text-sm mt-1">{errors.dailyRentalCharges}</p>}
                 </div>
@@ -371,13 +378,15 @@ export default function BookingStartClient({booking,bookingId} : {
                   <Label className="max-sm:text-xs" htmlFor="totalAmount">Total Amount <span className="text-red-500">*</span></Label>
                   <Input
                     id="totalAmount"
-                    type="text" 
+                    type="number" 
                     value={totalAmount} 
                     onChange={(e) => {
-                      setTotalAmount(e.target.value);
+                      setTotalAmount(Number(e.target.value));
                       setErrors(prev => ({ ...prev, totalAmount: "" }));
                     }}
-                    className={inputClassName("totalAmount")}
+                    className={cn(inputClassName("totalAmount"),
+                      "[appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
+                     )}
                   />
                   {errors.totalAmount && <p className="text-red-500 text-sm mt-1">{errors.totalAmount}</p>}
                 </div>

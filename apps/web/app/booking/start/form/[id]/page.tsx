@@ -64,8 +64,10 @@ export default function BookingDetails() {
     fetchData();
   }, []);
 
-  if (!Booking || !booking) {
-  return <div><BookingNotFound/></div>
+  if(!Booking) return null
+
+  if (!booking) {
+  return <div><LoadingScreen/></div>
   }
 
   return (
