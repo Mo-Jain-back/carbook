@@ -14,8 +14,8 @@ export const SigninSchema = z.object({
 })
 
 export const UpdateUserSchema = z.object({
-    username: z.string(),
-    password: z.string(),
+    username: z.string().optional(),
+    password: z.string().optional(),
     name: z.string().optional(),
 })
 
@@ -44,7 +44,6 @@ export const BookingSchema = z.object({
     allDay: z.boolean(),
     carId: z.number(),
     customerName: z.string(),
-    securityDeposit: z.string(),
     customerContact: z.string(),
     dailyRentalPrice: z.number(),
 })
@@ -89,7 +88,6 @@ export const CalendarUpdateSchema = z.object({
     endTime: z.string().optional(),
     allDay: z.boolean().optional(),
     customerName: z.string().optional(),
-    carId: z.number().optional(),
 });
 
 declare global {

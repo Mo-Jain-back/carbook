@@ -9,12 +9,24 @@ interface ViewStoreType {
 }
 
 interface UserStore {
-  username: string;
-  setUsername: (value: string) => void;
-  password: string;
-  setPassword: (value: string) => void;
   name: string;
   setName: (value: string) => void;
+  imageUrl: string;
+  setImageUrl: (value: string) => void;
+}
+
+export type Car = {
+  id: number;
+  brand: string;
+  model: string;
+  plateNumber: string;
+  imageUrl: string;
+  colorOfBooking: string;
+}
+
+interface CarStore {
+  cars: Car[];
+  setCars: (value: Car[]) => void;
 }
 
 interface DateStoreType {
@@ -26,14 +38,18 @@ interface DateStoreType {
 }
 
 export type CalendarEventType = {
-  id: string;
-  title: string;
+  id: number;
   startDate: dayjs.Dayjs;
   endDate: dayjs.Dayjs;
-  description: string;
+  status: string;
   startTime: string;
   endTime: string;
+  color:string;
   allDay: boolean;
+  customerName: string;
+  customerContact: string;
+  carId: number;
+  carName: string;
 };
 
 type EventStore = {
@@ -50,7 +66,7 @@ interface ToggleSideBarType {
   setSideBarOpen: (flag:boolean) => void;
 }
 
-type EventRow = { id: string; rowIndex: number };
+type EventRow = { id: number; rowIndex: number };
 
 type EventStore1 = {
   eventsRow: EventRow[];
@@ -63,7 +79,7 @@ export const useEventRows = create<EventStore1>((set) => ({
 }));
 
 export type WrappedEvent = {
-  id:string;
+  id:number;
   startDate:Dayjs;
   endDate:Dayjs;
 }
@@ -82,20 +98,28 @@ export const useUserStore = create<UserStore>()(
   devtools(
     persist(
       (set) => ({
-        username: "",
-        setUsername: (value: string) => {
-          set({ username: value });
-        },
-        password: "",
-        setPassword: (value: string) => {
-          set({ password: value });
-        },
         name: "",
         setName: (value: string) => {
           set({ name: value });
         },
+        imageUrl: "",
+        setImageUrl: (value: string) => {
+          set({ imageUrl: value });
+        }
       }),
       { name: "user_data", skipHydration: true },
+    ),
+  ),
+);
+
+export const useCarStore = create<CarStore>()(
+  devtools(
+    persist(
+      (set) => ({
+        cars: [],
+        setCars: (cars) => set({ cars }),
+      }),
+      { name: "car_data", skipHydration: true },
     ),
   ),
 );
@@ -134,16 +158,27 @@ export const useDateStore = create<DateStoreType>()(
   ),
 );
 
-export const useEventStore = create<EventStore>((set) => ({
-  events: [],
-  isEventSummaryOpen: false,
-  selectedEvent: null,
-  setEvents: (events) => set({ events }),
-  openEventSummary: (event) =>
-    set({ isEventSummaryOpen: true, selectedEvent: event }),
-  closeEventSummary: () =>
-    set({ isEventSummaryOpen: false, selectedEvent: null }),
-}));
+export const useEventStore = create<EventStore>()(
+  persist(
+    devtools((set) => ({
+      events: [],
+      isEventSummaryOpen: false,
+      selectedEvent: null,
+      setEvents: (events) => set({ events: events}),
+      openEventSummary: (event: CalendarEventType) =>
+        set({ isEventSummaryOpen: true, selectedEvent: event }),
+      closeEventSummary: () =>
+        set({ isEventSummaryOpen: false, selectedEvent: null }),
+    })),
+    {
+      name: "event-store", // Storage key in localStorage
+      partialize: (state) => ({
+        events: state.events, // Persist only necessary fields
+        selectedEvent: state.selectedEvent,
+      }),
+    }
+  )
+);
 
 export const useToggleSideBarStore = create<ToggleSideBarType>()(
   devtools(
@@ -159,3 +194,4 @@ export const useToggleSideBarStore = create<ToggleSideBarType>()(
   )
 );
 
+// Cannot update a component (`MappingEvents`) while rendering a different component (`CarsFilters`). To locate the bad setState() call inside `CarsFilters`, follow the stack trace as described in https://react.dev/link/setstate-in-render

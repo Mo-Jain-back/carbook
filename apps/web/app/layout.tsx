@@ -6,13 +6,14 @@ import localFont from "next/font/local";
 import { ThemeProvider } from "@/components/theme-provider"
 import SplashScreen from "@/components/SplashScreen";
 import Providers from "@/components/provider";
+import Initiate from "@/components/initiate";
 
 const inter = Inter({ subsets: ["latin"] })
 
 export const metadata = {
   title: "Jain Car Rentals",
   description: "Track your car bookings with ease",
-  icons:"/favicon.ico"
+  icons:"/favicon.png"
 }
 
 const teratur = localFont({
@@ -55,6 +56,7 @@ export default function RootLayout({
         <body className={`${inter.className} ${teratur.variable} ${alcova.variable} ${xova.variable} ${equinox.variable} ${alma.variable} antialiased`}>
           <Providers>
             <SplashScreen/>
+            <Initiate/>
             <NavBar/>
             {children}
             <BottomNav/>

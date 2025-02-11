@@ -43,7 +43,7 @@ model Booking {
   carId             Int
   userId            Int
   customerName      String
-  securityDeposit   String
+  securityDeposit   String?
   customerContact   String
   dailyRentalPrice  Int
   car               Car      @relation(fields: [carId], references: [id])

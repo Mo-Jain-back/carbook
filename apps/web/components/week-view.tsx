@@ -69,7 +69,7 @@ export default function WeekView() {
           {/* Time Column */}
           <div className="w-16 border-r border-border">
             {getHours.map((hour, index) => (
-              <div key={index} className="relative h-16">
+              <div key={index} className="relative h-[64px]">
                 <div className="absolute -top-2 text-xs text-gray-600 dark:text-gray-300">
                   {hour.format("HH:mm")}
                 </div>

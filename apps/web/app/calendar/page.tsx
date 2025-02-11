@@ -7,12 +7,10 @@ import MappingEvents from "@/components/mapping-events";
 
 
 export default async function Home() {
-  const dbEvents = eventsData;
-
   return (
     <div className="scrollbar-hide">
       <Header />
-      <MappingEvents eventsData={dbEvents as unknown as CalendarEventType[]}/>
+      <MappingEvents/>
       <MainView  />
     </div>
   );

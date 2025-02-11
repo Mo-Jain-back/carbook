@@ -2,6 +2,7 @@ import Link from "next/link"
 import { AddCarDialog } from "@/components/add-car"
 import StarryBackground from "@/components/starry-background"
 import ThemeBg from "@/components/theme-bg";
+import { CarSection } from "@/components/car-section";
 
 
 export default function Home() {
@@ -38,7 +39,7 @@ export default function Home() {
           </div>
         </section>
         <div className="-z-2">
-          <AddCarDialog/>
+          <CarSection />
         </div>
 
         <section className="bg-[#4b6196] text-primary-foreground py-20">

@@ -1,5 +1,5 @@
 "use client";
-import { CalendarEventType, useEventRows, useEventStore, useWrappedEvent, WrappedEvent } from "@/lib/store";
+import { CalendarEventType, useCarStore, useEventRows, useEventStore, useWrappedEvent, WrappedEvent } from "@/lib/store";
 import dayjs, { Dayjs } from "dayjs";
 import React, { use, useEffect, useState } from "react";
 import { useMediaQuery } from 'react-responsive';
@@ -19,23 +19,37 @@ export function EventRenderer({ date, view, events, hour}: EventRendererProps) {
   const [sortedEvents, setSortedEvents] = useState<CalendarEventType[]>([]);
   const {eventsRow,setEventsRow} = useEventRows();
   const {wrappedEvents,setWrappedEvents} = useWrappedEvent();
+  const {cars} = useCarStore();
+  const [eventColor,setEventColor] = useState<string>("");
 
   useEffect(() => {
     Initialize();
   }, [date,events]);
 
+
   const noOfEvents = emptyRows.length -  sortedEvents.length;
 
   const Initialize = () => {
 
-    const filteredEvents = events.filter((event: CalendarEventType) => {
+    let filteredEvents = events.filter((event: CalendarEventType) => {
       if (view === "month") {
-        return event.startDate.format("DD-MM-YY") === date.format("DD-MM-YY")
+        return dayjs(event.startDate).format("DD-MM-YY") === date.format("DD-MM-YY");
       } else if (view === "week" || view === "day") {
-        return event.startDate.hour() === hour && !event.allDay;
+        return dayjs(event.startDate).hour() === hour && !event.allDay;
       }
       return false;
     });
+    
+
+    filteredEvents = filteredEvents.map((event) => {
+              return (
+                {
+                  ...event,
+                  startDate:dayjs(event.startDate),
+                  endDate:dayjs(event.endDate)
+                }
+              )
+            })
     
     const newSortedEvents = [...filteredEvents].sort((a, b) => {
       const durationA = a.endDate.diff(a.startDate, "minute"); // Get duration in minutes
@@ -123,6 +137,8 @@ export function EventRenderer({ date, view, events, hour}: EventRendererProps) {
   };
 
   const renderEvent = (event:CalendarEventType,index:number,width:string,marginTop:string|number) => {
+    const car = cars.find(car => car.id === event.carId);
+
     return (
       <div
         key={event.id}
@@ -132,13 +148,14 @@ export function EventRenderer({ date, view, events, hour}: EventRendererProps) {
         }}
         style={{
           width,
-          marginTop
+          marginTop,
+          backgroundColor: car?.colorOfBooking,
         }}
-        className={`z-10 line-clamp-1 my-[1px]  max-sm:h-[12px] h-[18px] flex justify-start 
-          items-center cursor-pointer rounded-sm bg-[#039BE5] font-semibold p-[1px] text-[7px] 
+        className={`z-10 line-clamp-1 my-[1px] bg-[#039BE5] max-sm:h-[12px] h-[18px] flex justify-start 
+          items-center cursor-pointer rounded-sm  font-semibold p-[1px] text-[7px] 
           sm:text-xs text-white whitespace-nowrap overflow-ellipsis`}
       >
-        {event.title}
+        {event.id + " : " + event.carName}
       </div>
     );
   }
@@ -244,7 +261,7 @@ export function EventRenderer({ date, view, events, hour}: EventRendererProps) {
           const availableWidth = 97 - totalGap; // Remaining width for events
           const eventWidth = `${availableWidth / noOfEvents}%`;
           const leftOffset = `calc(${index} * (${availableWidth / noOfEvents}% + 1px))`; // Adjust position for gaps
-
+          const car = cars.find(car => car.id === event.carId);
           const topOffset = (startMinutes / 60) * 64; // Calculate the top position in pixels
 
           return (
@@ -258,13 +275,14 @@ export function EventRenderer({ date, view, events, hour}: EventRendererProps) {
                 height: `${dynamicHeight}px`,
                 width: eventWidth,
                 left: leftOffset,
-                top: `${topOffset}px`,
+                top: topOffset,
+                backgroundColor: car?.colorOfBooking
               }}
               className={`absolute z-10 mx-[1px] line-clamp-1 max-sm:h-[12px] m-0 flex justify-start 
                  cursor-pointer flex-wrap rounded-sm bg-[#039BE5] p-[2px] text-[7px] 
                 sm:text-sm text-white`}
             >
-              {noOfEvents < 3 || view === "day" ? event.title : ""}
+              {noOfEvents < 3 || view === "day" ? event.id + " : " + event.carName : ""}
             </div>
           );
         })}

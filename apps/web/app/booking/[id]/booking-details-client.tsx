@@ -13,59 +13,53 @@ import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigge
 import BackArrow from "@/public/back-arrow.svg";
 import { StatusInput } from "@/components/ui/status-input";
 import CarIcon from "@/public/car-icon.svg"
+import axios from "axios";
+import { BASE_URL } from "@/lib/config";
+import { Booking } from "./page";
+import ActionDialog from "@/components/action-dialog";
+
 
 interface BookingDetailsClientProps {
-  booking: {
-    id: number
-    start: string
-    end: string
-    status: string
-    cancelledBy: string | null
-    car: {
-      name: string
-      plateNumber: string
-      imageUrl: string
-    }
-    bookedBy: {
-      name: string
-      contact: string
-    }
-  },
+  booking : Booking,
+  setBooking: React.Dispatch<React.SetStateAction<Booking | undefined>>
 }
 
 function formatDateTime(date: Date) {
   return date.toLocaleString("en-US", {
     month: "short",
     day: "numeric",
-    year: "numeric",
-    hour: "numeric",
-    minute: "numeric",
-    hour12: true,
+    year: "numeric"
   })
 }
 
-export function BookingDetailsClient({ booking }: BookingDetailsClientProps) {
+export function BookingDetailsClient({ booking,setBooking }: BookingDetailsClientProps) {
   const router = useRouter();
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [isEditable, setIsEditable] = useState(false);
   const [startDate, setStartDate] = useState(new Date(booking.start));
   const [endDate,setEndDate] = useState(new Date(booking.end));
-  const [startTime,setStartTime] = useState(booking.start.split("T")[1].slice(0, 5));
-  const [endTime,setEndTime] = useState(booking.end.split("T")[1].slice(0, 5));
+  const [startTime,setStartTime] = useState(booking.startTime);
+  const [endTime,setEndTime] = useState(booking.endTime);
   const [bookingStatus, setBookingStatus] = useState(booking.status);
-  const [action,setAction] = useState<"Start"| "Stop">(bookingStatus === "Ongoing" ? "Stop" : "Start");
-  const [name,setName] = useState<string>(booking.bookedBy.name);
-  const [number,setNumber] = useState<string>(booking.bookedBy.contact);
-  const idObj = useParams();
-
-  
+  const [action,setAction] = useState<"Start"| "Stop" | "Delete" | "Update">("Start");
+  const [name,setName] = useState<string>(booking.customerName);
+  const [number,setNumber] = useState<string>(booking.customerContact);
+  const [dailyRentalPrice,setDailyRentalPrice] = useState<number>(booking.dailyRentalPrice);
+  const [paymentMethod,setPaymentMethod] = useState(booking.paymentMethod);
+  const [advancePayment,setAdvancePayment] = useState(booking.advancePayment);
 
   function handleAction() {
     //add code to stop or start the booking
     if(action === "Start") {
       router.push(`/booking/start/form/${booking.id}`);
-    } else {
+    } else if(action === "Stop"){
       router.push(`/booking/end/form/${booking.id}`);
+    }
+    else if(action === "Delete"){
+      handleDelete();
+    }
+    else if(action === "Update"){
+      handleEdit();
     }
     return;
   }
@@ -90,13 +84,54 @@ export function BookingDetailsClient({ booking }: BookingDetailsClientProps) {
     setStartDate(new Date(booking.start));
     setEndDate(new Date(booking.end));
     setBookingStatus(booking.status);
-    setName(booking.bookedBy.name);
-    setNumber(booking.bookedBy.contact);
+    setName(booking.customerName);
+    setNumber(booking.customerContact);
     return;
   }
 
-  function handleDelete() {
-    return;
+  const handleDelete = async () => {
+    try {
+      const res = await axios.delete(`${BASE_URL}/api/v1/booking/${booking.id}`,{
+        headers: {
+          "Content-type": "application/json",
+          authorization: `Bearer ${localStorage.getItem("token")}`
+        }
+      });
+      setBooking(undefined);
+      router.back();
+      console.log(res.data);
+    }
+    catch(error){
+      console.log(error);
+    }
+  }
+
+  const handleEdit = async () => {
+    // Implement edit functionality here
+    console.log("Edit car:", booking.id);
+    try {
+      await axios.put(`${BASE_URL}/api/v1/booking/${booking.id}`,{
+        startDate: startDate,
+        endDate: endDate,
+        startTime: startTime,
+        endTime: endTime,
+        carId: booking.carId,
+        customerAddress: booking.customerAddress,
+        customerContact: booking.customerContact,
+        securityDeposit: booking.securityDeposit,
+        dailyRentalPrice: dailyRentalPrice,
+        paymentMethod: paymentMethod
+      },{
+        headers: {
+          "Content-type": "application/json",
+          authorization: `Bearer ${localStorage.getItem("token")}`
+        }
+      });
+      setIsEditable(false);
+    }
+    catch(error){ 
+      console.log(error);
+    }
   }
   
   return (
@@ -128,7 +163,10 @@ export function BookingDetailsClient({ booking }: BookingDetailsClientProps) {
                     <Edit className="mr-2 h-4 w-4" />
                     <span>Edit</span>
                   </DropdownMenuItem>
-                  <DropdownMenuItem className="cursor-pointer" onClick={handleDelete}>
+                  <DropdownMenuItem className="cursor-pointer" onClick={() => {
+                    setAction("Delete");
+                    setIsDialogOpen(true);
+                  }}>
                     <Trash2 className="mr-2 h-4 w-4" />
                     <span>Delete</span>
                   </DropdownMenuItem>
@@ -140,28 +178,17 @@ export function BookingDetailsClient({ booking }: BookingDetailsClientProps) {
       <div className="px-4 py-4 border-b-4 border-gray-200 dark:border-muted" >
           <div className="flex justify-between items-center">
             <div>
-              {bookingStatus === "cancelled" ? (
-                <>
-                  <p className="text-sm text-blue-500">
-                    Booking was cancelled by {booking.cancelledBy === "you" ? "you" : "guest"}
-                  </p>
-                  <p className="font-semibold">{formatDateTime(endDate)}</p>
-                </>
-              ) : (
-                <>
                   <p className="text-sm text-blue-500">
                     {bookingStatus === "completed" ? "Guest returned at" : "Guest shall return by"}
                   </p>
                   <p className="font-semibold max-sm:text-sm">{formatDateTime(endDate)}</p>
-                </>
-              )}
             </div>
             <div className="text-right">
             <div className="relative sm:w-24 flex items-center sm:h-20 rounded-md border border-border w-12 h-12 mb-2"> 
-                  { booking.car.imageUrl !== "" ?
+                  { booking.carImageUrl !== "" ?
                     <Image
-                    src={booking.car.imageUrl}
-                    alt={booking.car.name}
+                    src={booking.carImageUrl}
+                    alt={booking.carName}
                     fill
                     className="object-cover rounded w-full"
                   />
@@ -169,8 +196,8 @@ export function BookingDetailsClient({ booking }: BookingDetailsClientProps) {
                   <CarIcon className="w-full dark:stroke-blue-200 p-1  dark:fill-blue-200 stroke-black fill-black" /> 
                   }
                 </div>
-              <p className="text-sm font-semibold text-[#4B4237] dark:text-gray-400">{booking.car.name}</p>
-              <p className="text-xs text-blue-500">{booking.car.plateNumber}</p>
+              <p className="text-sm font-semibold text-[#4B4237] dark:text-gray-400">{booking.carName}</p>
+              <p className="text-xs text-blue-500">{booking.carPlateNumber}</p>
             </div>
           </div>
       </div>
@@ -181,7 +208,7 @@ export function BookingDetailsClient({ booking }: BookingDetailsClientProps) {
             <div>
               <p className="text-sm text-blue-500">From</p>
               {!isEditable ?
-              <p className="font-semibold max-sm:text-sm">{formatDateTime(startDate)}</p>
+              <p className="font-semibold max-sm:text-sm">{formatDateTime(startDate)}  {booking.startTime}</p>
               : 
               <div className="flex space-x-2">
                 <div className="">
@@ -198,7 +225,7 @@ export function BookingDetailsClient({ booking }: BookingDetailsClientProps) {
             <div>
               <p className="text-sm text-blue-500">To</p>
               {!isEditable ?
-              <p className="font-semibold max-sm:text-sm">{formatDateTime(endDate)}</p>
+              <p className="font-semibold max-sm:text-sm">{formatDateTime(endDate)} {booking.endTime}</p>
               :
               <div className="flex space-x-2">
                 <div className="">
@@ -213,26 +240,33 @@ export function BookingDetailsClient({ booking }: BookingDetailsClientProps) {
             </div>
           </div>
           <hr className="my-4 border-gray-200 dark:border-muted" />
-          <div>
-            <p className="text-sm text-blue-500 mb-1">Booked by</p>
-            { !isEditable ?
-            <>
-              <p className="font-semibold">{name}</p>
-              <p className="text-sm">{number}</p>
-            </>
-            :
-            <>
-              <Input type="text" id="name" value={name} 
-                onChange={(e) => setName(e.target.value)} 
-                className="w-[170px] border-0 p-0 px-1 bg-muted dark:hover:bg-card rounded-sm hover:bg-gray-300 focus-visible:ring-0 border-transparent border-y-4 focus:border-b-blue-400 " />
-              <Input type="text" id="number" value={number} 
-                onChange={(e) => setNumber(e.target.value)} 
-                className="w-[170px] border-0 p-0 px-1 my-1 bg-muted dark:hover:bg-card rounded-sm hover:bg-gray-300 focus-visible:ring-0 border-transparent border-y-4 focus:border-b-blue-400
-                [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none
-                " />
-            </>
-            }
-            
+          <div className="grid grid-cols-2 gap-4 sm:gap-6">
+            <div>
+              <p className="text-sm text-blue-500 mb-1">Booked by</p>
+              { !isEditable ?
+              <>
+                <p className="font-semibold">{name}</p>
+                <p className="text-sm">{number}</p>
+              </>
+              :
+              <>
+                <Input type="text" id="name" value={name} 
+                  onChange={(e) => setName(e.target.value)} 
+                  className="w-[170px] border-0 p-0 px-1 bg-muted dark:hover:bg-card rounded-sm hover:bg-gray-300 focus-visible:ring-0 border-transparent border-y-4 focus:border-b-blue-400 " />
+                <Input type="text" id="number" value={number} 
+                  onChange={(e) => setNumber(e.target.value)} 
+                  className="w-[170px] border-0 p-0 px-1 my-1 bg-muted dark:hover:bg-card rounded-sm hover:bg-gray-300 focus-visible:ring-0 border-transparent border-y-4 focus:border-b-blue-400
+                  [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none
+                  " />
+              </>
+              }
+            </div>
+            <div>
+              {booking.customerAddress &&<div>
+                <p className="text-sm text-blue-500">Address</p>
+                <span className="text-sm whitespace-wrap max-w-[120px]">{booking.customerAddress}</span>
+              </div>}
+            </div>
           </div>
           <hr className="my-4 border-gray-200 dark:border-muted" />
           <div>
@@ -248,75 +282,110 @@ export function BookingDetailsClient({ booking }: BookingDetailsClientProps) {
       </div>
       <div className="px-4 py-4 border-b-4 border-gray-200 dark:border-muted">
           <h3 className="text-lg font-semibold mb-4 ">Price and Payment Details</h3>
-          <div>
-            <p className="text-sm text-blue-500 mb-1">24 Hr Price</p>
-            { !isEditable ?
-              <p className="text-sm">1200</p>
-            :
-            <>
-              <Input type="text" id="number" 
-                className="w-[170px] border-0 p-0 px-1 my-1 bg-muted dark:hover:bg-card rounded-sm hover:bg-gray-300 focus-visible:ring-0 border-transparent border-y-4 focus:border-b-blue-400
-                [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none
-                " />
-            </>
-            }
-              
+          <div className="grid grid-cols-2 gap-4 sm:gap-6">
+            <div>
+              <p className="text-sm text-blue-500 mb-1">24 Hr Price</p>
+              { !isEditable ?
+                <p className="text-sm">{dailyRentalPrice}</p>
+              :
+              <>
+                <Input type="text" id="number" value={dailyRentalPrice} onChange={(e) => setDailyRentalPrice(Number(e.target.value))}
+                  className="w-[170px] border-0 p-0 px-1 my-1 bg-muted dark:hover:bg-card rounded-sm hover:bg-gray-300 focus-visible:ring-0 border-transparent border-y-4 focus:border-b-blue-400
+                  [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none
+                  " />
+              </>
+              }
+            </div>
+            {booking.securityDeposit &&<div>
+              <p className="text-sm text-blue-500">Security Deposit</p>
+              <span className="text-sm">{booking.securityDeposit}</span>
+            </div>}
           </div>
           <hr className="my-4 border-gray-200 dark:border-muted" />
           <div className="grid grid-cols-2 gap-4 sm:gap-6">
                 <div className="space-y-3">
                   <div>
                     <p className="text-sm text-blue-500">Payment Amount</p>
-                    <span className="text-sm">2400</span>
+                    <span className="text-sm">{booking.totalPrice}</span>
                   </div>
-                  <div>
+                  {paymentMethod && <div>
                     <p className="text-sm text-blue-500">Payment Method</p>
                     { !isEditable ?
                     <>
-                      <span className="text-sm">Cash</span> 
+                      <span className="text-sm">{paymentMethod}</span>
                     </>
                       :
                     <>
-                      <Input type="text" id="name"
+                      <Input type="text" id="name" value={paymentMethod} onChange={(e) => setPaymentMethod(e.target.value)}
                       className="w-[170px] border-0 p-0 px-1 bg-muted dark:hover:bg-card rounded-sm hover:bg-gray-300 focus-visible:ring-0 border-transparent border-y-4 focus:border-b-blue-400 " 
                       />
                     </>
                     }
-                  </div>                  
+                  </div>}                  
                 </div>
                 <div className="space-y-3">
                    
                   <p className="text-sm text-blue-500">Payment Remaining</p>
                   <span className="text-sm">1200</span> 
-                  <div>
+                  {advancePayment && <div>
                     <p className="text-sm text-blue-500">Payment Done</p>
                     { !isEditable ?
                     <>
-                      <span className="text-sm">1200</span>
+                      <span className="text-sm">{advancePayment}</span>
                     </>
                       :
                     <>
-                      <Input type="text" id="number" 
+                      <Input type="text" id="number" value={advancePayment} onChange={(e) => setAdvancePayment(Number(e.target.value))}
                         className="w-[170px] border-0 p-0 my-0 px-1 bg-muted dark:hover:bg-card rounded-sm hover:bg-gray-300 focus-visible:ring-0 border-transparent border-y-4 focus:border-b-blue-400
                         [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none
                         " />
                     </>
                     }
-                  </div>
+                  </div>}
                 </div>
           </div>
       </div>
+      {booking.odometerReading &&
+      <div className="px-4 py-4 border-b-4 border-gray-200 dark:border-muted">
+          <h3 className="text-lg font-semibold mb-4 ">Some more details</h3>
+          <div className="grid grid-cols-2 gap-4 sm:gap-6">
+            <div>
+              {booking.aadharCard &&<div>
+                <p className="text-sm text-blue-500">Customer Aadhar Card</p>
+                <span className="text-sm">{booking.aadharCard}</span>
+              </div>}
+              {booking.odometerReading &&<div>
+                <p className="text-sm text-blue-500">Odometer Reading</p>
+                <span className="text-sm">{booking.odometerReading}</span>
+              </div>}
+            </div>
+            <div>
+              {booking.drivingLicence &&<div>
+                <p className="text-sm text-blue-500">Customer Driving License</p>
+                <span className="text-sm">{booking.drivingLicence}</span>
+              </div>}
+              {booking.notes &&<div>
+                <p className="text-sm text-blue-500">Notes if any</p>
+                <span className="text-sm">{booking.notes}</span>
+              </div>}
+            </div>
+          </div>
+      </div>
+      }
       {!isEditable && <div className=" flex justify-center space-x-2 mt-2" onClick={handleClick}>
-        {action == "Start" ? 
+        {bookingStatus === "Upcoming" &&
         <Button className="px-4 py-4 max-sm:w-full bg-blue-600 dark:text-black text-blue-100  shadow-lg"
           onClick={() => {
+            setAction("Start");
             setIsDialogOpen(true)
           }}>
           <span className="" >Start Booking</span> 
         </Button>
-        :
+        }
+        {bookingStatus === "Ongoing" &&
         <Button className="px-4 py-4 max-sm:w-full bg-blue-600 dark:text-black text-blue-100  shadow-lg"
         onClick={() => {
+          setAction("Stop");
           setIsDialogOpen(true);
         }}>
           <span className="">Stop Booking</span> 
@@ -326,7 +395,8 @@ export function BookingDetailsClient({ booking }: BookingDetailsClientProps) {
         <>
           <Button className="px-4 py-4 max-sm:w-full bg-primary hover:bg-opacity-50 shadow-lg"
           onClick={() => {
-            setIsEditable(false);
+            setAction("Update");
+            setIsDialogOpen(true);
           }}>
             <span className="">Update</span> 
           </Button>
@@ -337,22 +407,7 @@ export function BookingDetailsClient({ booking }: BookingDetailsClientProps) {
 
         </>
       </div>}
-     <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
-          <DialogContent className="sm:max-w-[425px] bg-white text-black">
-            <DialogHeader>
-              <DialogTitle>{action}</DialogTitle>
-              <DialogDescription className="text-blue-500">
-                "Are you sure you want to {action} the booking?" 
-              </DialogDescription>
-            </DialogHeader>
-            <DialogFooter>
-            <Button className="max-sm:w-full bg-black hover:bg-blue-100 hover:text-black text-blue-100 hover:border hover:border-black  shadow-lg" onClick={() => {
-                handleAction();
-                setIsDialogOpen(false)
-              }}>{action}</Button>
-            </DialogFooter>
-          </DialogContent>
-        </Dialog>
+        <ActionDialog isDialogOpen={isDialogOpen} setIsDialogOpen={setIsDialogOpen} action={action} handleAction={handleAction}/>
     </div>
   )
 }

@@ -2,12 +2,16 @@ import {  Router } from "express";
 import {  CalendarUpdateSchema } from "../../types";
 import client from "@repo/db/client";
 import { middleware } from "../../middleware";
+import { start } from "node:repl";
 
 export const calendarRouter = Router();
 
 calendarRouter.get("/all",middleware,async (req,res) => {
     try {
         const bookings = await client.booking.findMany({
+            where: {
+                userId: req.userId!
+            },
             include:{
                 car:true
             }
@@ -15,16 +19,22 @@ calendarRouter.get("/all",middleware,async (req,res) => {
         const formatedBookings = bookings.map(booking => {
             return {
                 id:booking.id,
-                start:booking.startDate,
-                end:booking.endDate,
+                startDate:booking.startDate,
+                endDate:booking.endDate,
                 status:booking.status,
-                cancelledBy:booking.cancelledBy,
+                startTime:booking.startTime,
+                endTime:booking.endTime,
+                color:booking.car.colorOfBooking,
+                allDay:booking.allDay,
+                customerName:booking.customerName,
+                customerContact:booking.customerContact,
+                carId:booking.carId,
                 carName:booking.car.brand + " " + booking.car.model,
             }
         })
         res.json({
             message:"Bookings fetched successfully",
-            formatedBookings
+            bookings:formatedBookings
         })
     } catch(e) {
         res.status(400).json({message: "Internal server error"})
@@ -44,6 +54,7 @@ calendarRouter.put("/:id", middleware, async (req, res) => {
         const booking = await client.booking.findFirst({
             where: {
                 id: parseInt(req.params.id),
+                userId: req.userId!
             },
             include: {
                 car: true,
@@ -62,7 +73,6 @@ calendarRouter.put("/:id", middleware, async (req, res) => {
         if (parsedData.data.startTime !== undefined) updateData.startTime = parsedData.data.startTime;
         if (parsedData.data.endTime !== undefined) updateData.endTime = parsedData.data.endTime;
         if (parsedData.data.allDay !== undefined) updateData.allDay = parsedData.data.allDay;
-        if (parsedData.data.carId !== undefined) updateData.carId = parsedData.data.carId;
 
         await client.booking.update({
             data: updateData,
@@ -85,7 +95,8 @@ calendarRouter.delete("/:id",middleware,async (req,res) => {
     try {
         const booking = await client.booking.findFirst({
             where: {
-                id: parseInt(req.params.id)
+                id: parseInt(req.params.id),
+                userId: req.userId!
             },
             include:{
                 car:true
@@ -115,14 +126,15 @@ calendarRouter.delete("/:id",middleware,async (req,res) => {
 
 calendarRouter.put("/change-color/:id",middleware,async (req,res) => {
     try {
-        const car = await client.booking.findFirst({
+        const car = await client.car.findFirst({
             where: {
-                id: parseInt(req.params.id)
+                id: parseInt(req.params.id),
+                userId: req.userId!
             }
         })
 
         if(!car) {
-            res.status(400).json({message: "Booking not found"})
+            res.status(400).json({message: "Car not found"})
             return
         }
 

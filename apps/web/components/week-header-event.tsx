@@ -1,4 +1,4 @@
-import { CalendarEventType, useEventRows, useEventStore, useWrappedEvent, WrappedEvent } from "@/lib/store";
+import { CalendarEventType, useCarStore, useEventRows, useEventStore, useWrappedEvent, WrappedEvent } from "@/lib/store";
 import { cn } from "@/lib/utils";
 import dayjs, { Dayjs } from "dayjs";
 import React, { useEffect, useState } from "react"
@@ -15,7 +15,7 @@ const HeaderEvent = ({index,date,today,isEventHidden}:{index:number,date:Dayjs,t
     const {wrappedEvents} = useWrappedEvent();
     const [noOfEvents,setNoOfEvents] = useState(0);
     const isSmallScreen = useMediaQuery({ query: '(max-width: 640px)' });
-    const isSizeExtraSmall = useMediaQuery({ query: '(max-width: 400px)' });
+    const {cars} = useCarStore();
 
     useEffect(() => {
       Initialize();
@@ -25,8 +25,7 @@ const HeaderEvent = ({index,date,today,isEventHidden}:{index:number,date:Dayjs,t
       const filteredEvents = events.filter((event: CalendarEventType) => {
         return event.startDate.isSame(date,"days") && event.endDate.isAfter(date,"days");
       });
-          
-      
+        
       const currentDate = date.startOf("day");
       const extendedEvents = events.filter((event) => {
         const eventStart = dayjs(event.startDate).startOf("day");
@@ -108,6 +107,7 @@ const HeaderEvent = ({index,date,today,isEventHidden}:{index:number,date:Dayjs,t
     }
 
     const renderEvent = (event: CalendarEventType, index: number, width: string, marginTop: string | number) => {
+      const car = cars.find(car => car.id === event.carId);
       return (
         <div
           key={event.id}
@@ -118,14 +118,15 @@ const HeaderEvent = ({index,date,today,isEventHidden}:{index:number,date:Dayjs,t
           style={{
             width,
             marginTop,
-            minWidth:"30px"
+            minWidth:"30px",
+            backgroundColor: car?.colorOfBooking
           }}
           className={cn(
             "my-[1px] max-sm:h-[12px] h-[18px] w-full flex items-center justify-center cursor-pointer rounded-[3px] sm:rounded-sm bg-[#039BE5] text-[7px] sm:text-xs text-white overflow-hidden whitespace-nowrap",
             isSmallScreen ? "text-[9px]" : "px-2 text-[12px]"
           )}
         >
-          <span className="truncate">{event.title}</span>
+          <span className="truncate">{event.id + " : " + event.carName}</span>
         </div>
       );
     };

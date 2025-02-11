@@ -1,81 +1,75 @@
 "use client"
-
 import { useState } from "react"
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog"
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
-import { Car, Clock, Plus, Fuel, X, Palette, PlusSquare } from "lucide-react"
-import { CarCard } from "./car-card"
-import Link from "next/link";
-import { cn } from "@/lib/utils";
+import { X } from "lucide-react"
 import CarFrontIcon from "@/public/car-front.svg";
 import Color from "@/public/color.svg";
 import Price from "@/public/price-tag.svg";
 import Speedometer  from "@/public/performance.svg";
+import { BASE_URL } from "@/lib/config";
+import axios from "axios"
+import { Car, useCarStore } from "@/lib/store"
 
-const userCars = [
-    {
-      id: 1,
-      name: "Tesla Model 3",
-      imageUrl: "https://hips.hearstapps.com/hmg-prod/images/2025-tesla-model-s-1-672d42e172407.jpg?crop=0.465xw:0.466xh;0.285xw,0.361xh&resize=1200",
-      bookings: [
-        { start: "2023-06-01", end: "2023-06-03" },
-        { start: "2023-06-10", end: "2023-06-15" },
-      ],
-    },
-    {
-      id: 2,
-      name: "Ford Mustang",
-      imageUrl: "https://platform.cstatic-images.com/in/v2/stock_photos/602375aa-858e-4b71-a9eb-f77ca929c9d0/2fb5b283-ca73-41c1-812d-151a80af3953.png",
-      bookings: [
-        { start: "2023-06-05", end: "2023-06-07" },
-        { start: "2023-06-20", end: "2023-06-25" },
-      ],
-    },
-    {
-      id: 3,
-      name: "Toyota Camry",
-      imageUrl: "https://stimg.cardekho.com/images/carexteriorimages/930x620/Toyota/Camry/11344/1733916451269/front-left-side-47.jpg",
-      bookings: [
-        { start: "2023-06-08", end: "2023-06-09" },
-        { start: "2023-06-18", end: "2023-06-22" },
-      ],
-    },
-  ]
+interface AddCarDialogProps {
+  isOpen:boolean;
+  setIsOpen:React.Dispatch<React.SetStateAction<boolean>>;
+}
 
-export function AddCarDialog() {
+export function AddCarDialog({isOpen,setIsOpen}:AddCarDialogProps) {
     
-  const [isOpen,setIsOpen] = useState(false);
-  const [price,setPrice] = useState("");
-  const [cars,setCars] = useState(userCars);
-  const [mileage,setMileage] = useState("");
+  const [price,setPrice] = useState<number>(0);
+  const [mileage,setMileage] = useState<number>(0);
   const [carBrand,setCarBrand] = useState<string>("");
   const [carModel,setCarModel] = useState<string>("");
   const [color,setColor] = useState<string>("#0000FF");
   const [carNumber,setCarNumber] = useState<string>("");
   const [selectedImage, setSelectedImage] = useState<string | null>(null);
   const [imageFile, setImageFile] = useState<File | null>(null);
+  const {cars,setCars} = useCarStore();
 
-  const handleSubmit = (event: React.FormEvent) => {
+  const handleSubmit = async (event: React.FormEvent) => {
     event.preventDefault();
-    const carslength = cars.length;
-    const car = {
-      id: carslength + 1,
-      name: carBrand +  " " + carModel,
-      imageUrl: selectedImage || "",
-      bookings: [],
-    };
-    setCars([...cars, car]);
-    setCarBrand("");
-    setCarModel("");
-    setColor("#0000FF");
-    setCarNumber("");
-    setPrice("");
-    setMileage("");
-    setSelectedImage(null); 
-    setImageFile(null);
-    setIsOpen(false);
+    try {
+        const body = {
+          brand: carBrand,
+          model: carModel,
+          plateNumber: carNumber,
+          color: color,
+          price: price,
+          mileage: mileage,
+          imageUrl: selectedImage ? selectedImage : "",
+        }
+        const res = await axios.post(`${BASE_URL}/api/v1/car`,body, {
+          headers: {
+            "Content-type": "application/json",
+            authorization: `Bearer ` + localStorage.getItem('token')
+            }
+          })
+        const car = {
+          id: res.data.carId,
+          brand: carBrand,
+          model: carModel,
+          plateNumber: carNumber,
+          imageUrl: selectedImage ? selectedImage : "",
+          colorOfBooking:color
+        };
+        setCars([...cars,car]);
+        setCarBrand("");
+        setCarModel("");
+        setColor("#0000FF");
+        setCarNumber("");
+        setPrice(0);
+        setMileage(0);
+        setSelectedImage(null); 
+        setImageFile(null);
+        setIsOpen(false);
+      }
+      catch (error) {
+        console.log(error);
+      }
   }
 
   const handleFileUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -95,30 +89,9 @@ export function AddCarDialog() {
     setImageFile(null);
   }
 
+
   return (
     <>
-        <section className="py-6 bg-muted px-4">
-            <div className="flex justify-between items-center mb-8 px-4">
-                <h1 style={{ fontFamily: "var(--font-equinox), sans-serif",
-                 }} className="sm:text-3xl text-xl font-black font-myfont">MOHIT's GARRAGE</h1>
-                <Button className="bg-blue-600 text-white dark:text-black hover:bg-opacity-80  shadow-lg"
-                  onClick={() => setIsOpen(true)}>
-                  <PlusSquare className="text-20 h-12 w-12" />
-                  <span className="">Add Car</span> 
-                </Button>
-            </div>
-            <div style={{zIndex:-9999}} className="grid z-0 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-                {cars.map((car) => (
-                <Link
-                    href={`/car/${car.id}`}
-                    key={car.id}
-                    className="transform transition-all z-0 duration-300 hover:scale-105"
-                >
-                    <CarCard name={car.name} imageUrl={car.imageUrl} />
-                </Link>
-                ))}
-            </div>
-        </section>
         <Dialog open={isOpen} onOpenChange={setIsOpen}>
         <DialogContent className="h-auto overflow-y-auto dark:border-gray-800 ">
             <form onSubmit={handleSubmit} className="space-y-4">
@@ -134,7 +107,7 @@ export function AddCarDialog() {
                     value={carBrand} 
                     onChange={(e) => setCarBrand(e.target.value)}
                     placeholder="Add Car Brand"
-                    className="my-4 rounded-none placeholder:text-[30px]  text-[30px] max-sm:placeholder:text-[24px]  max-sm:text-[24px] md:text-[30px] file:text-[30px] placeholder:text-gray-700 dark:placeholder:text-gray-400  border-0 border-b text-2xl focus-visible:border-b-2 border-b-gray-400 focus-visible:border-b-blue-600  focus-visible:ring-0 focus-visible:ring-offset-0 w-full"
+                    className="my-4 rounded-none placeholder:text-[30px] text-[30px] max-sm:placeholder:text-[24px]  md:text-[30px] file:text-[30px] placeholder:text-gray-700 dark:placeholder:text-gray-400  border-0 border-b focus-visible:border-b-2 border-b-gray-400 focus-visible:border-b-blue-600  focus-visible:ring-0 focus-visible:ring-offset-0 w-full"
                     />
                 </div>
                 
@@ -147,7 +120,7 @@ export function AddCarDialog() {
                                 placeholder="Add Car Model"
                                 value={carModel} 
                                 onChange={(e) => setCarModel(e.target.value)}
-                                className="my-4 w-full rounded-none placeholder:text-[14px] max-sm:placeholder:text-[12px] max-sm:text-[12px] text-[14px] md:text-[14px] placeholder:text-gray-700 dark:placeholder:text-gray-400  border-0 border-b text-2xl focus-visible:border-b-2 border-b-gray-400 focus-visible:border-b-blue-600  focus-visible:ring-0 focus-visible:ring-offset-0"
+                                className="my-4 w-full rounded-none placeholder:text-[14px] max-sm:placeholder:text-[12px] max-sm:text-[12px] text-[14px] md:text-[14px] placeholder:text-gray-700 dark:placeholder:text-gray-400  border-0 border-b focus-visible:border-b-2 border-b-gray-400 focus-visible:border-b-blue-600  focus-visible:ring-0 focus-visible:ring-offset-0"
                                 />
                                 <Input
                                 type="text"
@@ -155,7 +128,7 @@ export function AddCarDialog() {
                                 placeholder="Add Car Number"
                                 value={carNumber} 
                                 onChange={(e) => setCarNumber(e.target.value)}
-                                className="my-4 w-full rounded-none placeholder:text-[14px] max-sm:placeholder:text-[12px] max-sm:text-[12px] text-[14px] md:text-[14px] placeholder:text-gray-700 dark:placeholder:text-gray-400  border-0 border-b text-2xl focus-visible:border-b-2 border-b-gray-400 focus-visible:border-b-blue-600  focus-visible:ring-0 focus-visible:ring-offset-0"
+                                className="my-4 w-full rounded-none placeholder:text-[14px] max-sm:placeholder:text-[12px] max-sm:text-[12px] text-[14px] md:text-[14px] placeholder:text-gray-700 dark:placeholder:text-gray-400  border-0 border-b focus-visible:border-b-2 border-b-gray-400 focus-visible:border-b-blue-600  focus-visible:ring-0 focus-visible:ring-offset-0"
                                 />
                             
                         </div>
@@ -194,7 +167,6 @@ export function AddCarDialog() {
                                     accept="image/*"
                                     onChange={handleFileUpload}
                                     className="hidden"
-                                    // className={cn("border-0 cursor-pointer overflow-hidden text-ellipsis border-b-gray-400 rounded-none border-b border-black p-0 focus:border-blue-500 focus:ring-0", "transition-colors duration-200")}
                                 />
                             </div>
                         </div>
@@ -207,10 +179,10 @@ export function AddCarDialog() {
                             <Label htmlFor="price" className="w-1/3 max-sm:text-xs">
                             24 hr price
                             </Label>
-                            <Input type="text" id="price" placeholder="0"
-                                className="w-1/3 border-black max-sm:text-xs dark:border-gray-700 placeholder:text-gray-700 dark:placeholder:text-gray-400  focus:border-blue-400 focus-visible:ring-blue-400" 
+                            <Input type="number" id="price" placeholder="0"
+                                className="w-1/3 border-black max-sm:text-xs dark:border-gray-700 placeholder:text-gray-700 dark:placeholder:text-gray-400  focus:border-blue-400 focus-visible:ring-blue-400 [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none" 
                                 value={price} 
-                                onChange={(e) => setPrice((e.target.value))}
+                                onChange={(e) => setPrice(parseInt(e.target.value))}
                             />
                         </div>
 
@@ -219,10 +191,10 @@ export function AddCarDialog() {
                             <Label htmlFor="totalAmount" className="w-1/3 max-sm:text-xs">
                             Car Mileage
                             </Label>
-                            <Input type="text" id="totalAmount" placeholder="0"
+                            <Input type="number" id="totalAmount" 
                                 value={mileage} 
-                                onChange={(e) => setMileage((e.target.value))}
-                                className="w-1/3 max-sm:text-xs placeholder:text-gray-700 dark:placeholder:text-gray-400  border-black dark:border-gray-700 focus:border-blue-400 focus-visible:ring-blue-400 " />
+                                onChange={(e) => setMileage(parseInt(e.target.value))}
+                                className="w-1/3 max-sm:text-xs placeholder:text-gray-700 dark:placeholder:text-gray-400  border-black dark:border-gray-700 focus:border-blue-400 focus-visible:ring-blue-400 [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none " />
                         </div>
                     </div>
                     <div className="w-[140px] h-[100px] border border-black dark:border-gray-700 relative">
@@ -236,7 +208,7 @@ export function AddCarDialog() {
                                 <button
                                     type="button"
                                     onClick={handleRemoveImage}
-                                    className="absolute -top-2 -right-2 bg-white rounded-full p-1 shadow-md hover:bg-gray-100"
+                                    className="absolute -top-2 -right-2 bg-white rounded-full p-1 shadow-md dark:bg-gray-800 hover:bg-gray-100 dark:hover:bg-gray-700"
                                 >
                                     <X className="h-4 w-4" />
                                 </button>

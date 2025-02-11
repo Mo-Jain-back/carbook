@@ -8,13 +8,39 @@ import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from "@/components/ui/card"
 import { ThemeToggle } from "@/components/theme-toggle"
+import axios from "axios"
+import { BASE_URL } from "@/lib/config"
+import { useUserStore } from "@/lib/store"
+import { useRouter } from "next/navigation"
 
 export default function LoginPage() {
-  const [showPassword, setShowPassword] = useState(false)
+  const [showPassword, setShowPassword] = useState(false);
+  const [username, setUsername] = useState("");
+  const [password, setPassword] = useState("");
+  const {setName} = useUserStore();
+  const router = useRouter();
 
-  const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
+  const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault()
     // Implement login logic here
+    try{
+      const res = await axios.post(`${BASE_URL}/api/v1/signin`,{
+                    username: username,
+                    password: password
+                  },{
+                    headers:{
+                      "Content-type": "application/json"
+                    }
+                  });
+      router.push("/");
+      localStorage.setItem("token",res.data.token);
+      setName(res.data.name);
+
+      console.log(res.data);
+    }
+    catch(error){
+      console.log(error)
+    }
     console.log("Login submitted")
   }
 
@@ -32,7 +58,7 @@ export default function LoginPage() {
           <CardContent className="space-y-4">
             <div className="space-y-2">
               <Label htmlFor="username">Username</Label>
-              <Input id="username" type="text" placeholder="Enter your username" required />
+              <Input id="username" type="text" value={username} onChange={(e) => setUsername(e.target.value)} placeholder="Enter your username" required />
             </div>
             <div className="space-y-2">
               <Label htmlFor="password">Password</Label>
@@ -41,6 +67,8 @@ export default function LoginPage() {
                   id="password"
                   type={showPassword ? "text" : "password"}
                   placeholder="Enter your password"
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
                   required
                 />
                 <Button

@@ -1,8 +1,8 @@
-import React from "react";
 
 export default function LoadingScreen() {
+
   return (
-    <div className=" dark:bg-dark-backgound text-gray-200">
+    <div className=" bg-muted dark:bg-dark-background ">
       <div className="flex space-x-2 justify-center items-center w-screen h-screen">
         <span className="sr-only">Loading...</span>
         <div className="h-8 w-8 bg-primary border-[2px] border-border rounded-full animate-bounce [animation-delay:-0.3s]"></div>

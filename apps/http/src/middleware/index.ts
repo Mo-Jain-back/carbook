@@ -17,7 +17,6 @@ export const middleware = (req: Request, res: Response, next: NextFunction) => {
         const decoded = jwt.verify(token, JWT_PASSWORD) as {  userId: number, name :string }
         
         req.userId = decoded.userId
-        // Error: Property 'name' does not exist on type 'Request<ParamsDictionary, any, any, ParsedQs, Record<string, any>>'.
         req.name = decoded.name
         next()
     } catch(e) {

@@ -16,22 +16,49 @@ import Calendar from "@/public/date-and-time.svg"
 import Rupee from "@/public/rupee-symbol.svg";
 import Shield from "@/public/shield.svg";
 import Booking from "@/public/online-booking.svg"
-
-export function CarBookingDialog({isOpen, setIsOpen}: {isOpen: boolean, setIsOpen: React.Dispatch<React.SetStateAction<boolean>>}) {
-  const [color, setColor] = useState("#000000");
+import axios from "axios"
+import { BASE_URL } from "@/lib/config"
+interface Car {
+  id: number;
+  brand: string;
+  model: string;
+  plateNumber: string;
+  imageUrl: string;
+}
+export function CarBookingDialog({isOpen, setIsOpen, cars}: {isOpen: boolean, setIsOpen: React.Dispatch<React.SetStateAction<boolean>>, cars: Car[]}) {
   const [startDate, setStartDate] = useState<Date>(new Date());
   const [endDate,setEndDate] = useState<Date>(new Date());
   const [startTime,setStartTime] = useState<string>('00:00');
   const [endTime,setEndTime] = useState<string>('00:00');
-  const [car,setCar] = useState<string>("");
+  const [car,setCar] = useState<number>(cars[0].id);
   const [price,setPrice] = useState<number>(0);
   const [totalAmount,setTotalAmount] = useState<number>(0);
-  const [securityDeposit,setSecurityDeposit] = useState<number>(0);
   const [name,setName] = useState<string>("");
   const [contact,setContact] = useState<string>("");
 
-  const handleSubmit = (event: React.FormEvent) => {
-
+  const handleSubmit = async (event: React.FormEvent) => {
+    try {
+      const res = await axios.post(`${BASE_URL}/api/v1/booking`,{
+        startDate: startDate.toLocaleDateString('en-US'),
+        endDate: endDate.toLocaleDateString('en-US'),
+        startTime: startTime,
+        endTime: endTime,
+        allDay: false,
+        carId: car,
+        customerName: name,
+        customerContact: contact,
+        dailyRentalPrice: totalAmount,
+      },{
+        headers: {
+          "Content-type": "application/json",
+          authorization: `Bearer ` + localStorage.getItem('token')
+          }
+      });
+      console.log(res.data);
+    }
+    catch(error){
+      console.log(error);
+    }
   }
 
   const handleDateChange = (date:Date,type?:string) => {
@@ -62,21 +89,14 @@ export function CarBookingDialog({isOpen, setIsOpen}: {isOpen: boolean, setIsOpe
                 <SelectValue placeholder="Select a car" />
               </SelectTrigger>
               <SelectContent className="dark:border-gray-700">
+              {cars && cars.length > 0 && cars.map((car) => (
                 <SelectItem 
+                  key={car.id}
                   className=" focus:bg-blue-300 dark:focus:bg-blue-900 cursor-pointer" 
-                  value="sedan"
-                  onClick={() => setCar("sedan")}
-                  >Sedan</SelectItem>
-                <SelectItem 
-                  className=" focus:bg-blue-300 dark:focus:bg-blue-900 cursor-pointer" 
-                  value="suv"
-                  onClick={() => setCar("suv")}
-                  >SUV</SelectItem>
-                <SelectItem 
-                  className=" focus:bg-blue-300 dark:focus:bg-blue-900 cursor-pointer" 
-                  value="sports"
-                  onClick={() => setCar("sports")}
-                  >Sports Car</SelectItem>
+                  value={car.id.toString()}
+                  onClick={() => setCar(car.id)}
+                  >{car.brand + " " + car.model}</SelectItem>
+              ))}
               </SelectContent>
             </Select>
           </div>

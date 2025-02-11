@@ -8,21 +8,68 @@ import type React from "react" // Added import for React
 import { useRouter } from "next/navigation";
 import BackArrow from "@/public/back-arrow.svg";
 import UserIcon from "@/public/user.svg"
+import axios from "axios"
+import { BASE_URL } from "@/lib/config"
+import LoadingScreen from "@/components/loading-screen"
+
+interface User {
+  name: string;
+  imageUrl: string;
+  username: string;
+  password: string;
+}
 
 export default function ProfilePage() {
+  const [user,setUser] = useState<User>();
   const [isEditingUsername, setIsEditingUsername] = useState(false)
   const [isEditingPassword, setIsEditingPassword] = useState(false)
-  const [username, setUsername] = useState("johndoe123")
-  const [password, setPassword] = useState("password123")
   const [showPassword, setShowPassword] = useState(false)
   const usernameInputRef = useRef<HTMLInputElement>(null)
   const passwordInputRef = useRef<HTMLInputElement>(null);
   const router = useRouter();
+  const [username, setUsername] = useState((user && user.username) || "")
+  const [password, setPassword] = useState((user && user.password ) || "")
 
   // This would typically come from your authentication system
-  const user = {
-    name: "John Doe",
-    image: null, // Set to null for this example to show the default icon
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const res = await axios.get(`${BASE_URL}/api/v1/me`,{
+          headers: {
+            "Content-type": "application/json",
+            authorization: `Bearer ${localStorage.getItem("token")}`
+          }
+        });
+        setUser(res.data.user);
+      }
+      catch(error){
+        console.log(error);
+      }
+    }
+    fetchData();
+  },[]);
+
+  useEffect(() => {
+    if(user) {
+      setUsername(user.username);
+      setPassword(user.password);
+    }
+  },[user]);
+
+  useEffect(() => {
+    if (isEditingUsername && usernameInputRef.current) {
+      usernameInputRef.current.focus()
+    }
+  }, [isEditingUsername])
+
+  useEffect(() => {
+    if (isEditingPassword && passwordInputRef.current) {
+      passwordInputRef.current.focus()
+    }
+  }, [isEditingPassword])
+
+  if(!user) {
+    return <LoadingScreen/>;
   }
 
   const handleEditPictureClick = () => {
@@ -38,18 +85,6 @@ export default function ProfilePage() {
     setIsEditingPassword(true)
   }
 
-  useEffect(() => {
-    if (isEditingUsername && usernameInputRef.current) {
-      usernameInputRef.current.focus()
-    }
-  }, [isEditingUsername])
-
-  useEffect(() => {
-    if (isEditingPassword && passwordInputRef.current) {
-      passwordInputRef.current.focus()
-    }
-  }, [isEditingPassword])
-
   const handleUsernameChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setUsername(e.target.value)
   }
@@ -58,26 +93,56 @@ export default function ProfilePage() {
     setPassword(e.target.value)
   }
 
-  const handleUpdateUsername = () => {
+  const handleUpdateUsername = async () => {
     // Here you would typically update the username in your backend
-    setIsEditingUsername(false)
+    try {
+      await axios.put(`${BASE_URL}/api/v1/me`,{
+        username: username
+      },{
+        headers: {
+          "Content-type": "application/json",
+          authorization: `Bearer ${localStorage.getItem("token")}`
+        }
+      });
+      setIsEditingUsername(false)
+    }
+    catch(error){
+      console.log(error);
+    }
   }
 
-  const handleUpdatePassword = () => {
+  const handleUpdatePassword = async() => {
     // Here you would typically update the password in your backend
-    setIsEditingPassword(false)
-    setShowPassword(false)
+    try {
+      await axios.put(`${BASE_URL}/api/v1/me`,{
+        password: password
+      },{
+        headers: {
+          "Content-type": "application/json",
+          authorization: `Bearer ${localStorage.getItem("token")}`
+        }
+      });
+      setIsEditingPassword(false)
+      setShowPassword(false)
+    }
+    catch(error){
+      console.log(error);
+    }
   }
 
   const handleClickOutside = (e: React.MouseEvent<HTMLDivElement>) => {
     if (e.target instanceof HTMLElement) {
       if (!e.target.closest("#username-field") && !e.target.closest("#password-field")) {
+        setUsername(user.username);
+        setPassword(user.password);
         setIsEditingUsername(false)
         setIsEditingPassword(false)
         setShowPassword(false)
       }
     }
   }
+
+
 
   return (
     <div className="min-h-screen bg-white dark:bg-background " onClick={handleClickOutside}>
@@ -87,8 +152,8 @@ export default function ProfilePage() {
     
         <div className="absolute left-1/2 bottom-0 transform -translate-x-1/2 translate-y-1/2">
           <div className="relative w-32 h-32 rounded-full bg-muted flex items-center justify-center overflow-hidden border-4 border-transparent shadow-lg">
-            {user.image ? (
-              <Image src={user.image || "/placeholder.svg"} alt={user.name} fill className="object-cover" />
+            { user.imageUrl  ? (
+              <Image src={user.imageUrl || "/placeholder.svg"} alt={user.name} fill className="object-cover" />
             ) : (
               <UserIcon className="w-28 h-28 stroke-[12px] stroke-blue-600 fill-blue-600" />
             )}
@@ -106,8 +171,9 @@ export default function ProfilePage() {
                 <BackArrow className="h-6 w-6 stroke-0 fill-gray-800 dark:fill-blue-300" />
           </Button>
       <div className="max-w-3xl mx-auto pt-12 px-4 sm:px-6 lg:px-8 pb-12  ">
-        <h1 className="text-3xl font-bold text-center text-gray-900 sm:text-4xl mb-8 dark:text-white">{user.name}</h1>
-
+        {user.name &&
+          <h1 className="text-3xl font-bold text-center text-gray-900 sm:text-4xl mb-8 dark:text-white">{user.name}</h1>
+        }
         {/* Edit picture button */}
         <div className="flex justify-center mb-8">
           <Button
@@ -128,7 +194,7 @@ export default function ProfilePage() {
           >
             USERNAME
           </label>
-          <div className="flex items-center space-x-4">
+          <div className="flex items-center cursor-text space-x-4" onClick={handleUsernameClick}>
             {isEditingUsername ? (
               <input
                 ref={usernameInputRef}
@@ -139,7 +205,7 @@ export default function ProfilePage() {
                 className="block w-full dark:bg-black dark:bg-opacity-0 dark:text-blue-200 border-none p-0 text-gray-900 placeholder:text-gray-400 focus:ring-0 sm:text-sm sm:leading-6 outline-none"
               />
             ) : (
-              <span className="text-gray-900 cursor-pen dark:text-blue-200" onClick={handleUsernameClick}>
+              <span className="text-gray-900 cursor-pen dark:text-blue-200" >
                 {username}
               </span>
             )}
@@ -160,7 +226,7 @@ export default function ProfilePage() {
           >
             PASSWORD
           </label>
-          <div className="flex items-center space-x-4">
+          <div className="flex items-center cursor-text space-x-4" onClick={handlePasswordClick}>
             {isEditingPassword ? (
               <div className="relative w-full">
                 <input
@@ -184,8 +250,8 @@ export default function ProfilePage() {
                 </button>
               </div>
             ) : (
-              <span className="text-gray-900 cursor-pen dark:text-blue-200" onClick={handlePasswordClick}>
-                {"•".repeat(password.length)}
+              <span className="text-gray-900 cursor-pen dark:text-blue-200" >
+                {password ? "•".repeat(password.length) : ""}
               </span>
             )}
             {isEditingPassword && (

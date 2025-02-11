@@ -1,7 +1,9 @@
-import { BottomNav } from "@/components/bottom-nav"
-import { Suspense } from "react"
+"use client"
+import { Suspense, useEffect, useState } from "react"
 import { CarDetailsClient } from "@/components/car-details-client";
 import LoadingScreen from "@/components/loading-screen";
+import CarNotFound from "@/components/car-not-found";
+import { useParams } from "next/navigation";
 
 // This would typically come from a database or API
 const userCars = [
@@ -64,24 +66,38 @@ const userCars = [
 ]
 
 
+interface Car {
+  id: number;
+  brand: string;
+  model: string;
+  plateNumber: string;
+  color: string;
+  imageUrl: string;
+  mileage: string;
+  price: string;
+  bookings: {
+    id: number;
+    start: string;
+    end: string;
+    bookedBy: { name: string; contact: string },
+    status: string;
+  cancelledBy: null | string;
+  }[];
+}
 
 export default async function CarDetails({ params }: { params: { id: string } }) {
-  const carId = await Number(params.id); // Resolve params.id synchronously after awaiting params
-
-  const car = userCars
-    .find((b) => b.id === carId);
-
-  if (!car) {
-    return <div>Car not found</div>
+  const Car = useParams();
+  
+  if (!Car) {
+    return <div><CarNotFound /></div>;
   }
-
-
+  
   return (
     <div className="min-h-screen bg-background">
       
       <main className="container mx-auto w-full px-0 py-2 pb-16 sm:pb-8">
         <Suspense fallback={<div><LoadingScreen/></div>}>
-          <CarDetailsClient car={car}  />
+          <CarDetailsClient carId={Number(Car.id)}  />
         </Suspense>
       </main>
     </div>

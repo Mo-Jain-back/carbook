@@ -2,11 +2,14 @@
 import Link from "next/link";
 import Image from "next/image"
 import { Card, CardContent } from "@/components/ui/card"
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { ArrowLeft, Edit } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import BackArrow from "@/public/back-arrow.svg";
+import axios from "axios";
+import { BASE_URL } from "@/lib/config";
+import LoadingScreen from "@/components/loading-screen";
 
 const userCars = [
     {
@@ -37,9 +40,39 @@ const userCars = [
       ],
     },
   ]
+interface Car {
+  id: number;
+  brand: string;
+  model: string;
+  plateNumber: string;
+  imageUrl: string;
+}
 const page = () => {
-    const [cars,setCars] = useState(userCars);
-    const router = useRouter();
+  const [cars,setCars] = useState<Car[]>([]);
+  const router = useRouter();
+
+  useEffect(() => {
+    async function fetchData() {
+      try {
+        const res = await axios.get(`${BASE_URL}/api/v1/car/all`, {
+          headers: {
+            authorization: `Bearer ` + localStorage.getItem('token')
+            }
+          })
+        setCars(res.data.cars);
+
+      }
+      catch (error) {
+        console.log(error);
+      }
+    }
+    fetchData();
+  },[])
+
+  if(!cars) {
+    return <LoadingScreen/>;
+  }
+
   return (
     <div className="py-6 px-4 h-screen dark:bg-muted ">
             <div className="w-full flex gap-6  items-start">
@@ -68,7 +101,7 @@ const page = () => {
                             <div className="relative sm:w-full w-2/3 sm:h-48">
                                 <Image
                                 src={car.imageUrl || "/placeholder.svg"}
-                                alt={car.name}
+                                alt={car.brand + " " + car.model}
                                 fill
                                 style={{ objectFit: "cover" }}
                                 className="rounded-lg border-gray-400 dark:border-background border-[1px]  "
@@ -77,7 +110,7 @@ const page = () => {
                             <div className="p-4 w-full flex sm:justify-center justify-end items-center"
                                 onClick={() => router.push(`/magane-garrage/${car.id}`)}>
                                 <Edit className="w-4 h-4 text-black dark:text-white mx-2"/>
-                                <h3 className="text-lg max-sm:text-sm font-semibold text-black dark:text-white">{car.name}</h3>
+                                <h3 className="text-lg max-sm:text-sm font-semibold text-black dark:text-white">{car.brand + " " + car.model}</h3>
                             </div>
                             </div>
                         </CardContent>

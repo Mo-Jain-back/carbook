@@ -87,23 +87,8 @@ const userCars = [
 
 export default function CarDetails() {
   const Car = useParams();
-  const [car, setCar] = useState<Car | null>(null);
-
-  useEffect(() => {
-    if (!Car?.id) return;
-    async function fetchData() {
-      try {
-        const filteredCar = userCars.find((b) => b.id === Number(Car.id));
-        setCar(filteredCar || null);
-      } catch (error) {
-        console.log(error);
-      }
-    }
-
-    fetchData();
-  }, [Car]);
-
-  if (!car) {
+  
+  if (!Car) {
     return <div><CarNotFound /></div>;
   }
 
@@ -111,7 +96,7 @@ export default function CarDetails() {
     <div className="min-h-screen bg-background">
       <main className="container mx-auto w-full px-0 py-2 pb-16 sm:pb-8">
         <Suspense fallback={<div><LoadingScreen /></div>}>
-          <CarDetailsClient car={car} />
+          <CarDetailsClient carId={Number(Car.id)} />
         </Suspense>
       </main>
     </div>

@@ -7,6 +7,7 @@ import { middleware } from "../../middleware";
 import client from "@repo/db/client";
 import { carRouter } from "./car";
 import { bookingRouter } from "./booking";
+import { calendarRouter } from "./calendar";
 
 
 export const router = Router();
@@ -16,7 +17,6 @@ router.post("/signup", async (req, res) => {
     // check the user
     const parsedData = SignupSchema.safeParse(req.body)
     if (!parsedData.success) {
-        console.log("parsed data incorrect")
         res.status(400).json({message: "Wrong Input type"})
         return
     }
@@ -88,9 +88,36 @@ router.get("/me", middleware,async (req, res) => {
                 id: req.userId
             }
         })
+
+        if (!user) {
+            res.status(404).json({message: "User not found"})
+            return
+        }
         res.json({
             message:"User fetched successfully",
             user
+        })
+    } catch(e) {
+        res.status(400).json({message: "Internal server error"})
+    }
+})
+
+router.get("/me/name", middleware,async (req, res) => {
+    try {
+  
+        const user = await client.user.findFirst({
+            where: {
+                id: req.userId
+            }
+        })
+        if (!user) {
+            res.status(404).json({message: "User not found"})
+            return
+        }
+        res.json({
+            message:"User fetched successfully",
+            name:user.name,
+            imageUrl:user.imageUrl
         })
     } catch(e) {
         res.status(400).json({message: "Internal server error"})
@@ -126,6 +153,7 @@ router.put("/me", middleware,async (req, res) => {
 
 router.use("/car",carRouter)
 router.use("/booking",bookingRouter)
+router.use("/calendar",calendarRouter)
 
 
 

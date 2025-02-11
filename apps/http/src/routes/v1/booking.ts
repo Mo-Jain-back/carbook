@@ -21,7 +21,6 @@ bookingRouter.post("/",middleware,async (req,res) => {
                 allDay: parsedData.data.allDay,
                 carId: parsedData.data.carId,
                 customerName: parsedData.data.customerName,
-                securityDeposit: parsedData.data.securityDeposit,
                 customerContact: parsedData.data.customerContact,
                 dailyRentalPrice: parsedData.data.dailyRentalPrice,
                 userId: req.userId!,
@@ -43,6 +42,9 @@ bookingRouter.post("/",middleware,async (req,res) => {
 bookingRouter.get("/all",middleware,async (req,res) => {
     try {
         const bookings = await client.booking.findMany({
+            where: {
+                userId: req.userId!
+            },
             include:{
                 car:true
             }
@@ -52,15 +54,20 @@ bookingRouter.get("/all",middleware,async (req,res) => {
                 id:booking.id,
                 start:booking.startDate,
                 end:booking.endDate,
+                startTime:booking.startTime,
+                endTime:booking.endTime,
                 status:booking.status,
+                carId:booking.car.id,
                 carName:booking.car.brand + " " + booking.car.model,
                 carPlateNumber:booking.car.plateNumber,
-                carImageUrl:booking.car.imageUrl
+                carImageUrl:booking.car.imageUrl,
+                customerName:booking.customerName,
+                customerContact:booking.customerContact,
             }
         })
         res.json({
             message:"Bookings fetched successfully",
-            formatedBookings
+            bookings:formatedBookings
         })
     } catch(e) {
         console.error(e);
@@ -74,7 +81,8 @@ bookingRouter.get("/:id",middleware,async (req,res) => {
     try {
         const booking = await client.booking.findFirst({
             where: {
-                id: parseInt(req.params.id)
+                id: parseInt(req.params.id),
+                userId: req.userId!
             },
             include:{
                 car:true
@@ -90,9 +98,12 @@ bookingRouter.get("/:id",middleware,async (req,res) => {
             id:booking.id,
             start:booking.startDate,
             end:booking.endDate,
+            startTime:booking.startTime,
+            endTime:booking.endTime,
             status:booking.status,
             customerName:booking.customerName,
             customerContact:booking.customerContact,
+            carId:booking.car.id,
             carName:booking.car.brand + " " + booking.car.model,
             carPlateNumber:booking.car.plateNumber,
             carImageUrl:booking.car.imageUrl,
@@ -114,7 +125,7 @@ bookingRouter.get("/:id",middleware,async (req,res) => {
         );
         res.json({
             message:"Booking fetched successfully",
-            filteredBooking
+            booking:filteredBooking
         })
     } catch(e) {
         console.error(e);
@@ -132,7 +143,8 @@ bookingRouter.put("/:id",middleware,async (req,res) => {
     try {
         const booking = await client.booking.findFirst({
             where: {
-                id: parseInt(req.params.id)
+                id: parseInt(req.params.id),
+                userId: req.userId!
             },
             include:{
                 car:true
@@ -169,7 +181,6 @@ bookingRouter.put("/:id",middleware,async (req,res) => {
 
         res.json({
             message:"Booking updated successfully",
-            
             BookingId:booking.id
         })
     } catch(e) {
@@ -189,7 +200,8 @@ bookingRouter.put("/:id/start",middleware,async (req,res) => {
     try {
         const booking = await client.booking.findFirst({
             where: {
-                id: parseInt(req.params.id)
+                id: parseInt(req.params.id),
+                userId: req.userId!
             }
         })
 
@@ -238,7 +250,8 @@ bookingRouter.put("/:id/end",middleware,async (req,res) => {
     try {
         const booking = await client.booking.findFirst({
             where: {
-                id: parseInt(req.params.id)
+                id: parseInt(req.params.id),
+                userId: req.userId!
             }
         })
 
@@ -273,12 +286,12 @@ bookingRouter.put("/:id/end",middleware,async (req,res) => {
     }
 });
 
-
 bookingRouter.delete("/:id",middleware,async (req,res) => {
     try {
         const booking = await client.booking.findFirst({
             where: {
-                id: parseInt(req.params.id)
+                id: parseInt(req.params.id),
+                userId: req.userId!
             },
             include:{
                 car:true
@@ -292,7 +305,8 @@ bookingRouter.delete("/:id",middleware,async (req,res) => {
 
         await client.booking.delete({
             where: {
-                id: parseInt(req.params.id)
+                id: parseInt(req.params.id),
+                userId: req.userId!
             }
         })
 

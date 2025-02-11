@@ -4,69 +4,145 @@ import {  Edit, MoreVertical, PlaneTakeoff, Trash2 } from "lucide-react"
 import Image from "next/image"
 import {  useRouter } from "next/navigation"
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
-import {  useState } from "react";
+import {  useEffect, useState } from "react";
 import { Input } from "@/components/ui/input"
 import { Card, CardContent } from "@/components/ui/card"
 import Link from "next/link"
 import BackArrow from "@/public/back-arrow.svg";
 import ArrowRight from "@/public/right_arrow.svg"
+import axios from "axios"
+import { BASE_URL } from "@/lib/config"
+import LoadingScreen from "./loading-screen"
+import Booking from "@/public/online-booking.svg"
+import { useCarStore } from "@/lib/store"
 
 
 
-interface CarDetailsClientProps {
-  car: {
+
+interface Car {
+  id: number;
+  brand: string;
+  model: string;
+  plateNumber: string;
+  colorOfBooking: string;
+  imageUrl: string;
+  mileage: number;
+  price: number;
+  bookings: {
     id: number;
-    brand: string;
-    model: string;
-    plateNumber: string;
-    color: string;
-    imageUrl: string;
-    mileage: string;
-    price: string;
-    bookings: {
-      id: number;
-      start: string;
-      end: string;
-      bookedBy: { name: string; contact: string },
-      status: string;
-    cancelledBy: null | string;
-    }[];
-  }
+    start: string;
+    end: string;
+    status: string;
+    customerName: string;
+    customerContact: string;
+  }[];
 }
 
 
-
-export function CarDetailsClient({ car }: CarDetailsClientProps) {
+export function CarDetailsClient({ carId }: { carId: number }) {
+  const [car, setCar] = useState<Car | null>(null);
   const router = useRouter();
   const [isEditable,setIsEditable] = useState(false);
   const [isDialogOpen,setIsDialogOpen] = useState(false);
-  const [color,setColor] = useState(car.color);
-  const [price,setPrice] = useState(car.price);
-  const [mileage,setMileage] = useState(car.mileage);
-  const [imageUrl,setImageUrl] = useState(car.imageUrl);
+  const [color,setColor] = useState(car ? car.colorOfBooking : "#0000FF");
+  const [price, setPrice] = useState(car?.price || 0);
+  const [mileage, setMileage] = useState(car?.mileage || 0);
+  const [imageUrl, setImageUrl] = useState(car?.imageUrl || "");
+  const {cars,setCars} = useCarStore();
   
-  const handleDelete = () => {
-    // Implement delete functionality here
-    console.log("Delete car:", car.id)
+  useEffect(() => {
+    if(car) {
+      setColor(car.colorOfBooking || "#0000FF");
+      setPrice(car.price || 0);
+      setMileage(car.mileage || 0);
+      setImageUrl(car.imageUrl || "");
+    }
+  },[car]);
+
+
+
+  useEffect(() => {
+    try{
+      const fetchData = async () => {
+        const res = await axios.get(`${BASE_URL}/api/v1/car/${carId}`,{
+          headers: {
+            "Content-type": "application/json",
+            authorization: `Bearer ${localStorage.getItem("token")}`
+          }
+        });
+        setCar(res.data.car);
+      }
+      fetchData();
+    }
+    catch(error){
+      console.log(error);
+    }
+  },[]);
+
+  if(!car) {
+    return <div><LoadingScreen /></div>;
   }
 
-  const handleEdit = () => {
+  const handleDelete = async () => {
+    try {
+      const res = await axios.delete(`${BASE_URL}/api/v1/car/${car.id}`,{
+        headers: {
+          "Content-type": "application/json",
+          authorization: `Bearer ${localStorage.getItem("token")}`
+        }
+      });
+      setCar(null);
+      router.back();
+      console.log(res.data);
+    }
+    catch(error){
+      console.log(error);
+    }
+  }
+
+  const handleEdit = async () => {
     // Implement edit functionality here
     console.log("Edit car:", car.id);
-    setIsEditable(false);
+    try {
+      const res = await axios.put(`${BASE_URL}/api/v1/car/${car.id}`,{
+        color: color,
+        price: price,
+        mileage: mileage,
+        imageUrl: imageUrl
+      },{
+        headers: {
+          "Content-type": "application/json",
+          authorization: `Bearer ${localStorage.getItem("token")}`
+        }
+      });
+      const carId = car.id;
+      if(color !== car.colorOfBooking){
+        setCars(cars.map(car => {
+          if(car.id === carId){
+            return {
+              ...car,
+              colorOfBooking: color
+            }
+          }
+          else{
+            return car;
+          }
+        }));
+      }
+      setIsEditable(false);
+    }
+    catch(error){ 
+      console.log(error);
+    }
   }
   const handleCancel = () => {
     setIsEditable(false);
-    setColor(car.color);
-    setPrice(car.price);
-    setMileage(car.mileage);
-    setImageUrl(car.imageUrl);
+    setColor(car.colorOfBooking || "#0000FF");
+    setPrice(car.price || 0);
+    setMileage(car.mileage || 0);
+    setImageUrl(car.imageUrl || "");
   }
 
-  const handleEditPhoto = () => {
-    // Implement photo edit functionality here
-    console.log("Edit photo for car:", car.id)
-  }
 
   const handleFileUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
@@ -104,9 +180,27 @@ export function CarDetailsClient({ car }: CarDetailsClientProps) {
     return `${diffDays} days`
   }
 
-  function handleDeleteBooking() {
+  async function handleDeleteBooking(bookingId:number) {
     //add code to delete the booking
-    console.log("Delete booking:")
+    try {
+      const res = await axios.delete(`${BASE_URL}/api/v1/booking/${bookingId}`,{
+        headers: {
+          "Content-type": "application/json",
+          authorization: `Bearer ${localStorage.getItem("token")}`
+        }
+      });
+      setCar((prev:Car | null) => {
+        if(!prev) return prev;
+        return {
+          ...prev,
+          bookings: prev.bookings.filter((booking) => booking.id !== bookingId)
+        }
+      })
+      console.log(res.data);
+    }
+    catch(error){
+      console.log(error);
+    }
   }
   
 
@@ -143,10 +237,10 @@ export function CarDetailsClient({ car }: CarDetailsClientProps) {
               className=" rounded-md mx-auto h-64 object-cover"
             />
           {isEditable && <button
-            onClick={handleEditPhoto}
+             onClick={() => document.getElementById('carImage')?.click()}
             className="absolute top-2 right-2 bg-primary text-primary-foreground p-2 rounded-full hover:bg-primary/90 transition-colors"
           >
-            <Edit size={20} onClick={() => document.getElementById('carImage')?.click()} />
+            <Edit size={20}  />
             <Input
                 id="carImage"
                 type="file"
@@ -180,27 +274,29 @@ export function CarDetailsClient({ car }: CarDetailsClientProps) {
             <section className="px-4 py-4 border-b-4 border-gray-200 dark:border-gray-700">
               <h2 className="text-lg font-semibold mb-4 ">Car Details</h2>
               <div className="grid grid-cols-2 gap-4 sm:gap-6">
-                <div className="space-y-3">
+                <div className="space-y-4">
                   <p className="text-sm text-blue-500 mb-1">Brand</p>
                   <span className="font-medium">{car.brand}</span> 
                   <p className="text-sm text-blue-500 mb-1">Model</p>
                   <span className="font-medium">{car.model}</span> 
                 </div>
                 <div className="space-y-3">
-                  <p className="text-sm text-blue-500 mb-1">{!isEditable ? "Color of Bookings" : "Select the Color of Booking"}</p>
-                  <div className="flex flex-col item-center gap-1 max-w-[214px] w-full">
-                    <div
-                      className={`w-8 h-8 rounded-md border border-gray-300 dark:border-gray-700 ${isEditable ? "cursor-pointer" : ""}`}
-                      style={{ backgroundColor: color }}
-                      onClick={() => isEditable && document.getElementById("colorPicker")?.click()}
-                    />
-                    <Input
-                      type="color"
-                      id="colorPicker"
-                      value={color}
-                      onChange={(e) => setColor(e.target.value)}
-                      className="hidden"
-                    />
+                  <div>
+                    <p className="text-sm text-blue-500">{!isEditable ? "Color of Bookings" : "Select the Color of Booking"}</p>
+                    <div className="flex flex-col item-center gap-1 max-w-[214px] w-full">
+                      <div
+                        className={`w-8 h-8 rounded-md border border-gray-300 dark:border-gray-700 ${isEditable ? "cursor-pointer" : ""}`}
+                        style={{ backgroundColor: color }}
+                        onClick={() => isEditable && document.getElementById("colorPicker")?.click()}
+                      />
+                      <Input
+                        type="color"
+                        id="colorPicker"
+                        value={color}
+                        onChange={(e) => setColor(e.target.value)}
+                        className="hidden my-0"
+                      />
+                    </div>
                   </div>
                   <p className="text-sm text-blue-500 mb-1">Plate Number</p>
                   <span className="font-medium">{car.plateNumber}</span> 
@@ -215,11 +311,11 @@ export function CarDetailsClient({ car }: CarDetailsClientProps) {
                 <div className="space-y-3">
                   <div>
                     <p className="text-sm text-blue-500 mb-1">24hr Price</p>
-                    {!isEditable ?
+                    {!isEditable || !price ?
                     <span className="font-medium"> {car.price}</span> 
                     :
-                    <Input type="text" id="name" value={price} 
-                      onChange={(e) => setPrice(e.target.value)} 
+                    <Input type="number" id="name" value={price} 
+                      onChange={(e) => setPrice(Number(e.target.value))} 
                       className="w-[170px] border-0 p-0 px-1 bg-gray-200 dark:bg-gray-800 focus-visible:ring-0 border-transparent border-y-4 focus:border-b-blue-400 " />
                     }
                   </div>
@@ -229,11 +325,11 @@ export function CarDetailsClient({ car }: CarDetailsClientProps) {
                   </div>
                   <div>
                     <p className="text-sm text-blue-500 mb-1">Mileage</p>
-                    {!isEditable ?
+                    {!isEditable || !mileage ?
                     <span className="font-medium">{car.mileage} miles/charge</span> 
                     :
-                    <Input type="text" id="name" value={mileage} 
-                      onChange={(e) => setMileage(e.target.value)}
+                    <Input type="number" id="name" value={mileage} 
+                      onChange={(e) => setMileage(Number(e.target.value))}
                       className="w-[170px] border-0 p-0 px-1 bg-gray-200 dark:bg-gray-800 focus-visible:ring-0 border-transparent border-y-4 focus:border-b-blue-400 " />
                     }
                   </div>
@@ -252,44 +348,63 @@ export function CarDetailsClient({ car }: CarDetailsClientProps) {
             </section>
             <section className="px-4 py-4 ">
               <h2 className="text-xl font-semibold mb-4">Current Bookings</h2>
-              <div className=" gap-8 mb-4">
-              {car.bookings.map((booking) => (
-                  <Link href={`/booking/${booking.id}`} key={booking.id}>
-                    <Card className="overflow-hidden hover:shadow-md dark:border-gray-700 transition-shadow my-2">
-                      <CardContent className="p-0">
-                        {/* Rest of the card content remains the same */}
-                        <div className="p-2 bg-muted">
-                          <p className="text-sm max-sm:text-xs text-blue-500">Guest shall pickup car by</p>
-                          <p className="font-semibold text-[#5B4B49] max-sm:text-sm dark:text-gray-400">{getPickupTime(booking.start)}</p>
-                        </div>
-                        <hr className="border-t border-border" />
-                        <div className="p-4 max-sm:p-2 bg-white dark:bg-background flex items-start justify-between">
-                          <div className="flex-1">
-                            <div className="flex items-center sm:gap-8 gap-2">
-                              <div>
-                                <p className="text-xs sm:text-sm text-blue-500">From</p>
-                                <p className="font-semibold text-[#5B4B49] text-xs sm:text-sm dark:text-gray-400">{formatDateTime(booking.start)}</p>
+              {car.bookings.length > 0 ?
+                <div className=" gap-8 mb-4">
+                {car.bookings.map((booking) => (
+                    <Link href={`/booking/${booking.id}`} key={booking.id}>
+                      <Card className="overflow-hidden hover:shadow-md dark:border-gray-700 transition-shadow my-2">
+                        <CardContent className="p-0">
+                          {/* Rest of the card content remains the same */}
+                          <div className="p-2 bg-muted">
+                            <p className="text-sm max-sm:text-xs text-blue-500">Guest shall pickup car by</p>
+                            <p className="font-semibold text-[#5B4B49] max-sm:text-sm dark:text-gray-400">{getPickupTime(booking.start)}</p>
+                          </div>
+                          <hr className="border-t border-border" />
+                          <div className="p-4 max-sm:p-2 bg-white dark:bg-background flex items-start justify-between">
+                            <div className="flex-1">
+                              <div className="flex items-center sm:gap-8 gap-2">
+                                <div>
+                                  <p className="text-xs sm:text-sm text-blue-500">From</p>
+                                  <p className="font-semibold text-[#5B4B49] text-xs sm:text-sm dark:text-gray-400">{formatDateTime(booking.start)}</p>
+                                </div>
+                                <ArrowRight className="mt-4 w-12 stroke-0 fill-blue-400 flex-shrink-0" />
+                                <div>
+                                  <p className="text-xs sm:text-sm text-blue-500">To</p>
+                                  <p className="font-semibold text-[#5B4B49] text-xs sm:text-sm dark:text-gray-400">{formatDateTime(booking.end)}</p>
+                                </div>
                               </div>
-                              <ArrowRight className="mt-4 w-12 stroke-0 fill-blue-400 flex-shrink-0" />
-                              <div>
-                                <p className="text-xs sm:text-sm text-blue-500">To</p>
-                                <p className="font-semibold text-[#5B4B49] text-xs sm:text-sm dark:text-gray-400">{formatDateTime(booking.end)}</p>
+                              <div className="flex items-center w-full sm:w-4/5 justify-between mt-2 sm:mt-8 sm:gap-8 gap-2">
+                                <div>
+                                  <p className="text-xs sm:text-sm text-blue-500">Booked By</p>
+                                  <p className="font-semibold text-[#5B4B49] text-xs sm:text-sm dark:text-gray-400">{booking.customerName}</p>
+                                </div>
+                                <div>
+                                  <p className="sm:text-sm text-xs text-blue-500">Contact</p>
+                                  <p className="font-semibold text-[#5B4B49] text-xs sm:text-sm dark:text-gray-400">{booking.customerContact}</p>
+                                </div>
                               </div>
                             </div>
+                            <div className="text-center ml-4" onClick={() => handleDeleteBooking(booking.id)}>
+                              <Trash2 className="h-6 w-6 hover:text-red-500" />
+                            </div>
                           </div>
-                          <div className="text-center ml-4" onClick={handleDeleteBooking}>
-                            <Trash2 className="h-6 w-6 hover:text-red-500" />
+                          <div className="p-4 max-sm:p-2 bg-gray-100 flex bg-muted items-center text-red-600 dark:text-red-400 gap-2">
+                            <PlaneTakeoff className="h-4 w-4" />
+                            <p className="text-sm max-sm:text-xs ">Trip start window opens in {getTimeUntilBooking(booking.start)}</p>
                           </div>
-                        </div>
-                        <div className="p-4 max-sm:p-2 bg-gray-100 flex bg-muted items-center text-red-600 dark:text-red-400 gap-2">
-                          <PlaneTakeoff className="h-4 w-4" />
-                          <p className="text-sm max-sm:text-xs ">Trip start window opens in {getTimeUntilBooking(booking.start)}</p>
-                        </div>
-                      </CardContent>
-                    </Card>
-                  </Link>
-                ))}
-              </div>
+                        </CardContent>
+                      </Card>
+                    </Link>
+                  ))}
+                </div>
+                :
+                <div className="flex justify-center items-center w-full h-full">
+                  <div className="w-full h-full flex mt-4 flex-col justify-center items-center">
+                    <Booking className={`h-12 w-12 stroke-[5px] fill-gray-400 `}/>
+                    <p className="text-center text-xl text-gray-400 font-bold">No Bookings Yet</p>
+                  </div>
+                </div>
+              }
             </section>
           </div>
 

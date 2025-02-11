@@ -1,5 +1,5 @@
 "use client"
-import { CalendarEventType, useDateStore, useEventStore } from "@/lib/store";
+import { CalendarEventType, useCarStore, useDateStore, useEventStore } from "@/lib/store";
 import { cn } from "@/lib/utils";
 import dayjs, { Dayjs } from "dayjs";
 import React, { useEffect, useState } from "react";
@@ -18,6 +18,7 @@ export default function DayView() {
   const [headerEvents,setHeaderEvents] = useState<CalendarEventType[]>([]);
   const [noOfEvents, setNoOfEvents] = useState<number>(0);
   const [isEventHidden, setIsEventHidden] = useState(true);
+  const {cars} = useCarStore();
 
   useEffect(() => {
     const interval = setInterval(() => {
@@ -88,6 +89,7 @@ export default function DayView() {
                headerEvents.map((event) => {
                 const eventDuration = event.endDate.diff(event.startDate,"days") + 1;
                 const currentDuration  = userSelectedDate.diff(event.startDate,"days") + 1;
+                const car = cars.find(car => car.id === event.carId);
                 return(
                 <div
                   key={event.id}
@@ -95,10 +97,11 @@ export default function DayView() {
                     e.stopPropagation();
                     openEventSummary(event);
                   }}
+                  style= {{backgroundColor: car?.colorOfBooking}}
                   className={` my-[1px] max-sm:h-[12px] w-full flex justify-center items-center cursor-pointer rounded-sm bg-[#039BE5] text-[7px] 
                       sm:text-xs text-white`}
                       >
-                  {event.title}  {"("} {currentDuration} / {eventDuration} {")"}
+                  {event.id + " : " + event.carName}  {"("} {currentDuration} / {eventDuration} {")"}
                 </div>
               )})
             }          

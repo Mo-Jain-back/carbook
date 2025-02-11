@@ -40,8 +40,9 @@ export default function AddTime({
         <PopoverTrigger asChild >
           <div
             className={cn(
-              "p-1 sm:w-[60px] sm:text-sm text-xs m-0 h-[36px] p-[6px] border-0 focus-visible:ring-0 border-transparent border-y-4 cursor-text bg-muted dark:hover:bg-card rounded-sm hover:bg-gray-300 justify-start text-left font-normal",
+              "p-1 sm:w-[60px] shadow-sm sm:text-sm text-xs m-0 h-[36px] p-[6px] border-0 focus-visible:ring-0 border-transparent border-y-4 cursor-text bg-muted dark:hover:bg-card rounded-sm hover:bg-gray-300 justify-start text-left font-normal",
               isPopoverOpen ? "border-b-blue-400" : " ",
+              className
             )}>
             {selectedTime}
           </div>

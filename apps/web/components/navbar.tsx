@@ -23,7 +23,7 @@ export function NavBar() {
       setSelectedTab("calendar")
     } else if (pathname === "/"){
       setSelectedTab("home")
-    }
+    } 
   }, [pathname])
 
 
