@@ -53,7 +53,7 @@ export function BookingDetailsClient({ booking,setBooking }: BookingDetailsClien
     if(action === "Start") {
       router.push(`/booking/start/form/${booking.id}`);
     } else if(action === "Stop"){
-      router.push(`/booking/end/form/${booking.id}`);
+      handleBookingStop();
     }
     else if(action === "Delete"){
       handleDelete();
@@ -62,6 +62,30 @@ export function BookingDetailsClient({ booking,setBooking }: BookingDetailsClien
       handleEdit();
     }
     return;
+  }
+
+  const handleBookingStop = async () => {
+    let currDate = new Date();
+  
+    // Format back to HH:MM
+    let newHours = currDate.getHours().toString().padStart(2, "0");
+    let newMinutes = currDate.getMinutes().toString().padStart(2, "0");
+    try {
+      await axios.put(`${BASE_URL}/api/v1/booking/${booking.id}/end`, {
+        endDate: new Date().toLocaleDateString('en-US'),
+        endTime:`${newHours}:${newMinutes}`,
+      },{
+        headers: {
+          "Content-type": "application/json",
+          authorization: `Bearer ` + localStorage.getItem('token')
+        }
+      });
+      setBookingStatus("Completed");
+      router.push('/bookings');
+    }
+    catch(error){ 
+      console.log(error);
+    }
   }
 
   const handleDateChange = (date:Date,type?:string) => {

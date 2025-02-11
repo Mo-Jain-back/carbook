@@ -81,6 +81,11 @@ export const BookingStartSchema = z.object({
     notes: z.string()
 })
 
+export const BookingEndSchema = z.object({
+    endDate: z.string(),
+    endTime: z.string(),
+})
+
 export const CalendarUpdateSchema = z.object({
     startDate: z.string().optional(),
     endDate: z.string().optional(),

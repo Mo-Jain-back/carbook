@@ -1,5 +1,5 @@
 import {  Router } from "express";
-import { BookingSchema, BookingStartSchema, BookingUpdateSchema } from "../../types";
+import { BookingEndSchema, BookingSchema, BookingStartSchema, BookingUpdateSchema } from "../../types";
 import client from "@repo/db/client";
 import { middleware } from "../../middleware";
 
@@ -247,6 +247,11 @@ bookingRouter.put("/:id/start",middleware,async (req,res) => {
 })
 
 bookingRouter.put("/:id/end",middleware,async (req,res) => {
+    const parsedData = BookingEndSchema.safeParse(req.body);
+    if (!parsedData.success) {
+        res.status(400).json({message: "Wrong Input type"})
+        return
+    }
     try {
         const booking = await client.booking.findFirst({
             where: {
@@ -260,13 +265,10 @@ bookingRouter.put("/:id/end",middleware,async (req,res) => {
             return
         }
 
-        const currDate = new Date().toLocaleDateString();
-        const currTime = new Date().toLocaleTimeString();
-
         const updatedBooking =  await client.booking.update({
                                     data: {
-                                        endDate: currDate,
-                                        endTime: currTime,
+                                        endDate: parsedData.data.endDate,
+                                        endTime: parsedData.data.endTime,
                                         status: "Completed"
                                     },
                                     where: {
