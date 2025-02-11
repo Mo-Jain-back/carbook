@@ -1,7 +1,6 @@
 import Link from "next/link"
 import { Car } from "lucide-react"
 import Calendar from "@/public/calendar.svg"
-import { ThemeToggle } from "@/components/theme-toggle"
 import UserIcon from "@/public/user.svg"
 
 export default function Home() {

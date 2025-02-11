@@ -1,6 +1,6 @@
 "use client"
 import { Button } from "@/components/ui/button"
-import {  Edit, MoreVertical, PlaneTakeoff, Trash2 } from "lucide-react"
+import {  Edit, IndianRupee, MoreVertical, PlaneTakeoff, Trash2 } from "lucide-react"
 import Image from "next/image"
 import {  useRouter } from "next/navigation"
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
@@ -15,9 +15,6 @@ import { BASE_URL } from "@/lib/config"
 import LoadingScreen from "./loading-screen"
 import Booking from "@/public/online-booking.svg"
 import { useCarStore } from "@/lib/store"
-
-
-
 
 interface Car {
   id: number;
@@ -37,6 +34,12 @@ interface Car {
     customerContact: string;
   }[];
 }
+interface Earnings {
+  oneWeekEarnings: number,
+  oneMonthEarnings: number,
+  sixMonthEarnings: number,
+  totalEarnings: number
+}
 
 
 export function CarDetailsClient({ carId }: { carId: number }) {
@@ -49,6 +52,7 @@ export function CarDetailsClient({ carId }: { carId: number }) {
   const [mileage, setMileage] = useState(car?.mileage || 0);
   const [imageUrl, setImageUrl] = useState(car?.imageUrl || "");
   const {cars,setCars} = useCarStore();
+  const [earnings,setEarnings] = useState<Earnings>();
   
   useEffect(() => {
     if(car) {
@@ -59,18 +63,23 @@ export function CarDetailsClient({ carId }: { carId: number }) {
     }
   },[car]);
 
-
-
   useEffect(() => {
     try{
       const fetchData = async () => {
-        const res = await axios.get(`${BASE_URL}/api/v1/car/${carId}`,{
+        const resCar = await axios.get(`${BASE_URL}/api/v1/car/${carId}`,{
           headers: {
             "Content-type": "application/json",
             authorization: `Bearer ${localStorage.getItem("token")}`
           }
         });
-        setCar(res.data.car);
+        setCar(resCar.data.car);
+        const resEarnings = await axios.get(`${BASE_URL}/api/v1/car/${carId}`,{
+          headers: {
+            "Content-type": "application/json",
+            authorization: `Bearer ${localStorage.getItem("token")}`
+          }
+        });
+        setEarnings(resEarnings.data.earnings);
       }
       fetchData();
     }
@@ -312,21 +321,22 @@ export function CarDetailsClient({ carId }: { carId: number }) {
                   <div>
                     <p className="text-sm text-blue-500 mb-1">24hr Price</p>
                     {!isEditable || !price ?
-                    <span className="font-medium"> {car.price}</span> 
+                    <span className="font-medium"><IndianRupee/> {car.price}</span> 
                     :
                     <Input type="number" id="name" value={price} 
                       onChange={(e) => setPrice(Number(e.target.value))} 
                       className="w-[170px] border-0 p-0 px-1 bg-gray-200 dark:bg-gray-800 focus-visible:ring-0 border-transparent border-y-4 focus:border-b-blue-400 " />
                     }
                   </div>
+                  {earnings && earnings.oneMonthEarnings &&
                   <div>
                     <p className="text-sm text-blue-500 mb-1">1 month Earnings</p>
-                    <span className="font-medium"> 600 </span> 
-                  </div>
+                    <span className="font-medium"><IndianRupee/> {earnings.oneMonthEarnings} </span> 
+                  </div>}
                   <div>
                     <p className="text-sm text-blue-500 mb-1">Mileage</p>
                     {!isEditable || !mileage ?
-                    <span className="font-medium">{car.mileage} miles/charge</span> 
+                    <span className="font-medium">{car.mileage} km/ltr</span> 
                     :
                     <Input type="number" id="name" value={mileage} 
                       onChange={(e) => setMileage(Number(e.target.value))}
@@ -335,14 +345,24 @@ export function CarDetailsClient({ carId }: { carId: number }) {
                   </div>
                 </div>
                 <div className="space-y-3">
-                  <div>
-                    <p className="text-sm text-blue-500 mb-1">1 Week Earnings</p>
-                    <span className="font-medium">150</span> 
-                  </div>
-                  <div>
-                    <p className="text-sm text-blue-500 mb-1">6 Month Earnings</p>
-                    <span className="font-medium">3600</span> 
-                  </div>
+                  {earnings && earnings.oneWeekEarnings &&
+                    <div>
+                      <p className="text-sm text-blue-500 mb-1">1 Week Earnings</p>
+                      <span className="font-medium"><IndianRupee/>{earnings.oneWeekEarnings}</span> 
+                    </div>
+                  }
+                  {earnings && earnings.sixMonthEarnings &&
+                    <div>
+                      <p className="text-sm text-blue-500 mb-1">6 Month Earnings</p>
+                      <span className="font-medium"><IndianRupee/>{earnings.sixMonthEarnings}</span> 
+                    </div>
+                  }
+                  {earnings && earnings.totalEarnings &&
+                    <div>
+                      <p className="text-sm text-blue-500 mb-1">Total Earnings</p>
+                      <span className="font-medium"><IndianRupee/>{earnings.totalEarnings}</span> 
+                    </div>
+                  }
                 </div>
               </div>
             </section>

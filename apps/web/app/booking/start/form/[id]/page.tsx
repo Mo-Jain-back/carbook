@@ -67,7 +67,7 @@ export default function BookingDetails() {
   if(!Booking) return null
 
   if (!booking) {
-  return <div><LoadingScreen/></div>
+  return <div><BookingNotFound/></div>
   }
 
   return (

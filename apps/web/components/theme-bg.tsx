@@ -7,7 +7,6 @@ import MoonStar from "@/public/moon-stars.svg";
 import SunSVG from "./SunSVG";
 
 const ThemeBg = () => {
-    const { theme, systemTheme } = useTheme()
     const [mounted, setMounted] = useState(false)
   
     useEffect(() => {
@@ -16,8 +15,6 @@ const ThemeBg = () => {
   
     if (!mounted) return null;
   
-    const currentTheme = theme === "system" ? systemTheme : theme;
-    const isDarkMode = mounted && currentTheme === "dark";
   
     return (
         <div>

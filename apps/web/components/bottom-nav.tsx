@@ -7,10 +7,12 @@ import { usePathname, useRouter } from "next/navigation"
 import { useEffect, useState } from "react";
 import UserIcon from "@/public/user.svg";
 import Calendar from "@/public/calendar.svg"
+import { useUserStore } from "@/lib/store";
 
 export function BottomNav() {
   const [selectedTab, setSelectedTab] = useState("home")
-  const pathname = usePathname()
+  const pathname = usePathname();
+  const {name} = useUserStore()
 
   useEffect(() => {
     console.log("pathname",pathname)
@@ -29,6 +31,7 @@ export function BottomNav() {
     <div className="relative">
       <div className="w-full h-[56px] sm:hidden"></div>
       <nav className="fixed z-[99999] bottom-0 left-0 right-0 bg-blue-300 dark:bg-[#141414] text-primary-foreground sm:hidden">
+        {name ?
         <div className="flex justify-around py-2">
           <Link href="/" className={`flex flex-col items-center ${selectedTab=="home" ? "text-[#27272A] dark:text-primary" : "text-white"} hover:text-[#27272A] dark:hover:text-primary`}>
             <Home className="h-6 w-6" />
@@ -51,6 +54,11 @@ export function BottomNav() {
             <span className="text-xs font-bold">Profile</span>
           </Link>
         </div>
+        :
+        <Link href="/" className={`flex flex-col py-2 items-center ${selectedTab=="home" ? "text-[#27272A] dark:text-primary" : "text-white"} hover:text-[#27272A] dark:hover:text-primary`}>
+            <Home className="h-6 w-6" />
+            <span className="text-xs font-bold">Home</span>
+          </Link>}
       </nav>
       
     </div>

@@ -3,7 +3,7 @@ import {  Edit, MoreVertical, Trash2 } from "lucide-react"
 import Image from "next/image"
 import { useParams, useRouter } from "next/navigation"
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { DatePicker } from "@/components/ui/datepicker";
 import dayjs from "dayjs";
 import AddTime from "@/components/add-time";
@@ -17,6 +17,7 @@ import axios from "axios";
 import { BASE_URL } from "@/lib/config";
 import { Booking } from "./page";
 import ActionDialog from "@/components/action-dialog";
+import { calculateCost } from "@/components/add-booking";
 
 
 interface BookingDetailsClientProps {
@@ -47,6 +48,12 @@ export function BookingDetailsClient({ booking,setBooking }: BookingDetailsClien
   const [dailyRentalPrice,setDailyRentalPrice] = useState<number>(booking.dailyRentalPrice);
   const [paymentMethod,setPaymentMethod] = useState(booking.paymentMethod);
   const [advancePayment,setAdvancePayment] = useState(booking.advancePayment);
+  const [totalAmount,setTotalAmount] = useState(booking.totalPrice);
+  
+  useEffect(() => {
+    const cost = calculateCost(startDate,endDate,startTime,endTime,dailyRentalPrice);
+    setTotalAmount(cost)
+  },[dailyRentalPrice,startDate,endDate,startTime,endTime])
 
   function handleAction() {
     //add code to stop or start the booking
@@ -330,7 +337,7 @@ export function BookingDetailsClient({ booking,setBooking }: BookingDetailsClien
                 <div className="space-y-3">
                   <div>
                     <p className="text-sm text-blue-500">Payment Amount</p>
-                    <span className="text-sm">{booking.totalPrice}</span>
+                    <span className="text-sm">{totalAmount}</span>
                   </div>
                   {paymentMethod && <div>
                     <p className="text-sm text-blue-500">Payment Method</p>

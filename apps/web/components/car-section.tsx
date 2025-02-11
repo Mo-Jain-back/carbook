@@ -1,20 +1,22 @@
 "use client"
 
-import { useEffect, useState } from "react"
+import {  useState } from "react"
 import { Button } from "@/components/ui/button"
 import {   PlusSquare } from "lucide-react"
 import { CarCard } from "./car-card"
 import Link from "next/link";
-import { BASE_URL } from "@/lib/config";
-import axios from "axios"
 import LoadingScreen from "./loading-screen"
 import { AddCarDialog } from "./add-car"
-import { Car, useCarStore } from "@/lib/store"
+import {  useCarStore, useUserStore } from "@/lib/store"
+import CarIcon from "@/public/car-icon.svg";
+import Calendar from "@/public/calendar.svg"
+import UserIcon from "@/public/user.svg"
 
 
 export function CarSection() {
   const [isOpen,setIsOpen] = useState(false);
   const {cars} = useCarStore();
+  const {name} = useUserStore();
 
   if(!cars) {
     return <LoadingScreen/>;
@@ -23,6 +25,7 @@ export function CarSection() {
   return (
     <>
     <AddCarDialog isOpen={isOpen} setIsOpen={setIsOpen} />
+    { name ?
         <section className="py-6 bg-muted px-4">
             <div className="flex justify-between items-center mb-8 px-4">
                 <h1 style={{ fontFamily: "var(--font-equinox), sans-serif",
@@ -45,6 +48,30 @@ export function CarSection() {
                 ))}
             </div>
         </section>
+        :
+        <section className="sm:py-12 py-6 bg-muted">
+          <div className="container mx-auto px-4">
+            <h2 className="text-3xl font-bold text-center mb-12">Key Features</h2>
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+              <div className="flex flex-col items-center bg-card p-6 rounded-lg shadow-md">
+                <CarIcon className="w-28 h-12 stroke-primary fill-primary mb-4 mb-4 stroke-[6px]" /> 
+                <h3 className="text-xl font-semibold mb-2">Easy Booking</h3>
+                <p className="text-muted-foreground">Book your desired car with just a few clicks.</p>
+              </div>
+              <div className="flex flex-col items-center bg-card p-6 rounded-lg shadow-md">
+                <Calendar className="w-12 h-12 stroke-primary fill-primary mb-4 mb-4" />
+                <h3 className="text-xl font-semibold mb-2">Calendar View</h3>
+                <p className="text-muted-foreground">Visualize all bookings in an intuitive calendar interface.</p>
+              </div>
+              <div className="flex flex-col items-center bg-card p-6 rounded-lg shadow-md">
+                <UserIcon className="w-12 h-12 stroke-[20px] stroke-primary fill-primary mb-4" />
+                <h3 className="text-xl font-semibold mb-2">User Profiles</h3>
+                <p className="text-muted-foreground">Manage your account and booking history with ease.</p>
+              </div>
+            </div>
+          </div>
+        </section>
+      }
     </>
   )
 }

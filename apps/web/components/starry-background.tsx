@@ -3,11 +3,13 @@
 import type React from "react"
 import { useEffect, useState } from "react"
 import { useTheme } from "next-themes"
+import { useMediaQuery } from "react-responsive"
 
 const StarryBackground: React.FC = () => {
   const { theme, systemTheme } = useTheme()
-  const [mounted, setMounted] = useState(false)
-  const stars = Array.from({ length: 220 }, (_, i) => i)
+  const [mounted, setMounted] = useState(false);
+  const isSmallScreen = useMediaQuery({ query: '(max-width: 640px)' });
+  const stars = Array.from({ length: isSmallScreen ? 80 : 220 }, (_, i) => i)
 
   useEffect(() => {
     setMounted(true)

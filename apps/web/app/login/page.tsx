@@ -50,7 +50,6 @@ export default function LoginPage() {
         <CardHeader className="space-y-1">
           <div className="flex justify-between items-center">
             <CardTitle className="text-2xl font-bold">Login</CardTitle>
-            <ThemeToggle />
           </div>
           <CardDescription>Enter your username and password to access your account</CardDescription>
         </CardHeader>

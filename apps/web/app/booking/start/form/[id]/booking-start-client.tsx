@@ -19,6 +19,7 @@ import { DatePicker } from "@/components/ui/datepicker"
 import AddTime from "@/components/add-time"
 import dayjs from "dayjs"
 import { set } from "date-fns"
+import { calculateCost } from "@/components/add-booking"
 
 interface FormErrors {
   [key: string]: string;
@@ -65,7 +66,7 @@ export default function BookingStartClient({booking,bookingId} : {
     const [address, setAddress] = useState(booking.customerAddress);
     const [notes, setNotes] = useState(booking.notes);
     const [bookingAmountReceived, setBookingAmountReceived] = useState(booking.advancePayment || 0);
-    const [dailyRentalCharges, setDailyRentalCharges] = useState(booking.dailyRentalPrice || 0);
+    const [dailyRentalPrice, setDailyRentalPrice] = useState(booking.dailyRentalPrice || 0);
     const [totalAmount, setTotalAmount] = useState(booking.totalPrice || 0);
     const [paymentMethod, setPaymentMethod] = useState(booking.paymentMethod);
     const [termsAccepted, setTermsAccepted] = useState(false);
@@ -78,6 +79,10 @@ export default function BookingStartClient({booking,bookingId} : {
       selfie: [],
     });
 
+    useEffect(() => {
+        const cost = calculateCost(startDate,returnDate,startTime,returnTime,dailyRentalPrice);
+        setTotalAmount(cost)
+      },[dailyRentalPrice,startDate,returnDate,startTime,returnTime])
 
     const validateForm = () => {
       const newErrors: FormErrors = {};
@@ -93,7 +98,7 @@ export default function BookingStartClient({booking,bookingId} : {
       if (!odometerReading) newErrors.odometerReading = "This field is mandatory";
       if (!address) newErrors.address = "This field is mandatory";
       if (!bookingAmountReceived) newErrors.bookingAmountReceived = "This field is mandatory";
-      if (!dailyRentalCharges) newErrors.dailyRentalCharges = "This field is mandatory";
+      if (!dailyRentalPrice) newErrors.dailyRentalPrice = "This field is mandatory";
       if (!totalAmount) newErrors.totalAmount = "This field is mandatory";
       if (!paymentMethod) newErrors.paymentMethod = "This field is mandatory";
       if (!termsAccepted) newErrors.terms = "You must accept the terms and conditions";
@@ -144,7 +149,7 @@ export default function BookingStartClient({booking,bookingId} : {
           odometerReading:odometerReading.toString(),
           address,
           bookingAmountReceived,
-          dailyRentalCharges,
+          dailyRentalPrice,
           totalAmount,
           paymentMethod,
           notes
@@ -359,20 +364,20 @@ export default function BookingStartClient({booking,bookingId} : {
               </div>
               <div className="flex justify-between space-x-2 items-center">
                 <div>
-                  <Label className="max-sm:text-xs" htmlFor="dailyRentalCharges">Daily Rental Charges <span className="text-red-500">*</span></Label>
+                  <Label className="max-sm:text-xs" htmlFor="dailyRentalPrice">Daily Rental Charges <span className="text-red-500">*</span></Label>
                   <Input
-                    id="dailyRentalCharges"
+                    id="dailyRentalPrice"
                     type="number" 
-                    value={dailyRentalCharges} 
+                    value={dailyRentalPrice} 
                     onChange={(e) => {
-                      setDailyRentalCharges(Number(e.target.value));
-                      setErrors(prev => ({ ...prev, dailyRentalCharges: "" }));
+                      setDailyRentalPrice(Number(e.target.value));
+                      setErrors(prev => ({ ...prev, dailyRentalPrice: "" }));
                     }}
-                    className={cn(inputClassName("dailyRentalCharges"),
+                    className={cn(inputClassName("dailyRentalPrice"),
                       "[appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
                      )}
                   />
-                  {errors.dailyRentalCharges && <p className="text-red-500 text-sm mt-1">{errors.dailyRentalCharges}</p>}
+                  {errors.dailyRentalPrice && <p className="text-red-500 text-sm mt-1">{errors.dailyRentalPrice}</p>}
                 </div>
                 <div>
                   <Label className="max-sm:text-xs" htmlFor="totalAmount">Total Amount <span className="text-red-500">*</span></Label>
@@ -380,12 +385,9 @@ export default function BookingStartClient({booking,bookingId} : {
                     id="totalAmount"
                     type="number" 
                     value={totalAmount} 
-                    onChange={(e) => {
-                      setTotalAmount(Number(e.target.value));
-                      setErrors(prev => ({ ...prev, totalAmount: "" }));
-                    }}
+                    readOnly
                     className={cn(inputClassName("totalAmount"),
-                      "[appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
+                      "focus-visible:ring-0 focus:border-0 [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
                      )}
                   />
                   {errors.totalAmount && <p className="text-red-500 text-sm mt-1">{errors.totalAmount}</p>}

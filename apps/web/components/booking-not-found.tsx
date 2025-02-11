@@ -1,8 +1,6 @@
 import Link from "next/link"
-import { ArrowLeft, Calendar } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
-import { ThemeToggle } from "@/components/theme-toggle";
 import BackArrow from "@/public/back-arrow.svg";
 
 export default function BookingNotFound() {

@@ -11,12 +11,18 @@ import Price from "@/public/price-tag.svg";
 import Speedometer  from "@/public/performance.svg";
 import { BASE_URL } from "@/lib/config";
 import axios from "axios"
-import { Car, useCarStore } from "@/lib/store"
+import {  useCarStore } from "@/lib/store"
+import { toast } from "sonner"
 
 interface AddCarDialogProps {
   isOpen:boolean;
   setIsOpen:React.Dispatch<React.SetStateAction<boolean>>;
 }
+
+interface FormErrors {
+  [key: string]: string;
+}
+
 
 export function AddCarDialog({isOpen,setIsOpen}:AddCarDialogProps) {
     
@@ -29,9 +35,29 @@ export function AddCarDialog({isOpen,setIsOpen}:AddCarDialogProps) {
   const [selectedImage, setSelectedImage] = useState<string | null>(null);
   const [imageFile, setImageFile] = useState<File | null>(null);
   const {cars,setCars} = useCarStore();
+  const [errors, setErrors] = useState<FormErrors>({});
+
+  const validateForm = () => {
+    const newErrors: FormErrors = {};
+    if (price===0) newErrors.price = "Price can't be zero";
+    if (mileage===0) newErrors.mileage = "Mileage can't be zero";
+    if (!carBrand) newErrors.carBrand = "This field is mandatory";
+    if (!carModel) newErrors.carModel = "This field is mandatory";
+    if (!color) newErrors.color = "This field is mandatory";
+    if (!carNumber) newErrors.carNumber = "This field is mandatory";
+    if (!selectedImage) newErrors.selectedImage = "Please upload the image";
+
+    setErrors(newErrors);
+    return Object.keys(newErrors).length === 0;
+  };
 
   const handleSubmit = async (event: React.FormEvent) => {
     event.preventDefault();
+
+    if (!validateForm()) {
+      toast.error("Please fill all mandatory fields");
+      return;
+    }
     try {
         const body = {
           brand: carBrand,
@@ -79,6 +105,7 @@ export function AddCarDialog({isOpen,setIsOpen}:AddCarDialogProps) {
       const imageUrl = URL.createObjectURL(file);
       setSelectedImage(imageUrl);
     }
+    setErrors(prev => ({ ...prev, selectedImage: "" }));
   }
 
   const handleRemoveImage = () => {
@@ -105,31 +132,47 @@ export function AddCarDialog({isOpen,setIsOpen}:AddCarDialogProps) {
                     type="text"
                     name="title"
                     value={carBrand} 
-                    onChange={(e) => setCarBrand(e.target.value)}
+                    onChange={(e) =>{
+                      setCarBrand(e.target.value);
+                      setErrors(prev => ({ ...prev, carBrand: "" }));
+                    }}
                     placeholder="Add Car Brand"
                     className="my-4 rounded-none placeholder:text-[30px] text-[30px] max-sm:placeholder:text-[24px]  md:text-[30px] file:text-[30px] placeholder:text-gray-700 dark:placeholder:text-gray-400  border-0 border-b focus-visible:border-b-2 border-b-gray-400 focus-visible:border-b-blue-600  focus-visible:ring-0 focus-visible:ring-offset-0 w-full"
                     />
+                    {errors.carBrand && <p className="text-red-500 text-sm mt-1">{errors.carBrand}</p>}
                 </div>
                 
                 <div className="gap-4 w-10/11">
                         <div className="flex justify-between gap-6 items-center">
                           <CarFrontIcon className="w-16 h-4 stroke-[6px] dark:stroke-white dark:fill-white  stroke-black fill-black" /> 
-                            <Input
-                                type="text"
-                                name="title"
-                                placeholder="Add Car Model"
-                                value={carModel} 
-                                onChange={(e) => setCarModel(e.target.value)}
-                                className="my-4 w-full rounded-none placeholder:text-[14px] max-sm:placeholder:text-[12px] max-sm:text-[12px] text-[14px] md:text-[14px] placeholder:text-gray-700 dark:placeholder:text-gray-400  border-0 border-b focus-visible:border-b-2 border-b-gray-400 focus-visible:border-b-blue-600  focus-visible:ring-0 focus-visible:ring-offset-0"
-                                />
-                                <Input
-                                type="text"
-                                name="title"
-                                placeholder="Add Car Number"
-                                value={carNumber} 
-                                onChange={(e) => setCarNumber(e.target.value)}
-                                className="my-4 w-full rounded-none placeholder:text-[14px] max-sm:placeholder:text-[12px] max-sm:text-[12px] text-[14px] md:text-[14px] placeholder:text-gray-700 dark:placeholder:text-gray-400  border-0 border-b focus-visible:border-b-2 border-b-gray-400 focus-visible:border-b-blue-600  focus-visible:ring-0 focus-visible:ring-offset-0"
-                                />
+                            <div>
+                              <Input
+                                  type="text"
+                                  name="title"
+                                  placeholder="Add Car Model"
+                                  value={carModel} 
+                                  onChange={(e) => {
+                                    setCarModel(e.target.value);
+                                    setErrors(prev => ({ ...prev, carModel: "" }));
+                                  }}
+                                  className="my-4 w-full rounded-none placeholder:text-[14px] max-sm:placeholder:text-[12px] max-sm:text-[12px] text-[14px] md:text-[14px] placeholder:text-gray-700 dark:placeholder:text-gray-400  border-0 border-b focus-visible:border-b-2 border-b-gray-400 focus-visible:border-b-blue-600  focus-visible:ring-0 focus-visible:ring-offset-0"
+                                  />
+                                {errors.carModel && <p className="text-red-500 text-sm mt-1">{errors.carModel}</p>}
+                            </div>
+                            <div>
+                              <Input
+                                  type="text"
+                                  name="title"
+                                  placeholder="Add Car Number"
+                                  value={carNumber} 
+                                  onChange={(e) => {
+                                    setCarNumber(e.target.value);
+                                    setErrors(prev => ({ ...prev, carNumber: "" }));
+                                  }}
+                                  className="my-4 w-full rounded-none placeholder:text-[14px] max-sm:placeholder:text-[12px] max-sm:text-[12px] text-[14px] md:text-[14px] placeholder:text-gray-700 dark:placeholder:text-gray-400  border-0 border-b focus-visible:border-b-2 border-b-gray-400 focus-visible:border-b-blue-600  focus-visible:ring-0 focus-visible:ring-offset-0"
+                                  />
+                                {errors.carNumber && <p className="text-red-500 text-sm mt-1">{errors.carNumber}</p>}
+                            </div>
                             
                         </div>
                         <div className="flex justify-between items-center gap-6 items-end">
@@ -148,9 +191,13 @@ export function AddCarDialog({isOpen,setIsOpen}:AddCarDialogProps) {
                                   type="color"
                                   id="colorPicker"
                                   value={color}
-                                  onChange={(e) => setColor(e.target.value)}
+                                  onChange={(e) => {
+                                    setColor(e.target.value);
+                                    setErrors(prev => ({ ...prev, color: "" }));
+                                  }}
                                   className="hidden"
                                 />
+                                {errors.color && <p className="text-red-500 text-sm mt-1">{errors.color}</p>}
                               </div>
                             </div>
                             <div className=" w-full">
@@ -161,13 +208,16 @@ export function AddCarDialog({isOpen,setIsOpen}:AddCarDialogProps) {
                                   }} className="  bg-gray-300 max-sm:text-sm hover:bg-gray-400 dark:bg-muted dark:hover:bg-gray-900 w-fit cursor-pointer text-secondary-foreground px-2 py-1 rounded-sm hover:bg-gray-200 transition-colors">
                                   <span>Choose file</span>
                                 </div>
-                                <Input
-                                    id="carImage"
-                                    type="file"
-                                    accept="image/*"
-                                    onChange={handleFileUpload}
-                                    className="hidden"
-                                />
+                                <div>
+                                  <Input
+                                      id="carImage"
+                                      type="file"
+                                      accept="image/*"
+                                      onChange={handleFileUpload}
+                                      className="hidden"
+                                      />
+                                {errors.selectedImage && <p className="text-red-500 text-sm mt-1">{errors.selectedImage}</p>}
+                                </div>
                             </div>
                         </div>
                 </div>
@@ -182,8 +232,13 @@ export function AddCarDialog({isOpen,setIsOpen}:AddCarDialogProps) {
                             <Input type="number" id="price" placeholder="0"
                                 className="w-1/3 border-black max-sm:text-xs dark:border-gray-700 placeholder:text-gray-700 dark:placeholder:text-gray-400  focus:border-blue-400 focus-visible:ring-blue-400 [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none" 
                                 value={price} 
-                                onChange={(e) => setPrice(parseInt(e.target.value))}
+                                onChange={(e) => {
+                                  setPrice(parseInt(e.target.value));
+                                  setErrors(prev => ({ ...prev, price: "" }));
+                                }}
                             />
+                            {errors.price && <p className="text-red-500 text-sm mt-1">{errors.price}</p>}
+
                         </div>
 
                         <div className="flex items-center gap-4 sm:gap-6">
@@ -192,9 +247,13 @@ export function AddCarDialog({isOpen,setIsOpen}:AddCarDialogProps) {
                             Car Mileage
                             </Label>
                             <Input type="number" id="totalAmount" 
-                                value={mileage} 
-                                onChange={(e) => setMileage(parseInt(e.target.value))}
+                                value={mileage || 0} 
+                                onChange={(e) =>{
+                                  setMileage(parseInt(e.target.value));
+                                  setErrors(prev => ({ ...prev, mileage: "" }));
+                                }}
                                 className="w-1/3 max-sm:text-xs placeholder:text-gray-700 dark:placeholder:text-gray-400  border-black dark:border-gray-700 focus:border-blue-400 focus-visible:ring-blue-400 [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none " />
+                            {errors.mileage && <p className="text-red-500 text-sm mt-1">{errors.mileage}</p>}
                         </div>
                     </div>
                     <div className="w-[140px] h-[100px] border border-black dark:border-gray-700 relative">
@@ -216,10 +275,11 @@ export function AddCarDialog({isOpen,setIsOpen}:AddCarDialogProps) {
                         )}
                     </div>
                 </div>
-
-                <Button type="submit" className="bg-blue-600 text-card hover:bg-opacity-80 w-full">
+                <div>
+                <Button type="submit" className="bg-blue-600 dark:text-white hover:bg-opacity-80 w-full">
                     Create
                 </Button>
+                </div>
             </form>
         </DialogContent>
         </Dialog>

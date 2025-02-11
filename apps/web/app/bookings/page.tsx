@@ -135,7 +135,7 @@ export default function Bookings() {
     <div className="min-h-screen bg-background">
 
       {/* Add Booking Dialog */}
-        {cars && cars.length > 0 &&
+        {
           <CarBookingDialog cars={cars} isOpen={isAddBookingOpen} setIsOpen={setIsAddBookingOpen} />
         }
         {/* Add Booking button */}

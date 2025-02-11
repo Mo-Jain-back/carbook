@@ -32,16 +32,6 @@ export interface Booking {
   notes?: string;
 }
 
-function getBookingStatus(start: string, end: string) {
-  const now = new Date()
-  const startDate = new Date(start)
-  const endDate = new Date(end)
-
-  if (now < startDate) return "Booking Yet to Start"
-  if (now >= startDate && now <= endDate) return "Booking Ongoing"
-  return "Booking Completed"
-}
-
 export default function BookingDetails() {
   // const bookingId = await Number(params.id); // Resolve params.id synchronously after awaiting params
   const Booking =  useParams(); 
