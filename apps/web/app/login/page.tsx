@@ -33,6 +33,7 @@ export default function LoginPage() {
                     }
                   });
       router.push("/");
+      router.refresh();
       localStorage.setItem("token",res.data.token);
       setName(res.data.name);
 

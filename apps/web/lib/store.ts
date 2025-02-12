@@ -22,6 +22,7 @@ export type Car = {
   plateNumber: string;
   imageUrl: string;
   colorOfBooking: string;
+  price:number;
 }
 
 interface CarStore {

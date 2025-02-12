@@ -15,7 +15,6 @@ export function BottomNav() {
   const {name} = useUserStore()
 
   useEffect(() => {
-    console.log("pathname",pathname)
     if (pathname.startsWith("/booking")) {
       setSelectedTab("bookings")
     } else if (pathname.startsWith("/profile")) {

@@ -11,6 +11,8 @@ import {  useCarStore, useUserStore } from "@/lib/store"
 import CarIcon from "@/public/car-icon.svg";
 import Calendar from "@/public/calendar.svg"
 import UserIcon from "@/public/user.svg"
+import UnderAction from "./under-action"
+import MonthEarnings from "./month-earnings"
 
 
 export function CarSection() {
@@ -26,7 +28,8 @@ export function CarSection() {
     <>
     <AddCarDialog isOpen={isOpen} setIsOpen={setIsOpen} />
     { name ?
-        <section className="py-6 bg-muted px-4">
+      <div>
+        <section className="py-6 bg-muted px-4 border-b border-border">
             <div className="flex justify-between items-center mb-8 px-4">
                 <h1 style={{ fontFamily: "var(--font-equinox), sans-serif",
                  }} className="sm:text-3xl text-xl font-black font-myfont">MOHIT's GARRAGE</h1>
@@ -36,18 +39,27 @@ export function CarSection() {
                   <span className="">Add Car</span> 
                 </Button>
             </div>
-            <div style={{zIndex:-9999}} className="grid z-0 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+            <div className="grid z-0 sm:grid-cols-2 lg:grid-cols-3 gap-6">
                 {cars.map((car) => (
                 <Link
                     href={`/car/${car.id}`}
                     key={car.id}
                     className="transform transition-all z-0 duration-300 hover:scale-105"
                 >
-                    <CarCard name={car.brand + " " + car.model} imageUrl={car.imageUrl} />
+                    <CarCard name={car.brand + " " + car.model} imageUrl={car.imageUrl} plateNumber={car.plateNumber} color={car.colorOfBooking} />
                 </Link>
                 ))}
             </div>
         </section>
+        <section className="py-6 bg-muted px-2 sm:px-4">
+        <h1 style={{ fontFamily: "var(--font-equinox), sans-serif",
+                 }} className="sm:text-3xl mb-3 text-xl font-black font-myfont">CARs INFO</h1>
+          <div className="grid z-0 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+            <UnderAction/>
+            <MonthEarnings/>
+          </div>
+        </section>
+        </div>
         :
         <section className="sm:py-12 py-6 bg-muted">
           <div className="container mx-auto px-4">

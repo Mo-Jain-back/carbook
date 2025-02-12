@@ -3,7 +3,7 @@ import { Suspense, use, useEffect, useState } from "react"
 import { BookingDetailsClient } from "./booking-details-client"
 import LoadingScreen from "@/components/loading-screen"
 import BookingNotFound from "@/components/booking-not-found"
-import { useParams } from "next/navigation"
+import { useParams, useRouter } from "next/navigation"
 import axios from "axios"
 import { BASE_URL } from "@/lib/config"
 
@@ -36,6 +36,7 @@ export default function BookingDetails() {
   // const bookingId = await Number(params.id); // Resolve params.id synchronously after awaiting params
   const Booking =  useParams(); 
   const [booking,setBooking] = useState<Booking>(); 
+  const router = useRouter();
   useEffect(() => {
     if (!Booking) return;
     const fetchData = async () => {
@@ -49,13 +50,14 @@ export default function BookingDetails() {
       }
       catch (error) {
         console.log(error);
+        router.push('/booking-not-found');
       }
     };
     fetchData();
   }, []);
 
   if (!Booking || !booking) {
-  return <div><BookingNotFound/></div>
+  return <div><LoadingScreen/></div>
   }
 
   return (

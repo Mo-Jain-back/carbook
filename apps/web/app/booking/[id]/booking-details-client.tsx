@@ -1,8 +1,7 @@
 import { Button } from "@/components/ui/button"
 import {  Edit, MoreVertical, Trash2 } from "lucide-react"
 import Image from "next/image"
-import { useParams, useRouter } from "next/navigation"
-import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import {  useRouter } from "next/navigation"
 import { useEffect, useState } from "react";
 import { DatePicker } from "@/components/ui/datepicker";
 import dayjs from "dayjs";
@@ -18,6 +17,7 @@ import { BASE_URL } from "@/lib/config";
 import { Booking } from "./page";
 import ActionDialog from "@/components/action-dialog";
 import { calculateCost } from "@/components/add-booking";
+import { getHeader } from "@/app/bookings/page";
 
 
 interface BookingDetailsClientProps {
@@ -78,9 +78,13 @@ export function BookingDetailsClient({ booking,setBooking }: BookingDetailsClien
     let newHours = currDate.getHours().toString().padStart(2, "0");
     let newMinutes = currDate.getMinutes().toString().padStart(2, "0");
     try {
+      const newEndDate = new Date();
+      const newEndTime = `${newHours}:${newMinutes}`;
+      const cost = calculateCost(startDate,newEndDate,startTime,newEndTime,dailyRentalPrice);
       await axios.put(`${BASE_URL}/api/v1/booking/${booking.id}/end`, {
         endDate: new Date().toLocaleDateString('en-US'),
         endTime:`${newHours}:${newMinutes}`,
+        totalAmount:cost
       },{
         headers: {
           "Content-type": "application/json",
@@ -88,6 +92,8 @@ export function BookingDetailsClient({ booking,setBooking }: BookingDetailsClien
         }
       });
       setBookingStatus("Completed");
+      setEndDate(newEndDate);
+      setEndTime(newEndTime);
       router.push('/bookings');
     }
     catch(error){ 
@@ -129,7 +135,7 @@ export function BookingDetailsClient({ booking,setBooking }: BookingDetailsClien
         }
       });
       setBooking(undefined);
-      router.back();
+      router.push('/bookings');
       console.log(res.data);
     }
     catch(error){
@@ -151,7 +157,8 @@ export function BookingDetailsClient({ booking,setBooking }: BookingDetailsClien
         customerContact: booking.customerContact,
         securityDeposit: booking.securityDeposit,
         dailyRentalPrice: dailyRentalPrice,
-        paymentMethod: paymentMethod
+        paymentMethod: paymentMethod,
+        totalAmount
       },{
         headers: {
           "Content-type": "application/json",
@@ -210,9 +217,9 @@ export function BookingDetailsClient({ booking,setBooking }: BookingDetailsClien
           <div className="flex justify-between items-center">
             <div>
                   <p className="text-sm text-blue-500">
-                    {bookingStatus === "completed" ? "Guest returned at" : "Guest shall return by"}
+                    {getHeader(bookingStatus,startDate.toDateString(),startTime,endDate.toDateString(),endTime)}
                   </p>
-                  <p className="font-semibold max-sm:text-sm">{formatDateTime(endDate)}</p>
+                  <p className="font-semibold max-sm:text-sm">{formatDateTime(bookingStatus==="Upcoming" ? startDate : endDate)}</p>
             </div>
             <div className="text-right">
             <div className="relative sm:w-24 flex items-center sm:h-20 rounded-md border border-border w-12 h-12 mb-2"> 

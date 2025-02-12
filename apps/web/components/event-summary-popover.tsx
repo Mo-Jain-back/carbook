@@ -5,7 +5,7 @@ import { useEffect, useState } from "react"
 import { X, Edit2, Trash2 } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog"
-import { Car, useCarStore, useEventStore, type CalendarEventType } from "@/lib/store"
+import {  useEventStore, type CalendarEventType } from "@/lib/store"
 import { Input } from "@/components/ui/input"
 import dayjs from "dayjs"
 import { Clock, CheckCircle, XCircle, Loader2 } from "lucide-react";

@@ -1,7 +1,4 @@
 "use client"
-
-import { NavBar } from "@/components/navbar"
-import { BottomNav } from "@/components/bottom-nav"
 import { Card, CardContent } from "@/components/ui/card"
 import Link from "next/link"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
@@ -46,40 +43,85 @@ function getPickupTime(startDate: string,startTime: string) {
     pickup.setDate(pickup.getDate() - 1); // Add a day
   }
 
-  console.log("Number(newMinutes) > 30",newMinutes,Number(newMinutes) > 30)
-
   const date = pickup.toDateString().replaceAll(' ',', ');
   return `${date} ${newHours}:${newMinutes}`;
 }
 
 
+function getReturnTime(startDate: string,startTime: string) {
+  
+  let [hours, minutes] = startTime.split(":").map(Number);
+  let currDate = new Date();
+  currDate.setHours(hours);
+  currDate.setMinutes(minutes ); // Subtract 30 minutes
 
-function getTimeUntilBooking(startTime: string) {
+  // Format back to HH:MM
+  let newHours = currDate.getHours().toString().padStart(2, "0");
+  let newMinutes = currDate.getMinutes().toString().padStart(2, "0");
+
+  const pickup = new Date(startDate); 
+  
+  if (newHours === "23" && Number(newMinutes) >= 30) {
+    pickup.setDate(pickup.getDate() - 1); // Add a day
+  }
+
+  const date = pickup.toDateString().replaceAll(' ',', ');
+  return `${date} ${newHours}:${newMinutes}`;
+}
+
+function getTimeUntilBooking(startTime: string,status:string) {
+  if(status === "Completed") return "Trip has ended";
   const now = new Date()
   const start = new Date(startTime)
   const diffTime = start.getTime() - now.getTime()
   const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24))
 
   if (diffDays < 0) return "Trip has started"
-  if (diffDays === 0) return "Today"
-  if (diffDays === 1) return "1 day"
-  return `${diffDays} days`
+  if (diffDays === 0) return "Trip start window opens Today"
+  if (diffDays === 1) return "Trip start window opens in 1 day"
+  return `Trip start window opens in ${diffDays} days`
 }
-interface Car {
-  id: number;
-  brand: string;
-  model: string;
-  plateNumber: string;
-  imageUrl: string;
+
+export function getHeader(status:string,startDate:string,startTime:string,endDate:string,endTime:string) {
+  let headerText="";
+  let startDateTime = new Date(startDate);
+  let endDateTime = new Date(endDate);
+
+  let [startHour, startMinute] = startTime.split(':').map(Number);
+  let [endHour, endMinute] = endTime.split(':').map(Number);
+
+  startDateTime.setHours(startHour, startMinute, 0, 0);
+  endDateTime.setHours(endHour, endMinute, 0, 0);
+  const currDate = new Date();
+  if(status === "Upcoming") {
+    if(startDateTime >= currDate) {
+      headerText="Guest shall pickup car by";
+    } else {
+      headerText="Guest was scheduled to pickup car by";
+    }
+  } else if(status === "Ongoing") {
+    if(endDateTime < currDate) {
+      headerText="Guest was scheduled to return by";
+    } else {
+      headerText="Guest shall return by";
+    }
+
+  } else if(status === "Completed") {
+    headerText="Guest returned at";
+  };
+
+  return headerText;
+
 }
 
 
-interface Booking{
+export interface Booking{
   id: number;
   carId: number;
   carImageUrl: string;
   carName: string;
   carPlateNumber: string;
+  carColor:string;
   customerContact: string;
   customerName: string;
   end: string; // ISO 8601 date string
@@ -106,9 +148,7 @@ export default function Bookings() {
             authorization: `Bearer ` + localStorage.getItem('token')
             }
           })
-          console.log("res1.data.bookings",res1.data.bookings);
         setBookings(res1.data.bookings);
-        console.log("bookings",bookings);
 
       }
       catch (error) {
@@ -128,15 +168,13 @@ export default function Bookings() {
     setFilteredBookings(newfilteredBookings);
   },[bookings,selectedCar,selectedStatus])
 
-  
- 
 
   return (
     <div className="min-h-screen bg-background">
 
       {/* Add Booking Dialog */}
         {
-          <CarBookingDialog cars={cars} isOpen={isAddBookingOpen} setIsOpen={setIsAddBookingOpen} />
+          <CarBookingDialog cars={cars} isOpen={isAddBookingOpen} setIsOpen={setIsAddBookingOpen} setBookings={setBookings} />
         }
         {/* Add Booking button */}
         <div className="fixed z-[50] sm:hidden bottom-[70px] right-5 flex items-center justify-start whitespace-nowrap"
@@ -217,42 +255,53 @@ export default function Bookings() {
               <Card className="overflow-hidden hover:shadow-md dark:border-card transition-shadow my-2">
                 <CardContent className="p-0">
                   {/* Rest of the card content remains the same */}
-                  <div className="flex justify-between bg-muted sm:pr-12 pr-2 items-center">
-                    <div className="p-4 max-sm:p-2">
-                      <p className="text-sm max-sm:text-xs text-blue-500">Guest shall pickup car by</p>
-                      <p className="font-semibold text-[#5B4B49] max-sm:text-sm dark:text-gray-400">{getPickupTime(booking.start,booking.startTime)} </p>
+                  <div className="flex justify-between bg-gray-100   dark:bg-muted sm:pr-12 pr-2 items-center">
+                    {booking.status === "Upcoming" 
+                    ? 
+                    <div className="px-2 sm:px-4 ">
+                      <p className="text-sm max-sm:text-xs text-blue-500">{getHeader(booking.status,booking.start,booking.startTime,booking.end,booking.endTime)}</p>
+                      <p className="font-semibold text-[#5B4B49] max-sm:text-xs dark:text-gray-400">{getPickupTime(booking.start,booking.startTime)} </p>
                     </div>
-                    <div className="p-4 max-sm:p-2">
-                      <p className="text-sm max-sm:text-xs text-blue-500">Booking Id</p>
-                      <p className=" text-[#5B4B49] max-sm:text-xs text-sm dark:text-gray-400">{booking.id} </p>
+                    :
+                    <div className="px-2 sm:px-4 ">
+                      <p className="text-sm max-sm:text-xs text-blue-500">{getHeader(booking.status,booking.start,booking.startTime,booking.end,booking.endTime)}</p>
+                      <p className="font-semibold text-[#5B4B49] max-sm:text-xs dark:text-gray-400">{getReturnTime(booking.end,booking.endTime)} </p>
+                    </div>
+                    }
+                    <div className="flex items-center">
+                      <div style={{backgroundColor:booking.carColor}} className="sm:w-8 z-10 bg-green-200 flex-shrink-0 sm:h-8 w-6 h-6 rounded-md"/>
+                      <div className="p-4 max-sm:p-2">
+                        <p className="text-sm max-sm:text-xs text-blue-500">BOOKING ID:</p>
+                        <p className=" text-[#5B4B49] max-sm:text-xs text-sm dark:text-gray-400">{booking.id} </p>
+                      </div>
                     </div>
                   </div>
                   <hr className="border-t border-border" />
-                  <div className="p-4 max-sm:p-2 bg-white dark:bg-background flex items-start justify-between">
-                    <div className="flex-1">
+                  <div className=" bg-white dark:bg-background flex flex-row-reverse items-start justify-between">
+                    <div className="flex-1 sm:p-4 py-2">
                       <div className="flex items-center sm:gap-8 gap-2">
-                        <div>
-                          <p className="text-xs sm:text-sm text-blue-500">From</p>
-                          <p className="font-semibold text-[#5B4B49] text-xs sm:text-sm dark:text-gray-400">{formatDateTime(booking.start)} {booking.startTime}</p>
+                        <div >
+                          <p className="text-xs sm:text-sm text-blue-500">FROM</p>
+                          <p className="font-semibold text-[#5B4B49] text-center text-xs sm:text-sm dark:text-gray-400">{formatDateTime(booking.start)} {booking.startTime}</p>
                         </div>
-                        <ArrowRight className="mt-4 w-12 stroke-0 fill-blue-400 flex-shrink-0" />
+                        <ArrowRight className="mt-4 stroke-0 sm:w-12 w-8 filter drop-shadow-[2px_2px_rgba(0,0,0,0.1)] fill-blue-400 flex-shrink-0" />
                         <div>
-                          <p className="sm:text-sm text-xs text-blue-500">To</p>
-                          <p className="font-semibold text-[#5B4B49] text-xs sm:text-sm dark:text-gray-400">{formatDateTime(booking.end)} {booking.endTime}</p>
+                          <p className="sm:text-sm text-xs text-blue-500">TO</p>
+                          <p className="font-semibold text-[#5B4B49] text-center text-xs sm:text-sm dark:text-gray-400">{formatDateTime(booking.end)} {booking.endTime}</p>
                         </div>
                       </div>
                       <div className="flex items-center w-full sm:w-4/5 justify-between mt-2 sm:mt-8 sm:gap-8 gap-2">
                         <div>
-                          <p className="text-xs sm:text-sm text-blue-500">Booked By</p>
+                          <p className="text-xs sm:text-sm text-blue-500">BOOKED BY</p>
                           <p className="font-semibold text-[#5B4B49] text-xs sm:text-sm dark:text-gray-400">{booking.customerName}</p>
                         </div>
                         <div>
-                          <p className="sm:text-sm text-xs text-blue-500">Contact</p>
+                          <p className="sm:text-sm text-xs text-blue-500">CONTACT</p>
                           <p className="font-semibold text-[#5B4B49] text-xs sm:text-sm dark:text-gray-400">{booking.customerContact}</p>
                         </div>
                       </div>
                     </div>
-                    <div className="text-center ml-4">
+                    <div className="text-center p-4 max-sm:p-2 mr-4 border-r border-border">
                       <div className="relative sm:w-24 flex items-center sm:h-20 rounded-md border border-border w-12 h-12 mb-2"> 
                         { booking.carImageUrl ?
                           <Image
@@ -269,9 +318,9 @@ export default function Bookings() {
                       <p className="text-xs text-blue-400 max-sm:text-[10px]">{booking.carPlateNumber}</p>
                     </div>
                   </div>
-                  <div className="p-4 max-sm:p-2 bg-gray-100 flex bg-muted items-center text-red-600 dark:text-red-400 gap-2">
-                    <PlaneTakeoff className="h-4 w-4" />
-                    <p className="text-sm max-sm:text-xs ">Trip start window opens in {getTimeUntilBooking(booking.start)}</p>
+                  <div className="p-4 max-sm:p-2 bg-green-100 flex dark:bg-secondary items-center text-green-600 dark:text-green-400 gap-2">
+                    <CarIcon className="w-8 h-3 stroke-green-600 dark:stroke-green-400 fill-green-600 dark:fill-green-400 stroke-[4px]" />
+                    <p className="text-sm max-sm:text-xs ">{getTimeUntilBooking(booking.start,booking.status)}</p>
                   </div>
                 </CardContent>
               </Card>

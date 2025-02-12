@@ -1,6 +1,6 @@
 "use client"
 import { Button } from "@/components/ui/button"
-import {  Edit, IndianRupee, MoreVertical, PlaneTakeoff, Trash2 } from "lucide-react"
+import {  Edit, IndianRupee, LogOut, MoreVertical, PlaneTakeoff, Trash2 } from "lucide-react"
 import Image from "next/image"
 import {  useRouter } from "next/navigation"
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
@@ -15,6 +15,7 @@ import { BASE_URL } from "@/lib/config"
 import LoadingScreen from "./loading-screen"
 import Booking from "@/public/online-booking.svg"
 import { useCarStore } from "@/lib/store"
+import ActionDialog from "./action-dialog"
 
 interface Car {
   id: number;
@@ -35,10 +36,10 @@ interface Car {
   }[];
 }
 interface Earnings {
-  oneWeekEarnings: number,
-  oneMonthEarnings: number,
-  sixMonthEarnings: number,
-  totalEarnings: number
+  thisMonth: number,
+  oneMonth: number,
+  sixMonths: number,
+  total: number
 }
 
 
@@ -53,6 +54,9 @@ export function CarDetailsClient({ carId }: { carId: number }) {
   const [imageUrl, setImageUrl] = useState(car?.imageUrl || "");
   const {cars,setCars} = useCarStore();
   const [earnings,setEarnings] = useState<Earnings>();
+  const [action,setAction] = useState<string>("");
+  const [actionDialogOpen,setActionDialogOpen] = useState(false);
+  const [deleteBookingId,setDeleteBookingId] = useState<number>(0);
   
   useEffect(() => {
     if(car) {
@@ -64,32 +68,49 @@ export function CarDetailsClient({ carId }: { carId: number }) {
   },[car]);
 
   useEffect(() => {
-    try{
+  
       const fetchData = async () => {
-        const resCar = await axios.get(`${BASE_URL}/api/v1/car/${carId}`,{
-          headers: {
-            "Content-type": "application/json",
-            authorization: `Bearer ${localStorage.getItem("token")}`
-          }
-        });
-        setCar(resCar.data.car);
-        const resEarnings = await axios.get(`${BASE_URL}/api/v1/car/${carId}`,{
-          headers: {
-            "Content-type": "application/json",
-            authorization: `Bearer ${localStorage.getItem("token")}`
-          }
-        });
-        setEarnings(resEarnings.data.earnings);
+        try{
+          const resCar = await axios.get(`${BASE_URL}/api/v1/car/${carId}`,{
+            headers: {
+              "Content-type": "application/json",
+              authorization: `Bearer ${localStorage.getItem("token")}`
+            }
+          });
+          setCar(resCar.data.car);
+          const resEarnings = await axios.get(`${BASE_URL}/api/v1/car/earnings/${carId}`,{
+            headers: {
+              "Content-type": "application/json",
+              authorization: `Bearer ${localStorage.getItem("token")}`
+            }
+          });
+          setEarnings({
+            ...resEarnings.data.earnings,
+            total:resEarnings.data.total
+          });
+        }
+        catch(error){
+          console.log(error);
+          router.push("/car-not-found");
+        }
       }
       fetchData();
-    }
-    catch(error){
-      console.log(error);
-    }
+    
   },[]);
 
   if(!car) {
     return <div><LoadingScreen /></div>;
+  }
+
+  function handleAction() {
+    
+    if(action === "Delete" && deleteBookingId !== 0){
+      handleDeleteBooking(deleteBookingId)
+    }
+    else if(action === "Update"){
+      handleEdit();
+    }
+    return;
   }
 
   const handleDelete = async () => {
@@ -100,7 +121,6 @@ export function CarDetailsClient({ carId }: { carId: number }) {
           authorization: `Bearer ${localStorage.getItem("token")}`
         }
       });
-      setCar(null);
       router.back();
       console.log(res.data);
     }
@@ -113,7 +133,7 @@ export function CarDetailsClient({ carId }: { carId: number }) {
     // Implement edit functionality here
     console.log("Edit car:", car.id);
     try {
-      const res = await axios.put(`${BASE_URL}/api/v1/car/${car.id}`,{
+      await axios.put(`${BASE_URL}/api/v1/car/${car.id}`,{
         color: color,
         price: price,
         mileage: mileage,
@@ -124,20 +144,21 @@ export function CarDetailsClient({ carId }: { carId: number }) {
           authorization: `Bearer ${localStorage.getItem("token")}`
         }
       });
+      
       const carId = car.id;
-      if(color !== car.colorOfBooking){
-        setCars(cars.map(car => {
-          if(car.id === carId){
-            return {
-              ...car,
-              colorOfBooking: color
-            }
+      setCars(cars.map(car => {
+        if(car.id === carId){
+          return {
+            ...car,
+            colorOfBooking: color,
+            price,
+            imageUrl
           }
-          else{
-            return car;
-          }
-        }));
-      }
+        }
+        else{
+          return car;
+        }
+      }));
       setIsEditable(false);
     }
     catch(error){ 
@@ -216,6 +237,8 @@ export function CarDetailsClient({ carId }: { carId: number }) {
   
   return (
     <div >
+        <ActionDialog isDialogOpen={actionDialogOpen} setIsDialogOpen={setActionDialogOpen} action={action} handleAction={handleAction}/>
+
       <div className="flex items-center justify-between pb-2 border-b border-gray-300 dark:border-gray-700" >
           <div
             className="mr-2 rounded-md font-bold  cursor-pointer hover:bg-gray-200 dark:hover:bg-muted"
@@ -321,17 +344,17 @@ export function CarDetailsClient({ carId }: { carId: number }) {
                   <div>
                     <p className="text-sm text-blue-500 mb-1">24hr Price</p>
                     {!isEditable || !price ?
-                    <span className="font-medium"><IndianRupee/> {car.price}</span> 
+                    <span className="font-medium flex items-center"><IndianRupee className="w-4 h-4"/> {car.price}</span> 
                     :
                     <Input type="number" id="name" value={price} 
                       onChange={(e) => setPrice(Number(e.target.value))} 
                       className="w-[170px] border-0 p-0 px-1 bg-gray-200 dark:bg-gray-800 focus-visible:ring-0 border-transparent border-y-4 focus:border-b-blue-400 " />
                     }
                   </div>
-                  {earnings && earnings.oneMonthEarnings &&
+                  {earnings && earnings.oneMonth &&
                   <div>
                     <p className="text-sm text-blue-500 mb-1">1 month Earnings</p>
-                    <span className="font-medium"><IndianRupee/> {earnings.oneMonthEarnings} </span> 
+                    <span className="font-medium flex items-center"><IndianRupee className="w-4 h-4"/> {earnings.oneMonth} </span> 
                   </div>}
                   <div>
                     <p className="text-sm text-blue-500 mb-1">Mileage</p>
@@ -345,22 +368,22 @@ export function CarDetailsClient({ carId }: { carId: number }) {
                   </div>
                 </div>
                 <div className="space-y-3">
-                  {earnings && earnings.oneWeekEarnings &&
+                  {earnings && earnings.thisMonth &&
                     <div>
-                      <p className="text-sm text-blue-500 mb-1">1 Week Earnings</p>
-                      <span className="font-medium"><IndianRupee/>{earnings.oneWeekEarnings}</span> 
+                      <p className="text-sm text-blue-500 mb-1">This Month Earnings</p>
+                      <span className="font-medium flex items-center"><IndianRupee className="w-4 h-4"/>{earnings.thisMonth}</span> 
                     </div>
                   }
-                  {earnings && earnings.sixMonthEarnings &&
+                  {earnings && earnings.sixMonths &&
                     <div>
                       <p className="text-sm text-blue-500 mb-1">6 Month Earnings</p>
-                      <span className="font-medium"><IndianRupee/>{earnings.sixMonthEarnings}</span> 
+                      <span className="font-medium flex items-center"><IndianRupee className="w-4 h-4"/>{earnings.sixMonths}</span> 
                     </div>
                   }
-                  {earnings && earnings.totalEarnings &&
+                  {earnings && earnings.total &&
                     <div>
                       <p className="text-sm text-blue-500 mb-1">Total Earnings</p>
-                      <span className="font-medium"><IndianRupee/>{earnings.totalEarnings}</span> 
+                      <span className="font-medium flex items-center"><IndianRupee className="w-4 h-4"/>{earnings.total}</span> 
                     </div>
                   }
                 </div>
@@ -369,15 +392,26 @@ export function CarDetailsClient({ carId }: { carId: number }) {
             <section className="px-4 py-4 ">
               <h2 className="text-xl font-semibold mb-4">Current Bookings</h2>
               {car.bookings.length > 0 ?
-                <div className=" gap-8 mb-4">
-                {car.bookings.map((booking) => (
-                    <Link href={`/booking/${booking.id}`} key={booking.id}>
-                      <Card className="overflow-hidden hover:shadow-md dark:border-gray-700 transition-shadow my-2">
+                <div key={car.id} className=" gap-8 mb-4">
+                {car.bookings.map((booking) => {
+                  if(booking.status === 'Completed') return;
+                  return(
+                      <Card 
+                      key={booking.id}
+                       className="overflow-hidden hover:shadow-md dark:border-gray-700 transition-shadow my-2">
                         <CardContent className="p-0">
                           {/* Rest of the card content remains the same */}
-                          <div className="p-2 bg-muted">
-                            <p className="text-sm max-sm:text-xs text-blue-500">Guest shall pickup car by</p>
-                            <p className="font-semibold text-[#5B4B49] max-sm:text-sm dark:text-gray-400">{getPickupTime(booking.start)}</p>
+                          <div className="flex justify-between items-center p-2 bg-muted">
+                            <div className="">
+                              <p className="text-sm max-sm:text-xs text-blue-500">Guest shall pickup car by</p>
+                              <p className="font-semibold text-[#5B4B49] max-sm:text-sm dark:text-gray-400">{getPickupTime(booking.start)}</p>
+                            </div>
+                            <div className="flex items-center gap-2 justify-center">
+                              <span className="text-blue-500">Go to Booking</span>
+                              <LogOut 
+                              onClick={() => router.push('/booking/'+booking.id)}
+                              className="w-6 h-6 text-blue-500 cursor-pointer hover:text-red-600 dark:hover:text-red-400" />
+                            </div>
                           </div>
                           <hr className="border-t border-border" />
                           <div className="p-4 max-sm:p-2 bg-white dark:bg-background flex items-start justify-between">
@@ -404,7 +438,10 @@ export function CarDetailsClient({ carId }: { carId: number }) {
                                 </div>
                               </div>
                             </div>
-                            <div className="text-center ml-4" onClick={() => handleDeleteBooking(booking.id)}>
+                            <div className="text-center ml-4" onClick={() => {
+                              setActionDialogOpen(true);
+                              setDeleteBookingId(booking.id);
+                            }}>
                               <Trash2 className="h-6 w-6 hover:text-red-500" />
                             </div>
                           </div>
@@ -414,8 +451,7 @@ export function CarDetailsClient({ carId }: { carId: number }) {
                           </div>
                         </CardContent>
                       </Card>
-                    </Link>
-                  ))}
+                  )})}
                 </div>
                 :
                 <div className="flex justify-center items-center w-full h-full">

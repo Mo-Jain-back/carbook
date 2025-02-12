@@ -80,7 +80,8 @@ export function AddCarDialog({isOpen,setIsOpen}:AddCarDialogProps) {
           model: carModel,
           plateNumber: carNumber,
           imageUrl: selectedImage ? selectedImage : "",
-          colorOfBooking:color
+          colorOfBooking:color,
+          price
         };
         setCars([...cars,car]);
         setCarBrand("");

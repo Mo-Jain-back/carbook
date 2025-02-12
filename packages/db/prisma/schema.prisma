@@ -27,34 +27,35 @@ model Car {
   mileage           Int
   imageUrl          String
   userId            Int
+  totalEarnings      Int?
   user              User     @relation(fields: [userId], references: [id])
   bookings          Booking[]
 }
 
 
-model Booking {
-  id                Int      @id @default(dbgenerated("(floor(random() * (9999999 - 1000000 + 1)) + 1000000)::int")) @unique
-  startDate         String
-  endDate           String
-  startTime         String
-  endTime           String
-  allDay            Boolean
-  status            String
-  carId             Int
-  userId            Int
-  customerName      String
-  securityDeposit   String?
-  customerContact   String
-  dailyRentalPrice  Int
-  car               Car      @relation(fields: [carId], references: [id])
-  user              User     @relation(fields: [userId], references: [id])
-  advancePayment    Int?
-  totalEarnings     Int?
-  customerAddress   String?
-  paymentMethod     String?
-  drivingLicence    String?
-  aadharCard        String?
-  odometerReading   String? 
-  notes             String?
+model Booking {     
+  id                      Int      @id @default(dbgenerated("(floor(random() * (9999999 - 1000000 + 1)) + 1000000)::int")) @unique
+  startDate               String
+  endDate                 String
+  startTime               String
+  endTime                 String
+  allDay                  Boolean
+  status                  String
+  carId                   Int
+  userId                  Int
+  customerName            String
+  securityDeposit         String?
+  customerContact         String
+  dailyRentalPrice        Int
+  car                     Car      @relation(fields: [carId], references: [id])
+  user                    User     @relation(fields: [userId], references: [id])
+  advancePayment          Int?
+  totalEarnings           Int?
+  customerAddress         String?
+  paymentMethod           String?
+  drivingLicence          String?
+  aadharCard              String?
+  odometerReading         String? 
+  notes                   String?
 }
 

@@ -160,6 +160,7 @@ export default function BookingStartClient({booking,bookingId} : {
           }
         });
         router.push("/bookings");
+        router.refresh();
       } catch(error) {
         console.log(error);
         toast.error("Failed to submit form");

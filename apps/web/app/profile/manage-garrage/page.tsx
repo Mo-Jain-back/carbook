@@ -10,43 +10,9 @@ import BackArrow from "@/public/back-arrow.svg";
 import axios from "axios";
 import { BASE_URL } from "@/lib/config";
 import LoadingScreen from "@/components/loading-screen";
+import { Car } from "@/lib/store";
 
-const userCars = [
-    {
-      id: 1,
-      name: "Tesla Model 3",
-      imageUrl: "https://hips.hearstapps.com/hmg-prod/images/2025-tesla-model-s-1-672d42e172407.jpg?crop=0.465xw:0.466xh;0.285xw,0.361xh&resize=1200",
-      bookings: [
-        { start: "2023-06-01", end: "2023-06-03" },
-        { start: "2023-06-10", end: "2023-06-15" },
-      ],
-    },
-    {
-      id: 2,
-      name: "Ford Mustang",
-      imageUrl: "https://platform.cstatic-images.com/in/v2/stock_photos/602375aa-858e-4b71-a9eb-f77ca929c9d0/2fb5b283-ca73-41c1-812d-151a80af3953.png",
-      bookings: [
-        { start: "2023-06-05", end: "2023-06-07" },
-        { start: "2023-06-20", end: "2023-06-25" },
-      ],
-    },
-    {
-      id: 3,
-      name: "Toyota Camry",
-      imageUrl: "https://stimg.cardekho.com/images/carexteriorimages/930x620/Toyota/Camry/11344/1733916451269/front-left-side-47.jpg",
-      bookings: [
-        { start: "2023-06-08", end: "2023-06-09" },
-        { start: "2023-06-18", end: "2023-06-22" },
-      ],
-    },
-  ]
-interface Car {
-  id: number;
-  brand: string;
-  model: string;
-  plateNumber: string;
-  imageUrl: string;
-}
+
 const page = () => {
   const [cars,setCars] = useState<Car[]>([]);
   const router = useRouter();

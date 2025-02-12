@@ -48,7 +48,11 @@ bookingRouter.get("/all",middleware,async (req,res) => {
             },
             include:{
                 car:true
-            }
+            },
+            orderBy: [
+                { startDate: 'asc' }, 
+                { startTime: 'asc' } 
+        ],
         })
         const formatedBookings = bookings.map(booking => {
             return {
@@ -64,6 +68,7 @@ bookingRouter.get("/all",middleware,async (req,res) => {
                 carImageUrl:booking.car.imageUrl,
                 customerName:booking.customerName,
                 customerContact:booking.customerContact,
+                carColor:booking.car.colorOfBooking
             }
         })
         res.json({
@@ -171,7 +176,7 @@ bookingRouter.put("/:id",middleware,async (req,res) => {
         if (parsedData.data.securityDeposit !== undefined) updateData.securityDeposit = parsedData.data.securityDeposit;
         if (parsedData.data.dailyRentalPrice !== undefined) updateData.dailyRentalPrice = parsedData.data.dailyRentalPrice;
         if (parsedData.data.paymentMethod !== undefined) updateData.paymentMethod = parsedData.data.paymentMethod;
-
+        updateData.totalAmount = parsedData.data.totalAmount;
 
         await client.booking.update({
             data: updateData,
@@ -270,13 +275,27 @@ bookingRouter.put("/:id/end",middleware,async (req,res) => {
                                     data: {
                                         endDate: parsedData.data.endDate,
                                         endTime: parsedData.data.endTime,
+                                        totalEarnings: parsedData.data.totalAmount,
                                         status: "Completed"
                                     },
                                     where: {
-                                        id: parseInt(req.params.id)
+                                        id: parseInt(req.params.id),
+                                        userId: req.userId!
                                     }
-                                })
-
+                                });
+        
+        await client.car.update({
+            where:{
+                id: parseInt(req.params.id),
+                userId: req.userId!
+            },
+            data:{
+                totalEarnings:{
+                    increment: parsedData.data.totalAmount || 0,
+                }
+            }
+        })
+        
         res.json({
             message:"Booking ended successfully",
             updatedStatus:updatedBooking.status

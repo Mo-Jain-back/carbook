@@ -5,32 +5,47 @@ import { middleware } from "../../middleware";
 
 export const carRouter = Router();
 
-function calculateEarnings(bookings:any[]){
-    const currDate = new Date();
-    const oneWeekBeforeDate =  new Date(currDate.setDate(currDate.getDate() - 7));
-    const oneMonthBeforeDate = new Date(currDate.setMonth(currDate.getMonth() - 1));
-    const sixMonthBeforeDate = new Date(currDate.setMonth(currDate.getMonth() - 6));
+interface Booking {
+    startDate: string;
+    totalEarnings: number | null;
+  }
 
-    let oneWeekEarnings = 0;
-    let oneMonthEarnings = 0;
-    let sixMonthEarnings = 0;
-    let totalEarnings = 0;
-    for(const booking in bookings ){
-        if(booking.startDate >= sixMonthBeforeDate){
-            if(booking.startDate >= oneMonthBeforeDate){
-                if(booking.startDate >= oneWeekBeforeDate){
-                    oneWeekEarnings += booking.totalEarnings
-                }
-                oneMonthEarnings += booking.totalEarnings
-            }
-            sixMonthEarnings += booking.totalEarnings
-        }
-        totalEarnings += booking.totalEarnings
-    }
-
-    return {oneWeekEarnings,oneMonthEarnings,sixMonthEarnings,totalEarnings}
-
+interface CarData {
+    id: number;
+    brand: string;
+    model: string;
+    plateNumber: string;
+    colorOfBooking: string;
+    thisMonth: number;
 }
+  
+function calculateEarnings(bookings: Booking[]) {
+    const now = new Date();
+    const oneMonthBefore = new Date(now);
+    const sixMonthsBefore = new Date(now);
+    oneMonthBefore.setMonth(now.getMonth() - 1);
+    sixMonthsBefore.setMonth(now.getMonth() - 6);
+  
+    let [thisMonth, oneMonth, sixMonths] = [0, 0, 0];
+  
+    for (const { startDate, totalEarnings } of bookings) {
+      if (totalEarnings === null) continue;
+  
+      const date = new Date(startDate);
+      if (date >= sixMonthsBefore) {
+        sixMonths += totalEarnings;
+        if (date >= oneMonthBefore) {
+          oneMonth += totalEarnings;
+          if (date.getMonth() === now.getMonth() && date.getFullYear() === now.getFullYear()) {
+            thisMonth += totalEarnings;
+          }
+        }
+      }
+    }
+  
+    return { thisMonth, oneMonth, sixMonths };
+  }
+  
 
 carRouter.post("/",middleware,async (req,res) => {
     const parsedData = CarsSchema.safeParse(req.body);
@@ -75,7 +90,8 @@ carRouter.get("/all",middleware,async (req,res) => {
                 model:car.model,
                 plateNumber:car.plateNumber,
                 imageUrl:car.imageUrl,
-                colorOfBooking:car.colorOfBooking
+                colorOfBooking:car.colorOfBooking,
+                price:car.price
             }
         })
         res.json({
@@ -132,11 +148,15 @@ carRouter.get("/earnings/:id",middleware, async(req,res) => {
             where: {
                 id:parseInt(req.params.id),
                 userId: req.userId!
+            },
+            include: {
+                bookings:true
             }
         }) 
 
         if(!car){
-            res.status(404).json({message:"Car not found"})
+            res.status(404).json({message:"Car not found"});
+            return;
         }
 
         const earnings = calculateEarnings(car.bookings);
@@ -147,7 +167,54 @@ carRouter.get("/earnings/:id",middleware, async(req,res) => {
 
         res.json({
             message:"Car earnings fetched successfully",
-            earnings
+            earnings,
+            total:car.totalEarnings
+        })
+    }
+    catch (e) {
+        console.log(e);
+        res.status(400).json({message: "Internal server error"})
+    }
+})
+
+carRouter.get("/thismonth/earnings/all",middleware,async (req,res) => {
+    try {
+        const cars = await client.car.findMany({
+            where: {
+                userId: req.userId!
+            },
+            include:{
+                bookings:true
+            }
+        });
+
+        if(cars.length === 0){
+            res.status(404).json({message:"No Cars found"});
+            return;
+        }
+
+        let carData:CarData[] | [] = [];
+
+        cars.forEach(car => {
+            const earnings = calculateEarnings(car.bookings);
+            if(earnings.thisMonth === 0) return;
+            carData= [...carData,{
+                id:car.id,
+                brand:car.brand,
+                model:car.model,
+                plateNumber:car.plateNumber,
+                colorOfBooking:car.colorOfBooking,
+                thisMonth:earnings.thisMonth
+            }]
+        })
+
+        if(!carData.length){
+            res.status(400).json({message:"No earnings yet"});
+        }
+
+        res.json({
+            message:"Car earnings fetched successfully",
+            earnings:carData
         })
     }
     catch (e) {

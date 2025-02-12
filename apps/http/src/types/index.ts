@@ -62,6 +62,7 @@ export const BookingUpdateSchema = z.object({
     securityDeposit: z.string().optional(),
     dailyRentalPrice: z.number().optional(),
     paymentMethod: z.string().optional(),
+    totalAmount: z.number()
 });
 
 export const BookingStartSchema = z.object({
@@ -85,6 +86,7 @@ export const BookingStartSchema = z.object({
 export const BookingEndSchema = z.object({
     endDate: z.string(),
     endTime: z.string(),
+    totalAmount: z.number(),
 })
 
 export const CalendarUpdateSchema = z.object({

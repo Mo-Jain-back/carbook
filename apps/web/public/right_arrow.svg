@@ -1,11 +1,6 @@
-<svg viewBox="0 0 179 62"    xmlns="http://www.w3.org/2000/svg">
-    <defs>
-        <linearGradient id="waterGradient" x1="0%" y1="0%" x2="0%" y2="100%">
-            <stop offset="0%" stop-color="#08428a" /> 
-            <stop offset="100%" stop-color="#60a5fa" />
-        </linearGradient>
-    </defs>
-    <path d="M2 48.5C8.63891 41.8611 12.3611 38.1389 19 31.5L2 13H32.5L50.5 31.5L34 48.5H2Z" stroke="black" fill="url(#waterGradient)" stroke="black"/>
-    <path d="M40 48C46.7074 41.4546 50.4679 37.7848 57.1753 31.2394L40 13H70.8144L89 31.2394L72.3299 48H40Z" stroke="black" fill="url(#waterGradient)" stroke="black"/>
-    <path d="M95.2361 32.0235L79.8056 48.4H138.021L136.618 60L178 30.6588L136.618 2L138.021 12.9176H77L95.2361 32.0235Z" stroke="black" fill="url(#waterGradient)" stroke="black"/>
+<svg viewBox="0 0 179 62"  xmlns="http://www.w3.org/2000/svg">
+    
+    <path d="M2 48.5C8.63891 41.8611 12.3611 38.1389 19 31.5L2 13H32.5L50.5 31.5L34 48.5H2Z" />
+    <path d="M40 48C46.7074 41.4546 50.4679 37.7848 57.1753 31.2394L40 13H70.8144L89 31.2394L72.3299 48H40Z" />
+    <path d="M95.2361 32.0235L79.8056 48.4H138.021L136.618 60L178 30.6588L136.618 2L138.021 12.9176H77L95.2361 32.0235Z" />
 </svg>

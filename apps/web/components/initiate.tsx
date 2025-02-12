@@ -9,8 +9,8 @@ const Initiate = () => {
     const {setCars} = useCarStore();
 
     useEffect(() => {
-        try{
-            const fetchData = async () => {
+        const fetchData = async () => {
+                try{
                 const res = await axios.get(`${BASE_URL}/api/v1/me/name`,{
                     headers: {
                         "Content-type": "application/json",
@@ -25,12 +25,12 @@ const Initiate = () => {
                       }
                     })
                 setCars(res1.data.cars);
+                }
+                catch(error){
+                    console.log(error);
+                }
             }
             fetchData();
-        }
-        catch(error){
-            console.log(error);
-        }
     }, []);
 
 

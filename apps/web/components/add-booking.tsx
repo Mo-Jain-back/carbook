@@ -18,47 +18,42 @@ import Booking from "@/public/online-booking.svg";
 import axios from "axios";
 import { BASE_URL } from "@/lib/config";
 import { toast } from "sonner"
-interface Car {
-  id: number;
-  brand: string;
-  model: string;
-  plateNumber: string;
-  imageUrl: string;
-}
+import { Car } from "@/lib/store";
+import { Booking as BookingType } from "@/app/bookings/page";
+
 interface FormErrors {
   [key: string]: string;
 }
 
+
 export function calculateCost(startDate:Date, endDate:Date, startTime:string, endTime:string, pricePer24Hours:number) {
-  // Combine dates and times into Date objects
   let startDateTime = new Date(startDate);
   let endDateTime = new Date(endDate);
 
-  // Split the time strings into hours and minutes
   let [startHour, startMinute] = startTime.split(':').map(Number);
   let [endHour, endMinute] = endTime.split(':').map(Number);
 
-  // Set the hours and minutes for the Date objects
   startDateTime.setHours(startHour, startMinute, 0, 0);
   endDateTime.setHours(endHour, endMinute, 0, 0);
 
-  // Calculate the difference in milliseconds
   let timeDifference = endDateTime.getTime() - startDateTime.getTime();
-
-  // Convert the difference to hours
   let hoursDifference = timeDifference / (1000 * 60 * 60);
-
-  // Calculate the cost incurred
   let cost = (hoursDifference / 24) * pricePer24Hours;
 
   return Math.floor(cost);
 }
-export function CarBookingDialog({isOpen, setIsOpen, cars}: {isOpen: boolean, setIsOpen: React.Dispatch<React.SetStateAction<boolean>>, cars: Car[]}) {
+export function CarBookingDialog({isOpen, setIsOpen, cars,setBookings}: 
+  {
+    isOpen: boolean, 
+    setIsOpen: React.Dispatch<React.SetStateAction<boolean>>, 
+    cars: Car[],
+    setBookings: React.Dispatch<React.SetStateAction<BookingType[]>>
+  }) {
   const [startDate, setStartDate] = useState<Date>(new Date());
   const [endDate,setEndDate] = useState<Date>(new Date());
   const [startTime,setStartTime] = useState<string>('00:00');
   const [endTime,setEndTime] = useState<string>('00:00');
-  const [car,setCar] = useState<number>(cars[0] ? cars[0].id : 0);
+  const [carId,setCarId] = useState<number>(cars[0] ? cars[0].id : 0);
   const [price,setPrice] = useState<number>(0);
   const [totalAmount,setTotalAmount] = useState<number>(0);
   const [name,setName] = useState<string>("");
@@ -68,7 +63,15 @@ export function CarBookingDialog({isOpen, setIsOpen, cars}: {isOpen: boolean, se
   useEffect(() => {
     const cost  = calculateCost(startDate,endDate,startTime,endTime,price);
     setTotalAmount(cost);
-  },[price,startDate,endDate,startTime,endTime])
+  },[price,startDate,endDate,startTime,endTime]);
+
+  useEffect(() =>{
+    if(carId===0) return;
+    const currCar = cars.find((car) => car.id === carId);
+    if(currCar){
+      setPrice(currCar.price);
+    }
+  },[carId])
 
   const validateDate = () => {
     if(startDate < endDate) return true;
@@ -76,15 +79,12 @@ export function CarBookingDialog({isOpen, setIsOpen, cars}: {isOpen: boolean, se
     let startDateTime = new Date(startDate);
     let endDateTime = new Date(endDate);
 
-    // Split the time strings into hours and minutes
     let [startHour, startMinute] = startTime.split(':').map(Number);
     let [endHour, endMinute] = endTime.split(':').map(Number);
 
-    // Set the hours and minutes for the Date objects
     startDateTime.setHours(startHour, startMinute, 0, 0);
     endDateTime.setHours(endHour, endMinute, 0, 0);
 
-    // Compare the Date objects
     return startDateTime < endDateTime;
   }
 
@@ -94,7 +94,7 @@ export function CarBookingDialog({isOpen, setIsOpen, cars}: {isOpen: boolean, se
     if (totalAmount===0) newErrors.totalAmount = "Total Amount can't be zero";
     if (!startDate) newErrors.startDate = "This field is mandatory";
     if (!endDate) newErrors.endDate = "This field is mandatory";
-    if (car===0) newErrors.car = "Please select a car";
+    if (carId===0) newErrors.car = "Please select a car";
     if (name==="") newErrors.name = "This field is mandatory";
     if (contact==="") newErrors.contact = "This field is mandatory";
 
@@ -120,13 +120,16 @@ export function CarBookingDialog({isOpen, setIsOpen, cars}: {isOpen: boolean, se
 
     
     try {
+
+      
+
       const res = await axios.post(`${BASE_URL}/api/v1/booking`,{
         startDate: startDate.toLocaleDateString('en-US'),
         endDate: endDate.toLocaleDateString('en-US'),
         startTime: startTime,
         endTime: endTime,
         allDay: false,
-        carId: car,
+        carId,
         customerName: name,
         customerContact: contact,
         dailyRentalPrice: price,
@@ -137,6 +140,27 @@ export function CarBookingDialog({isOpen, setIsOpen, cars}: {isOpen: boolean, se
           authorization: `Bearer ` + localStorage.getItem('token')
           }
       });
+      const car = cars.find(car => car.id === carId); 
+      const newBooking:BookingType = {
+        id:res.data.id,
+        start: startDate.toLocaleDateString('en-US'),
+        end: endDate.toLocaleDateString('en-US'),
+        startTime: startTime,
+        endTime: endTime,
+        carId,
+        customerName: name,
+        customerContact: contact,
+        carImageUrl: car?.imageUrl || '',
+        carName: car?.brand + ' ' + car?.model,
+        carPlateNumber: car?.plateNumber || '',
+        carColor:car?.colorOfBooking || '',
+        status: "Upcoming",
+      }
+      setIsOpen(false);
+      setBookings((prev:BookingType[]) => {
+        return [...prev,newBooking]
+      })
+      handleClear(event);
       console.log(res.data);
     }
     catch(error){
@@ -152,6 +176,16 @@ export function CarBookingDialog({isOpen, setIsOpen, cars}: {isOpen: boolean, se
       setEndDate(date);
       setErrors(prev => ({ ...prev, endDate: "" }));
     }
+  }
+
+  const handleClear = (event: React.FormEvent) => {
+    event.preventDefault();
+    setErrors({});
+    setStartDate(new Date());
+    setEndDate(new Date());
+    setName("");
+    setContact("");
+    setCarId(0);
   }
 
   return (
@@ -170,23 +204,32 @@ export function CarBookingDialog({isOpen, setIsOpen, cars}: {isOpen: boolean, se
               Select your car
             </Label>
             
-            <Select onValueChange={(value) => {
-                    setCar(Number(value));
-                    setErrors(prev => ({ ...prev, car: "" }));
-                  }}>
-              <SelectTrigger id="car" className="w-2/3 border-input  focus:border-blue-400 focus:ring-blue-400 focus-visible:ring-blue-400 focus:outline-none">
+            <Select 
+              value={carId !=0 ? carId.toString() : undefined}  // Ensures placeholder shows when carId is 0 or undefined
+              onValueChange={(value) => {
+                setCarId(Number(value));
+                setErrors(prev => ({ ...prev, car: "" }));
+              }}
+            >
+              <SelectTrigger 
+                id="car" 
+                className="w-2/3 border-input focus:border-blue-400 focus:ring-blue-400 focus-visible:ring-blue-400 focus:outline-none"
+              >
                 <SelectValue placeholder="Select a car" />
               </SelectTrigger>
               <SelectContent className="dark:border-gray-700">
-              {cars && cars.length > 0 && cars.map((car) => (
-                <SelectItem 
-                  key={car.id}
-                  className=" focus:bg-blue-300 dark:focus:bg-blue-900 cursor-pointer" 
-                  value={car.id.toString()}
-                  >{car.brand + " " + car.model}</SelectItem>
-              ))}
+                {cars && cars.length > 0 && cars.map((car) => (
+                  <SelectItem 
+                    key={car.id}
+                    className="focus:bg-blue-300 dark:focus:bg-blue-900 cursor-pointer" 
+                    value={car.id.toString()}
+                  >
+                    {car.brand + " " + car.model}
+                  </SelectItem>
+                ))}
               </SelectContent>
             </Select>
+
             {errors.car && <p className="text-red-500 text-sm mt-1">{errors.car}</p>}
           </div>
 
@@ -268,7 +311,7 @@ export function CarBookingDialog({isOpen, setIsOpen, cars}: {isOpen: boolean, se
             </Label>
             <Input type="number" id="price" 
               className="w-2/3 border-input  focus:border-blue-400 focus-visible:ring-blue-400 [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none" 
-              value={price} onChange={(e) => {
+              value={price || 0} onChange={(e) => {
                 setPrice(Number(e.target.value))
                 setErrors(prev => ({ ...prev, car: "" }));
               }}
@@ -282,14 +325,20 @@ export function CarBookingDialog({isOpen, setIsOpen, cars}: {isOpen: boolean, se
             <Label htmlFor="totalAmount" className="w-1/3">
               Total amount
             </Label>
-            <Input type="number" id="totalAmount" value={totalAmount} readOnly
+            <Input type="number" id="totalAmount" value={totalAmount || 0} readOnly
             className="w-2/3 cursor-not-allowed focus-visible:ring-0  [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none" />
             {errors.totalAmount && <p className="text-red-500 text-sm mt-1">{errors.totalAmount}</p>}
           </div>
-
-          <Button type="submit" className="bg-blue-600 text-white hover:bg-opacity-80 w-full">
-              Create
-          </Button>
+          <div className="flex items-center gap-2 sm:gap-4">
+            <Button type="submit" className="bg-blue-600 text-white hover:bg-opacity-80 w-full">
+                Create
+            </Button>
+            <Button variant="ghost" 
+              onClick={handleClear}
+              className="border border-border w-full">
+                Clear
+            </Button>
+          </div>
         </form>
       </DialogContent>
     </Dialog>
