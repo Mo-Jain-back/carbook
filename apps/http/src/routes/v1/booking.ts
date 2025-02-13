@@ -91,7 +91,8 @@ bookingRouter.get("/:id",middleware,async (req,res) => {
                 userId: req.userId!
             },
             include:{
-                car:true
+                car:true,
+                documents:true
             }
         })
 
@@ -119,10 +120,11 @@ bookingRouter.get("/:id",middleware,async (req,res) => {
             advancePayment:booking.advancePayment,
             customerAddress:booking.customerAddress,
             paymentMethod:booking.paymentMethod,
-            drivingLicence:booking.drivingLicence,
-            aadharCard:booking.aadharCard,
             odometerReading:booking.odometerReading,
-            notes:booking.notes
+            notes:booking.notes,
+            selfieUrl:booking.selfieUrl,
+            carPhotoUrl:booking.carPhotoUrl,
+            documents:booking.documents
         }
 
         // Filter out null values dynamically
@@ -229,17 +231,28 @@ bookingRouter.put("/:id/start",middleware,async (req,res) => {
                                     odometerReading: parsedData.data.odometerReading,
                                     customerAddress: parsedData.data.address,
                                     advancePayment: parsedData.data.bookingAmountReceived,
-                                    dailyRentalPrice: parsedData.data.dailyRentalCharges,
                                     totalEarnings: parsedData.data.totalAmount,
                                     paymentMethod: parsedData.data.paymentMethod,
                                     notes: parsedData.data.notes,
-                                    status: "Ongoing"
+                                    dailyRentalPrice: parsedData.data.dailyRentalPrice,
+                                    status: "Ongoing",
+                                    selfieUrl: parsedData.data.selfieUrl,
+                                    carPhotoUrl: parsedData.data.carPhotoUrl
                                 },
                                 where: {
                                     id: parseInt(req.params.id)
                                 }   
                             })  
-
+        for (const document of parsedData.data.documents) {
+            await client.documents.create({
+                data: {
+                    name: document.name,
+                    document: document.url,
+                    bookingId: booking.id
+                }
+            })
+        }
+        
         res.json({
             message:"Booking started successfully",
             updatedStatus:updatedBooking.status

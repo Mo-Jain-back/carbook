@@ -278,7 +278,7 @@ export default function Bookings() {
                   </div>
                   <hr className="border-t border-border" />
                   <div className=" bg-white dark:bg-background flex flex-row-reverse items-start justify-between">
-                    <div className="flex-1 sm:p-4 py-2">
+                    <div className="flex-1 sm:p-4 py-2 px-2">
                       <div className="flex items-center sm:gap-8 gap-2">
                         <div >
                           <p className="text-xs sm:text-sm text-blue-500">FROM</p>
@@ -301,8 +301,8 @@ export default function Bookings() {
                         </div>
                       </div>
                     </div>
-                    <div className="text-center p-4 max-sm:p-2 mr-4 border-r border-border">
-                      <div className="relative sm:w-24 flex items-center sm:h-20 rounded-md border border-border w-12 h-12 mb-2"> 
+                    <div className="text-center flex flex-col items-center p-4 max-sm:p-2  border-r border-border">
+                      <div className="relative sm:w-24 flex items-center sm:h-20 rounded-md border border-border w-16 h-12 mb-2"> 
                         { booking.carImageUrl ?
                           <Image
                           src={booking.carImageUrl}
@@ -314,7 +314,7 @@ export default function Bookings() {
                         <CarIcon className="w-full dark:stroke-blue-200  dark:fill-blue-200 p-1 stroke-black fill-black" /> 
                         }
                       </div>
-                      <p className="text-sm max-sm:text-xs font-semibold">{booking.carName}</p>
+                      <p className="text-sm max-sm:text-xs max-sm:max-w-[80px] overflow-hidden font-semibold">{booking.carName}</p>
                       <p className="text-xs text-blue-400 max-sm:text-[10px]">{booking.carPlateNumber}</p>
                     </div>
                   </div>

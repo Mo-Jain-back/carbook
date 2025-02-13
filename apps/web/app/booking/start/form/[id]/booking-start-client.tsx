@@ -8,7 +8,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Textarea } from "@/components/ui/textarea"
 import { Checkbox } from "@/components/ui/checkbox"
 import { cn } from "@/lib/utils"
-import { Image } from "lucide-react"
+import { Image, ImageIcon, Loader2 } from "lucide-react"
 import { useParams } from "next/navigation"
 import { useRouter } from "next/navigation"
 import axios from "axios"
@@ -20,6 +20,7 @@ import AddTime from "@/components/add-time"
 import dayjs from "dayjs"
 import { set } from "date-fns"
 import { calculateCost } from "@/components/add-booking"
+import { BsFilePdfFill, BsFiletypePdf } from "react-icons/bs"
 
 interface FormErrors {
   [key: string]: string;
@@ -73,6 +74,7 @@ export default function BookingStartClient({booking,bookingId} : {
     const [errors, setErrors] = useState<FormErrors>({});
     const router = useRouter();
     const {cars} = useCarStore();
+    const [isLoading, setIsLoading] = useState(false);
     const [uploadedFiles, setUploadedFiles] = useState<{ [key: string]: File[] }>({
       documents: [],
       photos: [],
@@ -109,10 +111,29 @@ export default function BookingStartClient({booking,bookingId} : {
       setErrors(newErrors);
       return Object.keys(newErrors).length === 0;
     };
+
     
     const handleFileUpload = (event: React.ChangeEvent<HTMLInputElement>, type: string) => {
       const files = event.target.files
       if (files) {
+        for (const file of files) {
+          if(file.size > 1024*1024*6){
+            setErrors(prev => ({ ...prev, [type]: "File size should be less than 6MB" }));
+            return;
+          }
+          if(type === "documents"){
+            if(!file.type.startsWith("image/") && !file.type.includes("pdf")){
+              setErrors(prev => ({ ...prev, [type]: "Please upload only image or pdf files" }));
+              return;
+            }
+          }
+          else{
+            if(!file.type.startsWith("image/")){
+              setErrors(prev => ({ ...prev, [type]: "Please upload only image" }));
+              return;
+            }
+          }
+        }
         setUploadedFiles((prev) => ({
           ...prev,
           [type]: [...prev[type], ...Array.from(files)],
@@ -135,8 +156,47 @@ export default function BookingStartClient({booking,bookingId} : {
         toast.error("Please fill all mandatory fields");
         return;
       }
-
+      setIsLoading(true);
       try {
+      
+        if(uploadedFiles.documents.length == 0) {
+          toast.error("Please upload at least one document");
+          setErrors(prev => ({ ...prev, ["documents"]: "Please upload at least one document" }));
+          return;
+        }
+        const formData = new FormData();
+        Array.from(uploadedFiles["documents"]).forEach((file) => {
+          formData.append("files", file);
+        });
+
+        const res = await axios.post(`${BASE_URL}/api/v1/upload/multiple`, formData, {
+          headers: {
+            "Content-Type": "multipart/form-data",
+            authorization: `Bearer ` + localStorage.getItem("token"),
+          },
+        });
+
+        const selfieFormData = new FormData();
+        selfieFormData.append("file", uploadedFiles.selfie[0]);
+
+        const resSelfie = await axios.post(`${BASE_URL}/api/v1/upload`,selfieFormData, {
+          headers: {
+            "Content-type": "multipart/form-data",
+            authorization: `Bearer ` + localStorage.getItem('token')
+            }
+          })
+
+        const photosFormData = new FormData();
+        photosFormData.append("file", uploadedFiles.photos[0]);
+
+        const resPhoto = await axios.post(`${BASE_URL}/api/v1/upload`,photosFormData, {
+          headers: {
+            "Content-type": "multipart/form-data",
+            authorization: `Bearer ` + localStorage.getItem('token')
+            }
+          })
+       
+        console.log("documents", res.data.uploadedFiles);  
         await axios.put(`${BASE_URL}/api/v1/booking/${bookingId}/start`, {
           customerName,
           phoneNumber,
@@ -152,19 +212,31 @@ export default function BookingStartClient({booking,bookingId} : {
           dailyRentalPrice,
           totalAmount,
           paymentMethod,
-          notes
+          notes,
+          documents:res.data.uploadedFiles,
+          selfieUrl:resSelfie.data.url,
+          carPhotoUrl:resPhoto.data.url
         }, {
           headers: {
             "Content-type": "application/json",
             authorization: `Bearer ${localStorage.getItem("token")}`
           }
         });
+        setIsLoading(false);
         router.push("/bookings");
         router.refresh();
       } catch(error) {
         console.log(error);
         toast.error("Failed to submit form");
+        setIsLoading(false);
       }
+    }
+
+    const getFileIcon = (type: string) => {
+      if(!type.startsWith('image/')){
+        return <BsFilePdfFill className="w-4 h-4" />
+      }
+      return <ImageIcon className="w-4 h-4" />
     }
 
     const renderFileList = (type: string) => (
@@ -175,7 +247,7 @@ export default function BookingStartClient({booking,bookingId} : {
             className="flex w-fit max-w-[200px] max-h-[40px] my-1 items-center gap-2 bg-gray-200 dark:bg-muted p-2 rounded-md"
           >
             <span className="min-w-4">
-              <Image className="w-4 h-4" />
+              {getFileIcon(file.type)}
             </span>
             <span className="whitespace-nowrap overflow-hidden text-ellipsis text-sm">{file.name}</span>
             <span
@@ -198,7 +270,7 @@ export default function BookingStartClient({booking,bookingId} : {
     }
 
     const inputClassName = (fieldName: string) => cn(
-      "w-full",
+      "w-full text-sm",
       errors[fieldName] && "border-red-500 focus:border-red-500"
     );
 
@@ -486,6 +558,9 @@ export default function BookingStartClient({booking,bookingId} : {
 
           <div className="flex items-center space-x-2">
             <Button type="submit" className="bg-blue-600 text-black dark:text-white text-card hover:bg-opacity-80 w-full">
+              {isLoading &&
+                <Loader2 className="h-7 w-7 stroke-[3px] animate-spin text-white-500" />
+              }
               Create
             </Button>
             <Button  

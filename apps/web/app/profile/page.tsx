@@ -29,7 +29,7 @@ export default function Profile() {
           <div className="relative">
             <div className="w-32 h-32 rounded-full bg-muted flex items-center justify-center overflow-hidden">
               {imageUrl ? (
-                <Image src={imageUrl || "/placeholder.svg"} alt="Profile" fill className="object-cover" />
+                <Image src={imageUrl || "/placeholder.svg"} alt="Profile" fill className="object-cover rounded-full" />
               ) : (
                 <UserIcon className="w-28 h-28 stroke-[12px] stroke-blue-600 fill-blue-600" />
               )}

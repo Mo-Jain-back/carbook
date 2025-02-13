@@ -62,7 +62,7 @@ const page = () => {
                       className="transform transition-all duration-300 hover:scale-105"
                   >
                     <Card className="w-full border-0">
-                        <CardContent className="p-2 border-0 dark:bg-card bg-blue-100  rounded-md cursor-pointer">
+                        <CardContent className="p-2 border-0 dark:bg-background bg-blue-100  rounded-md cursor-pointer">
                             <div className="flex sm:flex-col flex-row justify-around sm:px-1 px-8">
                             <div className="relative sm:w-full w-2/3 sm:h-48">
                                 <Image

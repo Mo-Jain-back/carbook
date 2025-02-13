@@ -53,9 +53,21 @@ model Booking {
   totalEarnings           Int?
   customerAddress         String?
   paymentMethod           String?
-  drivingLicence          String?
-  aadharCard              String?
+  carPhotoUrl             String?
+  selfieUrl               String?
   odometerReading         String? 
   notes                   String?
+  documents               Documents[]
 }
+
+model Documents {
+  id          Int      @id @default(autoincrement())
+  document    String?
+  name        String?
+  bookingId   Int
+  booking     Booking  @relation(fields: [bookingId], references: [id])
+}
+
+
+
 

@@ -8,11 +8,12 @@ import { useEffect, useState } from "react";
 import UserIcon from "@/public/user.svg";
 import Calendar from "@/public/calendar.svg"
 import { useUserStore } from "@/lib/store";
+import Image from "next/image";
 
 export function BottomNav() {
   const [selectedTab, setSelectedTab] = useState("home")
   const pathname = usePathname();
-  const {name} = useUserStore()
+  const {name,imageUrl} = useUserStore()
 
   useEffect(() => {
     if (pathname.startsWith("/booking")) {
@@ -48,8 +49,15 @@ export function BottomNav() {
               <span className="text-xs font-bold">Calendar</span>
             </span>
           </Link>
+          
           <Link href="/profile" className={`flex flex-col items-center ${selectedTab=="profile" ? "text-[#27272A] dark:text-primary" : "text-white"} hover:text-[#27272A] dark:hover:text-primary`}>
-            <UserIcon className={`h-6 w-6 ${selectedTab=="profile" ? "fill-[#27272A] stroke-[#27272A] dark:fill-primary dark:stroke-primary" : "fill-white stroke-white"} stroke-[18px] hover:fill-[#27272A] hover:stroke-[#27272A] dark:hover:fill-primary dark:hover:stroke-primary`} />
+            <div className="max-h-6 max-w-6">
+              {imageUrl ? 
+                <Image src={imageUrl || "/placeholder.svg"} alt="Profile" width={24} height={24} className="max-h-6 max-w-6 object-cover rounded-full" />
+                :
+                <UserIcon className={`h-6 w-6 ${selectedTab=="profile" ? "fill-[#27272A] stroke-[#27272A] dark:fill-primary dark:stroke-primary" : "fill-white stroke-white"} stroke-[18px] hover:fill-[#27272A] hover:stroke-[#27272A] dark:hover:fill-primary dark:hover:stroke-primary`} />
+              }
+            </div>
             <span className="text-xs font-bold">Profile</span>
           </Link>
         </div>

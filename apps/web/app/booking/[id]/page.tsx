@@ -26,10 +26,11 @@ export interface Booking {
   advancePayment?: number;
   customerAddress?: string;
   paymentMethod?: string;
-  drivingLicence?: string;
-  aadharCard?: string;
   odometerReading?: string;
   notes?: string;
+  selfieUrl?: string;
+  carPhotoUrl?: string;
+  documents? : {name:string,document:string}[];
 }
 
 export default function BookingDetails() {

@@ -13,7 +13,7 @@ const ActionDialog = ({isDialogOpen,setIsDialogOpen,action,handleAction}:
   return (
     <div>
         <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
-          <DialogContent className="sm:max-w-[425px]">
+          <DialogContent className="sm:max-w-[425px] bg-muted border-border">
             <DialogHeader>
               <DialogTitle>{action}</DialogTitle>
               <DialogDescription className="text-grey-500">

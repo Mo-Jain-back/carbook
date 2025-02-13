@@ -17,6 +17,7 @@ export const UpdateUserSchema = z.object({
     username: z.string().optional(),
     password: z.string().optional(),
     name: z.string().optional(),
+    imageUrl: z.string().optional(),
 })
 
 export const CarsSchema = z.object({
@@ -65,23 +66,32 @@ export const BookingUpdateSchema = z.object({
     totalAmount: z.number()
 });
 
-export const BookingStartSchema = z.object({
-    customerName: z.string(),
-    phoneNumber: z.string(),
-    selectedCar: z.number(),
-    startDate: z.string(),
-    startTime: z.string(),
-    returnDate: z.string(),
-    returnTime: z.string(),
-    securityDeposit: z.string(),
-    odometerReading: z.string(),
-    address: z.string(),
-    bookingAmountReceived: z.number(),
-    dailyRentalCharges: z.number(),
-    totalAmount: z.number(),
-    paymentMethod: z.string(),
-    notes: z.string()
-})
+
+const DocumentSchema = z.object({
+    name: z.string(),
+    url: z.string().url()
+  });
+  
+export  const BookingStartSchema = z.object({
+address: z.string(),
+bookingAmountReceived: z.number(),
+customerName: z.string(),
+dailyRentalPrice: z.number(),
+documents: z.array(DocumentSchema),
+notes: z.string(),
+odometerReading: z.string(),
+paymentMethod: z.string(),
+phoneNumber: z.string(),
+returnDate: z.string(),
+returnTime: z.string(),
+securityDeposit: z.string(),
+selectedCar: z.number(),
+startDate: z.string(),
+startTime: z.string(),
+totalAmount: z.number(),
+selfieUrl: z.string(),
+carPhotoUrl: z.string(),
+});
 
 export const BookingEndSchema = z.object({
     endDate: z.string(),

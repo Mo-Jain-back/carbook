@@ -4,7 +4,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/u
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
-import { X } from "lucide-react"
+import { Loader2, Upload, X } from "lucide-react"
 import CarFrontIcon from "@/public/car-front.svg";
 import Color from "@/public/color.svg";
 import Price from "@/public/price-tag.svg";
@@ -13,6 +13,7 @@ import { BASE_URL } from "@/lib/config";
 import axios from "axios"
 import {  useCarStore } from "@/lib/store"
 import { toast } from "sonner"
+import Image from "next/image"
 
 interface AddCarDialogProps {
   isOpen:boolean;
@@ -36,6 +37,7 @@ export function AddCarDialog({isOpen,setIsOpen}:AddCarDialogProps) {
   const [imageFile, setImageFile] = useState<File | null>(null);
   const {cars,setCars} = useCarStore();
   const [errors, setErrors] = useState<FormErrors>({});
+  const [isLoading, setIsLoading] = useState(false);
 
   const validateForm = () => {
     const newErrors: FormErrors = {};
@@ -45,7 +47,7 @@ export function AddCarDialog({isOpen,setIsOpen}:AddCarDialogProps) {
     if (!carModel) newErrors.carModel = "This field is mandatory";
     if (!color) newErrors.color = "This field is mandatory";
     if (!carNumber) newErrors.carNumber = "This field is mandatory";
-    if (!selectedImage) newErrors.selectedImage = "Please upload the image";
+    if (!imageFile) newErrors.imageFile = "No Image selected";
 
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
@@ -53,12 +55,32 @@ export function AddCarDialog({isOpen,setIsOpen}:AddCarDialogProps) {
 
   const handleSubmit = async (event: React.FormEvent) => {
     event.preventDefault();
-
     if (!validateForm()) {
       toast.error("Please fill all mandatory fields");
       return;
     }
+
+    if (!imageFile) return;
+    setIsLoading(true);
+    const formData = new FormData();
+    formData.append("file", imageFile);
+
     try {
+        const resImage = await axios.post(`${BASE_URL}/api/v1/upload`,formData, {
+          headers: {
+            "Content-type": "multipart/form-data",
+            authorization: `Bearer ` + localStorage.getItem('token')
+            }
+          })
+          
+
+          // if (!resImage.data.url) {
+          //     const errorData = await resImage.data.error // Log the response text if error occurs
+          //     console.error("Upload failed:", errorData);
+          //     return;
+          // }
+          
+        
         const body = {
           brand: carBrand,
           model: carModel,
@@ -66,7 +88,7 @@ export function AddCarDialog({isOpen,setIsOpen}:AddCarDialogProps) {
           color: color,
           price: price,
           mileage: mileage,
-          imageUrl: selectedImage ? selectedImage : "",
+          imageUrl: resImage.data.url ? resImage.data.url : "",
         }
         const res = await axios.post(`${BASE_URL}/api/v1/car`,body, {
           headers: {
@@ -92,21 +114,35 @@ export function AddCarDialog({isOpen,setIsOpen}:AddCarDialogProps) {
         setMileage(0);
         setSelectedImage(null); 
         setImageFile(null);
+        setIsLoading(false);
         setIsOpen(false);
       }
       catch (error) {
         console.log(error);
+        setIsLoading(false);
       }
   }
 
-  const handleFileUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
+  const handleFilUpload =(event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
     if (file) {
+      if (!file.type.startsWith("image/")) {
+        setErrors(prev => ({ ...prev, imageFile: "Please select an image file" }));
+        setSelectedImage(null)
+        return
+      }
+
+      const maxSize = 5 * 1024 * 1024 // 5MB
+      if (file.size > maxSize) {
+        setErrors(prev => ({ ...prev, imageFile: "File size should not exceed 5MB" }));
+        setSelectedImage(null)
+        return
+      }
       setImageFile(file);
       const imageUrl = URL.createObjectURL(file);
       setSelectedImage(imageUrl);
     }
-    setErrors(prev => ({ ...prev, selectedImage: "" }));
+    setErrors(prev => ({ ...prev, imageFile: "" }));
   }
 
   const handleRemoveImage = () => {
@@ -206,7 +242,8 @@ export function AddCarDialog({isOpen,setIsOpen}:AddCarDialogProps) {
                                 <div onClick={() => {
                                   document.getElementById('carImage')?.click()
                                   setIsOpen(true);
-                                  }} className="  bg-gray-300 max-sm:text-sm hover:bg-gray-400 dark:bg-muted dark:hover:bg-gray-900 w-fit cursor-pointer text-secondary-foreground px-2 py-1 rounded-sm hover:bg-gray-200 transition-colors">
+                                  }} className="flex items-center justify-center  bg-gray-300 max-sm:text-sm hover:bg-gray-400 dark:bg-muted dark:hover:bg-gray-900 w-fit cursor-pointer text-secondary-foreground px-2 py-1 rounded-sm hover:bg-gray-200 transition-colors">
+                                  <Upload className="mr-2 h-4 w-4" />
                                   <span>Choose file</span>
                                 </div>
                                 <div>
@@ -214,10 +251,10 @@ export function AddCarDialog({isOpen,setIsOpen}:AddCarDialogProps) {
                                       id="carImage"
                                       type="file"
                                       accept="image/*"
-                                      onChange={handleFileUpload}
+                                      onChange={handleFilUpload}
                                       className="hidden"
                                       />
-                                {errors.selectedImage && <p className="text-red-500 text-sm mt-1">{errors.selectedImage}</p>}
+                                {errors.imageFile && <p className="text-red-500 text-sm mt-1">{errors.imageFile}</p>}
                                 </div>
                             </div>
                         </div>
@@ -260,9 +297,11 @@ export function AddCarDialog({isOpen,setIsOpen}:AddCarDialogProps) {
                     <div className="w-[140px] h-[100px] border border-black dark:border-gray-700 relative">
                         {selectedImage && (
                             <>
-                                <img 
+                                <Image
                                     src={selectedImage} 
                                     alt="Preview" 
+                                    width={140}
+                                    height={100}
                                     className="w-full h-full object-cover"
                                 />
                                 <button
@@ -278,6 +317,9 @@ export function AddCarDialog({isOpen,setIsOpen}:AddCarDialogProps) {
                 </div>
                 <div>
                 <Button type="submit" className="bg-blue-600 dark:text-white hover:bg-opacity-80 w-full">
+                    {isLoading &&
+                      <Loader2 className="h-7 w-7 stroke-[3px] animate-spin text-white-500" />
+                    }
                     Create
                 </Button>
                 </div>

@@ -31,7 +31,7 @@ function formatDate(dateString: string) {
     })
 }
 
-const UnderAction = () => {
+const TakeAction = () => {
     const [bookings,setBookings] = useState<Booking[]>([]);
     const router = useRouter();
     
@@ -74,7 +74,7 @@ const UnderAction = () => {
   return (
         <div className="w-full z-0 relative p-1 rounded-xl shadow-md bg-gray-200 dark:bg-[#161717] z-0 flex flex-col" >
             <div className="px-4 py-3 border-b border-gray-300 dark:border-border">
-                <h3 className="font-semibold text-md">Under Action</h3>
+                <h3 className="font-semibold text-md">Take Action</h3>
             </div>
             <div className="  py-1 rounded-md   h-[300px] scrollbar-hide overflow-y-scroll  ">
                 {bookings && bookings.length > 0 ?
@@ -83,7 +83,7 @@ const UnderAction = () => {
                     <div key={booking.id} className="flex items-center shadow-md justify-between w-full bg-muted gap-2 p-1 rounded-lg">
                         <div className="flex flex-col items-center">
                             <div style={{backgroundColor:booking.carColor}} className="sm:w-8 z-10 bg-green-200 flex-shrink-0 sm:h-8 w-6 h-6 rounded-md"/>
-                            <p className="text-xs text-center w-[40px] overflow-hidden text-ellipsis">kawasakiina</p>
+                            <p className="text-xs text-center w-[40px] overflow-hidden text-ellipsis">{booking.carName.split(' ')[0]}</p>
                         </div>
                         <div className="flex items-center w-full justify-between gap-1">
                             <div>
@@ -128,4 +128,4 @@ const UnderAction = () => {
   )
 };
 
-export default UnderAction;
+export default TakeAction;

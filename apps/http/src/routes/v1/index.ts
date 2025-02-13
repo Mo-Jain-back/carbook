@@ -1,4 +1,3 @@
-
 import { Router } from "express";
 import jwt from "jsonwebtoken";
 import { JWT_PASSWORD } from "../../config";
@@ -8,10 +7,9 @@ import client from "@repo/db/client";
 import { carRouter } from "./car";
 import { bookingRouter } from "./booking";
 import { calendarRouter } from "./calendar";
-
+import { uploadRouter } from "./upload";
 
 export const router = Router();
-
 
 router.post("/signup", async (req, res) => {
     // check the user
@@ -132,14 +130,15 @@ router.put("/me", middleware,async (req, res) => {
     }
     try {
 
-        const user = await client.user.update({
+        await client.user.update({
                         where: {
                             id: req.userId
                         },
                         data: {
                             password: parsedData.data.password,
                             name: parsedData.data.name,
-                            username: parsedData.data.username
+                            username: parsedData.data.username,
+                            imageUrl: parsedData.data.imageUrl
                         },
                     })
         res.json({
@@ -154,6 +153,7 @@ router.put("/me", middleware,async (req, res) => {
 router.use("/car",carRouter)
 router.use("/booking",bookingRouter)
 router.use("/calendar",calendarRouter)
+router.use("/upload",uploadRouter)
 
 
 

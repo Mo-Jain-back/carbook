@@ -1,6 +1,6 @@
 "use client"
 import { Button } from "@/components/ui/button"
-import {  Edit, IndianRupee, LogOut, MoreVertical, PlaneTakeoff, Trash2 } from "lucide-react"
+import {  Edit, IndianRupee, Loader2, LogOut, MoreVertical, PlaneTakeoff, Trash2 } from "lucide-react"
 import Image from "next/image"
 import {  useRouter } from "next/navigation"
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
@@ -57,6 +57,9 @@ export function CarDetailsClient({ carId }: { carId: number }) {
   const [action,setAction] = useState<string>("");
   const [actionDialogOpen,setActionDialogOpen] = useState(false);
   const [deleteBookingId,setDeleteBookingId] = useState<number>(0);
+  const [imageFile, setImageFile] = useState<File | null>(null);
+  const [isLoading, setIsLoading] = useState(false);
+  
   
   useEffect(() => {
     if(car) {
@@ -121,8 +124,8 @@ export function CarDetailsClient({ carId }: { carId: number }) {
           authorization: `Bearer ${localStorage.getItem("token")}`
         }
       });
+      setCars(cars.filter(car => car.id !== car.id));
       router.back();
-      console.log(res.data);
     }
     catch(error){
       console.log(error);
@@ -131,40 +134,69 @@ export function CarDetailsClient({ carId }: { carId: number }) {
 
   const handleEdit = async () => {
     // Implement edit functionality here
-    console.log("Edit car:", car.id);
-    try {
-      await axios.put(`${BASE_URL}/api/v1/car/${car.id}`,{
-        color: color,
-        price: price,
-        mileage: mileage,
-        imageUrl: imageUrl
-      },{
+    setIsLoading(true);
+  let imageUrl: string | null = null;
+
+  try {
+    // Upload image only if imageFile is provided
+    if (imageFile) {
+      const formData = new FormData();
+      formData.append("file", imageFile);
+
+      const resImage = await axios.post(`${BASE_URL}/api/v1/upload`, formData, {
         headers: {
-          "Content-type": "application/json",
-          authorization: `Bearer ${localStorage.getItem("token")}`
+          "Content-type": "multipart/form-data",
+          authorization: `Bearer ` + localStorage.getItem('token')
         }
       });
-      
+
+      imageUrl = resImage.data.url;
+    }
+
+    // Prepare data for update
+    const updateData: Record<string, any> = {
+      color: color,
+      price: price,
+      mileage: mileage,
+    };
+
+    // Only include imageUrl if a new image was uploaded
+    if (imageUrl) {
+      updateData.imageUrl = imageUrl;
+    }
+
+    await axios.put(`${BASE_URL}/api/v1/car/${car.id}`, updateData, {
+      headers: {
+        "Content-type": "application/json",
+        authorization: `Bearer ${localStorage.getItem("token")}`
+      }
+    });
+
       const carId = car.id;
       setCars(cars.map(car => {
         if(car.id === carId){
-          return {
+          const newCar:typeof car = {
             ...car,
             colorOfBooking: color,
             price,
-            imageUrl
+            ...(imageUrl && { imageUrl })
           }
+          return newCar;
         }
         else{
           return car;
         }
       }));
+      setIsLoading(false);
       setIsEditable(false);
     }
     catch(error){ 
       console.log(error);
+      setIsLoading(false);
     }
   }
+
+  
   const handleCancel = () => {
     setIsEditable(false);
     setColor(car.colorOfBooking || "#0000FF");
@@ -177,6 +209,14 @@ export function CarDetailsClient({ carId }: { carId: number }) {
   const handleFileUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
     if (file) {
+      if (!file.type.startsWith("image/")) {
+        return
+      }
+      const maxSize = 5 * 1024 * 1024 // 5MB
+      if (file.size > maxSize) {
+        return
+      }
+      setImageFile(file);
       setImageUrl(URL.createObjectURL(file));
     }
   }
@@ -254,7 +294,7 @@ export function CarDetailsClient({ carId }: { carId: number }) {
         <div className="text-center w-5 h-5">
           
         </div>
-        <div className="mr-4 cursor-pointer hover:bg-gray-100 p-2 rounded-sm" onClick={() =>  setIsDialogOpen(true)}>
+        <div className="mr-4 cursor-pointer hover:bg-gray-100 dark:hover:bg-muted p-2 rounded-sm" onClick={() =>  setIsDialogOpen(true)}>
           <Trash2 className=" h-6 w-6" />
         </div> {/* Spacer for alignment */}
       </div>
@@ -291,7 +331,10 @@ export function CarDetailsClient({ carId }: { carId: number }) {
           </Button>
           :
           <>
-            <Button onClick={() => handleEdit()} className=" mx-3 bg-primary text-primary-foreground p-2 rounded-md hover:bg-primary/90 transition-colors">
+            <Button onClick={() => handleEdit()} className=" mx-3 flex items-center bg-primary text-primary-foreground p-2 rounded-md hover:bg-primary/90 transition-colors">
+              {isLoading &&
+                  <Loader2 className="h-7 w-7 stroke-[3px] animate-spin text-white-500" />
+                }
               <span>Update</span>
             </Button>
             <Button onClick={() => handleCancel()} className="mx-3 bg-secondary text-secondary-foreground p-2 rounded-md hover:bg-secondary/90 transition-colors">
@@ -351,7 +394,7 @@ export function CarDetailsClient({ carId }: { carId: number }) {
                       className="w-[170px] border-0 p-0 px-1 bg-gray-200 dark:bg-gray-800 focus-visible:ring-0 border-transparent border-y-4 focus:border-b-blue-400 " />
                     }
                   </div>
-                  {earnings && earnings.oneMonth &&
+                  {earnings && earnings.oneMonth!=0 &&
                   <div>
                     <p className="text-sm text-blue-500 mb-1">1 month Earnings</p>
                     <span className="font-medium flex items-center"><IndianRupee className="w-4 h-4"/> {earnings.oneMonth} </span> 
@@ -368,19 +411,19 @@ export function CarDetailsClient({ carId }: { carId: number }) {
                   </div>
                 </div>
                 <div className="space-y-3">
-                  {earnings && earnings.thisMonth &&
+                  {earnings && earnings.thisMonth != 0 && earnings.thisMonth &&
                     <div>
                       <p className="text-sm text-blue-500 mb-1">This Month Earnings</p>
                       <span className="font-medium flex items-center"><IndianRupee className="w-4 h-4"/>{earnings.thisMonth}</span> 
                     </div>
                   }
-                  {earnings && earnings.sixMonths &&
+                  {earnings && earnings.sixMonths != 0 && earnings.sixMonths &&
                     <div>
                       <p className="text-sm text-blue-500 mb-1">6 Month Earnings</p>
                       <span className="font-medium flex items-center"><IndianRupee className="w-4 h-4"/>{earnings.sixMonths}</span> 
                     </div>
                   }
-                  {earnings && earnings.total &&
+                  {earnings && earnings.total != 0 && earnings.total &&
                     <div>
                       <p className="text-sm text-blue-500 mb-1">Total Earnings</p>
                       <span className="font-medium flex items-center"><IndianRupee className="w-4 h-4"/>{earnings.total}</span> 
@@ -467,7 +510,7 @@ export function CarDetailsClient({ carId }: { carId: number }) {
     
       </div>
         <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
-            <DialogContent className="sm:max-w-[425px] bg-white ">
+            <DialogContent className="sm:max-w-[425px] bg-muted border-border ">
               <DialogHeader>
                 <DialogTitle>Delete</DialogTitle>
                 <DialogDescription className="text-blue-500">

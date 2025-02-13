@@ -1,5 +1,5 @@
 import { Button } from "@/components/ui/button"
-import {  Edit, MoreVertical, Trash2 } from "lucide-react"
+import {  Edit, ImageIcon, MoreVertical, Trash2 } from "lucide-react"
 import Image from "next/image"
 import {  useRouter } from "next/navigation"
 import { useEffect, useState } from "react";
@@ -18,6 +18,7 @@ import { Booking } from "./page";
 import ActionDialog from "@/components/action-dialog";
 import { calculateCost } from "@/components/add-booking";
 import { getHeader } from "@/app/bookings/page";
+import Link from "next/link";
 
 
 interface BookingDetailsClientProps {
@@ -387,25 +388,60 @@ export function BookingDetailsClient({ booking,setBooking }: BookingDetailsClien
       <div className="px-4 py-4 border-b-4 border-gray-200 dark:border-muted">
           <h3 className="text-lg font-semibold mb-4 ">Some more details</h3>
           <div className="grid grid-cols-2 gap-4 sm:gap-6">
-            <div>
-              {booking.aadharCard &&<div>
-                <p className="text-sm text-blue-500">Customer Aadhar Card</p>
-                <span className="text-sm">{booking.aadharCard}</span>
-              </div>}
+            <div className="space-y-2">
               {booking.odometerReading &&<div>
                 <p className="text-sm text-blue-500">Odometer Reading</p>
                 <span className="text-sm">{booking.odometerReading}</span>
               </div>}
-            </div>
-            <div>
-              {booking.drivingLicence &&<div>
-                <p className="text-sm text-blue-500">Customer Driving License</p>
-                <span className="text-sm">{booking.drivingLicence}</span>
+              {booking.documents &&<div>
+                <p className="text-sm text-blue-500">Customer Aadhar Card and Driving License</p>
+                <div className="mt-2 text-sm">
+                  {booking.documents.map((file, index) => (
+                    <Link
+                      href={file.document}
+                      key={index}
+                      className="flex w-fit cursor-pointer max-w-[200px] max-h-[40px] my-1 items-center gap-2 bg-gray-200 dark:bg-muted p-2 rounded-md"
+                    >
+                      <span className="min-w-4">
+                        <ImageIcon className="w-4 h-4" />
+                      </span>
+                      <span className="whitespace-nowrap overflow-hidden text-ellipsis text-sm">{file.name}</span>
+                    </Link>
+                  ))}
+                </div>
               </div>}
+              
+              {booking.selfieUrl &&<div>
+                <p className="text-sm text-blue-500">Selfie with car</p>
+                  <Link
+                      href={booking.selfieUrl}
+                      className="flex w-fit cursor-pointer max-w-[200px] max-h-[40px] my-1 items-center gap-2 bg-gray-200 dark:bg-muted p-2 rounded-md"
+                    >
+                      <span className="min-w-4">
+                        <ImageIcon className="w-4 h-4" />
+                      </span>
+                      <span className="whitespace-nowrap overflow-hidden text-ellipsis text-sm">Car Selfie</span>
+                    </Link>
+              </div>}
+            </div>
+            <div className="space-y-2">
               {booking.notes &&<div>
                 <p className="text-sm text-blue-500">Notes if any</p>
                 <span className="text-sm">{booking.notes}</span>
               </div>}
+              {booking.carPhotoUrl &&<div>
+                <p className="text-sm text-blue-500">Photos Before pick-up</p>
+                  <Link
+                      href={booking.carPhotoUrl}
+                      className="flex w-fit cursor-pointer max-w-[200px] max-h-[40px] my-1 items-center gap-2 bg-gray-200 dark:bg-muted p-2 rounded-md"
+                    >
+                      <span className="min-w-4">
+                        <ImageIcon className="w-4 h-4" />
+                      </span>
+                      <span className="whitespace-nowrap overflow-hidden text-ellipsis text-sm">Car Image</span>
+                    </Link>
+              </div>}
+              
             </div>
           </div>
       </div>

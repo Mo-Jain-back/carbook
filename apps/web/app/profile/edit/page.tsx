@@ -2,7 +2,7 @@
 
 import { useState, useRef, useEffect } from "react"
 import Image from "next/image"
-import {  Edit, Eye, EyeOff, ArrowLeft } from "lucide-react"
+import {  Edit, Eye, EyeOff, ArrowLeft, Loader2 } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import type React from "react" // Added import for React
 import { useRouter } from "next/navigation";
@@ -11,24 +11,28 @@ import UserIcon from "@/public/user.svg"
 import axios from "axios"
 import { BASE_URL } from "@/lib/config"
 import LoadingScreen from "@/components/loading-screen"
+import { useUserStore } from "@/lib/store"
+import { Input } from "@/components/ui/input"
 
 interface User {
   name: string;
-  imageUrl: string;
+  profileImageUrl: string;
   username: string;
   password: string;
 }
 
 export default function ProfilePage() {
   const [user,setUser] = useState<User>();
+  const {name,setName,imageUrl,setImageUrl} = useUserStore();
   const [isEditingUsername, setIsEditingUsername] = useState(false)
   const [isEditingPassword, setIsEditingPassword] = useState(false)
   const [showPassword, setShowPassword] = useState(false)
   const usernameInputRef = useRef<HTMLInputElement>(null)
   const passwordInputRef = useRef<HTMLInputElement>(null);
   const router = useRouter();
-  const [username, setUsername] = useState((user && user.username) || "")
-  const [password, setPassword] = useState((user && user.password ) || "")
+  const [username, setUsername] = useState("")
+  const [password, setPassword] = useState("")
+  const [isLoading, setIsLoading] = useState(false);
 
   // This would typically come from your authentication system
   useEffect(() => {
@@ -72,9 +76,47 @@ export default function ProfilePage() {
     return <LoadingScreen/>;
   }
 
-  const handleEditPictureClick = () => {
+  const handleEditPictureClick = async (event: React.ChangeEvent<HTMLInputElement>) => {
     // Implement picture edit functionality here
-    console.log("Edit picture clicked")
+    const file = event.target.files?.[0];
+    setIsLoading(true);
+    if (file) {
+      if (!file.type.startsWith("image/")) {
+        return
+      }
+
+      const maxSize = 5 * 1024 * 1024 // 5MB
+      if (file.size > maxSize) {
+        return
+      }
+      const formData = new FormData();
+      formData.append("file", file);
+
+      try{
+        const resImage = await axios.post(`${BASE_URL}/api/v1/upload`, formData, {
+          headers: {
+            "Content-type": "multipart/form-data",
+            authorization: `Bearer ` + localStorage.getItem('token')
+          }
+        });
+
+        await axios.put(`${BASE_URL}/api/v1/me`,{
+          imageUrl: resImage.data.url
+        },{
+          headers: {
+            "Content-type": "application/json",
+            authorization: `Bearer ${localStorage.getItem("token")}`
+          }
+        });
+
+        setImageUrl(URL.createObjectURL(file));
+        setIsLoading(false);
+      }
+      catch(error){
+        console.log(error);
+        setIsLoading(false);
+      }
+    }
   }
 
   const handleUsernameClick = () => {
@@ -150,13 +192,36 @@ export default function ProfilePage() {
       <div className="sm:h-[30vh] h-[20vh] bg-muted dark:bg-black border-b-[1px] dark:border-muted text-muted-foreground relative">
         {/* Circle for user image or icon */}
     
-        <div className="absolute left-1/2 bottom-0 transform -translate-x-1/2 translate-y-1/2">
-          <div className="relative w-32 h-32 rounded-full bg-muted flex items-center justify-center overflow-hidden border-4 border-transparent shadow-lg">
-            { user.imageUrl  ? (
-              <Image src={user.imageUrl || "/placeholder.svg"} alt={user.name} fill className="object-cover" />
-            ) : (
-              <UserIcon className="w-28 h-28 stroke-[12px] stroke-blue-600 fill-blue-600" />
-            )}
+        <div className="absolute z-0 left-1/2 bottom-0 transform -translate-x-1/2 translate-y-1/2">
+          <div className="relative z-2 w-32 h-32 rounded-full bg-muted flex items-center justify-center overflow-hidden border-4 border-transparent shadow-lg">
+            {!isLoading ?
+            <>
+              { imageUrl  ? (
+                <Image src={imageUrl || "/placeholder.svg"} alt={user.name} fill className="object-cover rounded-full" />
+              ) : (
+                <UserIcon className="w-28 h-28 stroke-[12px] stroke-blue-600 fill-blue-600" />
+              )}
+            </>
+            :
+            <div className="w-full h-full flex items-center justify-center">
+              <Loader2 className="h-6 w-6 animate-spin text-gray-500" />
+            </div>}
+          </div>
+          <div className="flex z-5 absolute bottom-0 right-0 justify-center">
+            <div
+              className="bg-blue-600 cursor-pointer p-1 rounded-full dark:text-black text-white hover:bg-gray-800"
+              onClick={() => document.getElementById('profileImage')?.click()}
+            >
+              <Edit className="h-5 w-5" />
+              <Input
+                id="profileImage"
+                type="file"
+                accept="image/*"
+                onChange={handleEditPictureClick}
+                className="hidden"
+                // className={cn("border-0 cursor-pointer overflow-hidden text-ellipsis border-b-gray-400 rounded-none border-b border-black p-0 focus:border-blue-500 focus:ring-0", "transition-colors duration-200")}
+            />
+            </div>
           </div>
         </div>
       </div>
@@ -175,16 +240,7 @@ export default function ProfilePage() {
           <h1 className="text-3xl font-bold text-center text-gray-900 sm:text-4xl mb-8 dark:text-white">{user.name}</h1>
         }
         {/* Edit picture button */}
-        <div className="flex justify-center mb-8">
-          <Button
-            variant="secondary"
-            className="bg-blue-600 dark:text-black text-white hover:bg-gray-800"
-            onClick={handleEditPictureClick}
-          >
-            <Edit className="h-4 w-4 mr-2" />
-            Edit Picture
-          </Button>
-        </div>
+        
 
         {/* Username section */}
         <div className="space-y-2 mb-6" id="username-field">

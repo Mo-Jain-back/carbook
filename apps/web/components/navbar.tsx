@@ -10,12 +10,13 @@ import { useEffect, useState } from "react"
 import { useUserStore } from "@/lib/store"
 import Redirect from "./redirect"
 import UserIcon from "@/public/user.svg";
+import Image from "next/image"
 
 export function NavBar() {
   const [selectedTab, setSelectedTab] = useState("home")
   const pathname = usePathname()
   const router = useRouter();
-  const {name} = useUserStore();
+  const {name,imageUrl} = useUserStore();
 
   useEffect(() => {
     if (pathname.startsWith("/booking")) {
@@ -66,8 +67,12 @@ export function NavBar() {
                 onClick={() => router.push('/calendar')}> Calendar</div>
         </div>
         <div className={`flex flex-col items-center px-2 hover:text-blue-700 max-sm:hidden ${selectedTab == "profile" ? "text-blue-700 border-b-blue-700": ""} border-transparent transition-all border duration-300 border-y-4 p-2 cursor-pointer font-bold`} 
-          onClick={() => router.push('/profile')}> 
+          onClick={() => router.push('/profile')}>
+            {imageUrl ? 
+              <Image src={imageUrl || "/placeholder.svg"} alt="Profile" width={32} height={32} className="max-h-8 min-w-8 object-cover rounded-full" />
+              : 
             <UserIcon className={`h-8 w-8 dark:fill-white dark:stroke-white fill-gray-700 stroke-gray-700 stroke-[20px] `} />
+          }
         </div>
         
       </div>}

@@ -11,7 +11,7 @@ import {  useCarStore, useUserStore } from "@/lib/store"
 import CarIcon from "@/public/car-icon.svg";
 import Calendar from "@/public/calendar.svg"
 import UserIcon from "@/public/user.svg"
-import UnderAction from "./under-action"
+import TakeAction from "./take-action"
 import MonthEarnings from "./month-earnings"
 
 
@@ -55,7 +55,7 @@ export function CarSection() {
         <h1 style={{ fontFamily: "var(--font-equinox), sans-serif",
                  }} className="sm:text-3xl mb-3 text-xl font-black font-myfont">CARs INFO</h1>
           <div className="grid z-0 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-            <UnderAction/>
+            <TakeAction/>
             <MonthEarnings/>
           </div>
         </section>
