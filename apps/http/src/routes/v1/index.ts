@@ -7,11 +7,10 @@ import client from "@repo/db/client";
 import { carRouter } from "./car";
 import { bookingRouter } from "./booking";
 import { calendarRouter } from "./calendar";
-import { uploadRouter } from "./upload";
 
 export const router = Router();
 
-router.post("/signup", async (req, res) => {
+router.post("/signup/se23crt1", async (req, res) => {
     // check the user
     const parsedData = SignupSchema.safeParse(req.body)
     if (!parsedData.success) {
@@ -135,10 +134,7 @@ router.put("/me", middleware,async (req, res) => {
                             id: req.userId
                         },
                         data: {
-                            password: parsedData.data.password,
-                            name: parsedData.data.name,
-                            username: parsedData.data.username,
-                            imageUrl: parsedData.data.imageUrl
+                            ...parsedData.data,
                         },
                     })
         res.json({
@@ -153,7 +149,6 @@ router.put("/me", middleware,async (req, res) => {
 router.use("/car",carRouter)
 router.use("/booking",bookingRouter)
 router.use("/calendar",calendarRouter)
-router.use("/upload",uploadRouter)
 
 
 

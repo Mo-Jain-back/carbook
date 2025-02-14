@@ -2,6 +2,7 @@ import {  Router } from "express";
 import { BookingEndSchema, BookingSchema, BookingStartSchema, BookingUpdateSchema } from "../../types";
 import client from "@repo/db/client";
 import { middleware } from "../../middleware";
+import { parse } from "node:url";
 
 export const bookingRouter = Router();
 
@@ -92,7 +93,8 @@ bookingRouter.get("/:id",middleware,async (req,res) => {
             },
             include:{
                 car:true,
-                documents:true
+                documents:true,
+                carImages:true
             }
         })
 
@@ -124,7 +126,8 @@ bookingRouter.get("/:id",middleware,async (req,res) => {
             notes:booking.notes,
             selfieUrl:booking.selfieUrl,
             carPhotoUrl:booking.carPhotoUrl,
-            documents:booking.documents
+            documents:booking.documents,
+            carImages:booking.carImages
         }
 
         // Filter out null values dynamically
@@ -237,7 +240,6 @@ bookingRouter.put("/:id/start",middleware,async (req,res) => {
                                     dailyRentalPrice: parsedData.data.dailyRentalPrice,
                                     status: "Ongoing",
                                     selfieUrl: parsedData.data.selfieUrl,
-                                    carPhotoUrl: parsedData.data.carPhotoUrl
                                 },
                                 where: {
                                     id: parseInt(req.params.id)
@@ -247,7 +249,20 @@ bookingRouter.put("/:id/start",middleware,async (req,res) => {
             await client.documents.create({
                 data: {
                     name: document.name,
-                    document: document.url,
+                    url: document.url,
+                    type: document.type,
+                    folderId: document.folderId,
+                    bookingId: booking.id
+                }
+            })
+        }
+
+        for (const carImage of parsedData.data.carImages) {
+            await client.carImages.create({
+                data: {
+                    name: carImage.name,
+                    url: carImage.url,
+                    folderId: carImage.folderId,
                     bookingId: booking.id
                 }
             })
@@ -348,6 +363,46 @@ bookingRouter.delete("/:id",middleware,async (req,res) => {
         res.json({
             message:"Booking deleted successfully",
             BookingId:booking.id
+        })
+    } catch(e) {
+        console.error(e);
+
+        res.status(400).json({message: "Internal server error"})
+        
+    }
+})
+
+bookingRouter.delete('/:id/documents/all',middleware, async (req, res) => {
+    const {id} = req.params;
+    try {
+        await client.documents.deleteMany({
+            where:{
+                bookingId:parseInt(id),
+            }
+        })
+        res.status(200).json({
+            message:"Document deleted successfully",
+            BookingId:id
+        })
+    } catch(e) {
+        console.error(e);
+
+        res.status(400).json({message: "Internal server error"})
+        
+    }
+})
+
+bookingRouter.delete('/:id/car-images/all',middleware, async (req, res) => {
+    const {id} = req.params;
+    try {
+        await client.carImages.deleteMany({
+            where:{
+                bookingId:parseInt(id),
+            }
+        })
+        res.status(200).json({
+            message:"Car image deleted successfully",
+            BookingId:id
         })
     } catch(e) {
         console.error(e);

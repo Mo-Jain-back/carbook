@@ -63,6 +63,7 @@ carRouter.post("/",middleware,async (req,res) => {
                 price: parsedData.data.price,
                 mileage: parsedData.data.mileage,
                 imageUrl: parsedData.data.imageUrl,
+                carFolderId:parsedData.data.carFolderId,
                 userId: req.userId!
             }
         })
@@ -138,6 +139,7 @@ carRouter.get("/:id",middleware,async (req,res) => {
             car:formatedCars
         })
     } catch(e) {
+        console.error("Erros:",e)
         res.status(400).json({message: "Internal server error"});
     }
 })
@@ -259,6 +261,7 @@ carRouter.put("/:id",middleware,async (req,res) => {
             CarId:car.id
         })
     } catch(e) {
+        console.error("Erros:",e)
         res.status(400).json({message: "Internal server error"})
     }
 })

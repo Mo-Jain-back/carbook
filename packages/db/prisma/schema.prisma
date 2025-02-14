@@ -8,13 +8,14 @@ generator client {
 }
 
 model User {
-  id            Int     @id @default(autoincrement())
-  username      String  @unique
-  name          String?
-  password      String
-  imageUrl      String? 
-  bookings      Booking[]
-  Cars          Car[]
+  id                Int     @id @default(autoincrement())
+  username          String  @unique
+  name              String?
+  password          String
+  imageUrl          String? 
+  profileFolderId   String?
+  bookings          Booking[]
+  Cars              Car[]
 }
 
 model Car {
@@ -27,7 +28,8 @@ model Car {
   mileage           Int
   imageUrl          String
   userId            Int
-  totalEarnings      Int?
+  totalEarnings     Int?
+  carFolderId       String
   user              User     @relation(fields: [userId], references: [id])
   bookings          Booking[]
 }
@@ -58,14 +60,26 @@ model Booking {
   odometerReading         String? 
   notes                   String?
   documents               Documents[]
+  carImages               CarImages[]
 }
 
 model Documents {
   id          Int      @id @default(autoincrement())
-  document    String?
-  name        String?
+  url         String
+  name        String
+  type        String
   bookingId   Int
+  folderId    String
   booking     Booking  @relation(fields: [bookingId], references: [id])
+}
+
+model CarImages {
+  id        Int         @id @default(autoincrement())
+  url       String
+  name      String
+  folderId  String
+  bookingId Int
+  booking   Booking     @relation(fields: [bookingId], references: [id])
 }
 
 
