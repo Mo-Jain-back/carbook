@@ -16,6 +16,7 @@ import LoadingScreen from "./loading-screen"
 import Booking from "@/public/online-booking.svg"
 import { useCarStore } from "@/lib/store"
 import ActionDialog from "./action-dialog"
+import { uploadToDrive } from "@/app/actions/upload"
 
 interface Car {
   id: number;
@@ -26,6 +27,8 @@ interface Car {
   imageUrl: string;
   mileage: number;
   price: number;
+  totalEarnings: number;
+  carFolderId: string;
   bookings: {
     id: number;
     start: string;
@@ -39,7 +42,6 @@ interface Earnings {
   thisMonth: number,
   oneMonth: number,
   sixMonths: number,
-  total: number
 }
 
 
@@ -134,25 +136,20 @@ export function CarDetailsClient({ carId }: { carId: number }) {
 
   const handleEdit = async () => {
     // Implement edit functionality here
+    console.log("Step 1")
+    console.log("imageFile",imageFile);
     setIsLoading(true);
-  let imageUrl: string | null = null;
+    let imageUrl: string | undefined = undefined;
 
   try {
     // Upload image only if imageFile is provided
     if (imageFile) {
-      const formData = new FormData();
-      formData.append("file", imageFile);
-
-      const resImage = await axios.post(`${BASE_URL}/api/v1/upload`, formData, {
-        headers: {
-          "Content-type": "multipart/form-data",
-          authorization: `Bearer ` + localStorage.getItem('token')
-        }
-      });
-
-      imageUrl = resImage.data.url;
+      const resImage = await uploadToDrive(imageFile,"id",car.carFolderId);
+      imageUrl = resImage.url;
     }
-
+    console.log("Step 2");
+    console.log("imageUrl",imageUrl);
+    
     // Prepare data for update
     const updateData: Record<string, any> = {
       color: color,
@@ -164,6 +161,11 @@ export function CarDetailsClient({ carId }: { carId: number }) {
     if (imageUrl) {
       updateData.imageUrl = imageUrl;
     }
+    else{
+      setImageUrl(car.imageUrl || "");
+    }
+    console.log("Step 3");
+    console.log("updateData",updateData);
 
     await axios.put(`${BASE_URL}/api/v1/car/${car.id}`, updateData, {
       headers: {
@@ -331,15 +333,23 @@ export function CarDetailsClient({ carId }: { carId: number }) {
           </Button>
           :
           <>
-            <Button onClick={() => handleEdit()} className=" mx-3 flex items-center bg-primary text-primary-foreground p-2 rounded-md hover:bg-primary/90 transition-colors">
-              {isLoading &&
-                  <Loader2 className="h-7 w-7 stroke-[3px] animate-spin text-white-500" />
-                }
-              <span>Update</span>
+            <Button
+              onClick={() => handleEdit()}
+              className={`mx-3 flex items-center bg-primary text-primary-foreground p-2 rounded-md hover:bg-primary/90 transition-colors ${isLoading && "cursor-not-allowed opacity-50"}`}>
+                    {isLoading ?
+                      <>
+                      <Loader2 className="h-7 w-7 stroke-[3px] animate-spin text-white-500" />
+                      <span>Please wait...</span>
+                      </>
+                    :
+                    <span>Update</span>
+                    }
             </Button>
-            <Button onClick={() => handleCancel()} className="mx-3 bg-secondary text-secondary-foreground p-2 rounded-md hover:bg-secondary/90 transition-colors">
-              <span>Cancel</span>
-            </Button>
+            {!isLoading &&
+              <Button onClick={() => handleCancel()} className="mx-3 bg-secondary text-secondary-foreground p-2 rounded-md hover:bg-secondary/90 transition-colors">
+                <span>Cancel</span>
+              </Button>
+            }
           </>
           }
         </div>
@@ -423,10 +433,10 @@ export function CarDetailsClient({ carId }: { carId: number }) {
                       <span className="font-medium flex items-center"><IndianRupee className="w-4 h-4"/>{earnings.sixMonths}</span> 
                     </div>
                   }
-                  {earnings && earnings.total != 0 && earnings.total &&
+                  {car && car.totalEarnings != 0 && car.totalEarnings &&
                     <div>
                       <p className="text-sm text-blue-500 mb-1">Total Earnings</p>
-                      <span className="font-medium flex items-center"><IndianRupee className="w-4 h-4"/>{earnings.total}</span> 
+                      <span className="font-medium flex items-center"><IndianRupee className="w-4 h-4"/>{car.totalEarnings}</span> 
                     </div>
                   }
                 </div>

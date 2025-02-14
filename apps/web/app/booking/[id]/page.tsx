@@ -30,7 +30,8 @@ export interface Booking {
   notes?: string;
   selfieUrl?: string;
   carPhotoUrl?: string;
-  documents? : {name:string,document:string}[];
+  documents? : {name:string,url:string,type:string}[];
+  carImages? : {name:string,url:string}[];
 }
 
 export default function BookingDetails() {

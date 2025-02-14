@@ -3,37 +3,20 @@ import Link from "next/link";
 import Image from "next/image"
 import { Card, CardContent } from "@/components/ui/card"
 import { useEffect, useState } from "react";
-import { ArrowLeft, Edit } from "lucide-react";
+import {  Edit } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import BackArrow from "@/public/back-arrow.svg";
 import axios from "axios";
 import { BASE_URL } from "@/lib/config";
 import LoadingScreen from "@/components/loading-screen";
-import { Car } from "@/lib/store";
+import { Car, useCarStore } from "@/lib/store";
+import CarIcon from "@/public/car-icon.svg";
 
 
 const page = () => {
-  const [cars,setCars] = useState<Car[]>([]);
+  const {cars} =  useCarStore();
   const router = useRouter();
-
-  useEffect(() => {
-    async function fetchData() {
-      try {
-        const res = await axios.get(`${BASE_URL}/api/v1/car/all`, {
-          headers: {
-            authorization: `Bearer ` + localStorage.getItem('token')
-            }
-          })
-        setCars(res.data.cars);
-
-      }
-      catch (error) {
-        console.log(error);
-      }
-    }
-    fetchData();
-  },[])
 
   if(!cars) {
     return <LoadingScreen/>;
@@ -53,8 +36,8 @@ const page = () => {
                   
               </div>
             </div>
-          
-            <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
+            {cars.length > 0 ?
+            <div key={cars.length} className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
                 {cars.map((car) => (
                   <Link
                       href={`/car/${car.id}`}
@@ -84,6 +67,11 @@ const page = () => {
                 </Link>
                 ))}
             </div>
+            :
+            <div className="flex flex-col pt-20 items-center justify-center">
+              <CarIcon className="w-48 h-20 stroke-gray-400 fill-gray-400 mb-4 mb-4 stroke-[1px]" />
+              <h1 className="text-center text-3xl mb-3 text-gray-400 font-bold">No Cars in garrage yet</h1>
+            </div>}
         </div>
   )
 };

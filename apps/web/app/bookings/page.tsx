@@ -11,10 +11,10 @@ import ArrowRight from "@/public/right_arrow.svg";
 import CarIcon from "@/public/car-icon.svg"
 import axios from "axios"
 import { BASE_URL } from "@/lib/config"
-import LoadingScreen from "@/components/loading-screen"
 import { cn } from "@/lib/utils"
 import { useCarStore } from "@/lib/store"
-
+import Booking from "@/public/online-booking.svg"
+import LoadingScreen from "@/components/loading-screen"
 
 type BookingStatus = "Upcoming" | "Ongoing" | "Completed" | "Cancelled" | "All"
 
@@ -139,6 +139,7 @@ export default function Bookings() {
   const [isHovered, setIsHovered] = useState(false);
   const [isAddBookingOpen,setIsAddBookingOpen] = useState(false);
   const [filteredBookings, setFilteredBookings] = useState<Booking[]>([]);
+  const [isLoading,setIsLoading] = useState(true);
 
   useEffect(() => {
     async function fetchData() {
@@ -146,13 +147,15 @@ export default function Bookings() {
         const res1 = await axios.get(`${BASE_URL}/api/v1/booking/all`, {
           headers: {
             authorization: `Bearer ` + localStorage.getItem('token')
-            }
-          })
+          }
+        })
         setBookings(res1.data.bookings);
+        setIsLoading(false);
 
       }
       catch (error) {
         console.log(error);
+        setIsLoading(false);
       }
     }
     fetchData();
@@ -177,6 +180,7 @@ export default function Bookings() {
           <CarBookingDialog cars={cars} isOpen={isAddBookingOpen} setIsOpen={setIsAddBookingOpen} setBookings={setBookings} />
         }
         {/* Add Booking button */}
+        {filteredBookings.length > 0 && (
         <div className="fixed z-[50] sm:hidden bottom-[70px] right-5 flex items-center justify-start whitespace-nowrap"
             onMouseEnter={() => setIsHovered(true)}
             onMouseLeave={() => setIsHovered(false)}
@@ -191,6 +195,7 @@ export default function Bookings() {
             >Add Booking</span>
           </div>
         </div>
+      )}
 
       
       <main className="container mx-auto px-4 py-8 pb-16 sm:pb-8">
@@ -210,7 +215,7 @@ export default function Bookings() {
             </SelectContent>
           </Select>
         </div>
-        <div className=" flex justify-between w-full scrollbar-hide">
+        <div className=" flex justify-between border-b border-border w-full scrollbar-hide">
           <div className="flex gap-2 mb-6 overflow-x-auto pb-2 scrollbar-hide">
             <Button variant={selectedStatus === "All" ? "default" : "outline"} className={selectedStatus === "All" ? "bg-blue-400 hover:bg-blue-500 text-white dark:text-black" : "hover:bg-blue-100 bg-transparent dark:text-white dark:hover:bg-gray-700 text-black"} 
               onClick={() => setSelectedStatus("All")}>
@@ -234,22 +239,19 @@ export default function Bookings() {
             >
               Completed
             </Button>
-            <Button
-              variant={selectedStatus === "Cancelled" ? "default" : "outline"} className={selectedStatus === "Cancelled" ? "bg-blue-400 hover:bg-blue-500 text-white dark:text-black" : "hover:bg-blue-100 bg-transparent dark:text-white dark:hover:bg-gray-700 text-black"} 
-              onClick={() => setSelectedStatus("Cancelled")}
-            >
-              Cancelled
-            </Button>
+            
           </div>
+          {filteredBookings.length > 0 && (
           <Button className="max-sm:hidden bg-blue-600 text-white hover:bg-opacity-10 dark:text-black shadow-lg"
             onClick={() => setIsAddBookingOpen(true)}>
             <PlusSquare className="h-12 w-12" />
             <span className="">Add Booking</span> 
           </Button>
+          )}
         </div>
 
-
-        <div className="space-y-4">
+        {filteredBookings.length > 0 ? (
+        <div key={filteredBookings.length} className="space-y-4">
           {filteredBookings.map((booking) => (
             <Link href={`/booking/${booking.id}`} key={booking.id}>
               <Card className="overflow-hidden hover:shadow-md dark:border-card transition-shadow my-2">
@@ -321,12 +323,33 @@ export default function Bookings() {
                   <div className="p-4 max-sm:p-2 bg-green-100 flex dark:bg-secondary items-center text-green-600 dark:text-green-400 gap-2">
                     <CarIcon className="w-8 h-3 stroke-green-600 dark:stroke-green-400 fill-green-600 dark:fill-green-400 stroke-[4px]" />
                     <p className="text-sm max-sm:text-xs ">{getTimeUntilBooking(booking.start,booking.status)}</p>
+                    
                   </div>
                 </CardContent>
               </Card>
             </Link>
           ))}
         </div>
+        ) : (
+        <>
+          {!isLoading ? <div className="w-full h-full py-28 gap-2 flex flex-col justify-center items-center">
+            <Booking className={`sm:h-16 h-12 sm:w-16 w-12 stroke-[5px] fill-gray-400 `}/>
+            <p className="text-center text-lg sm:text-2xl text-gray-400 font-bold">Click below to create your first booking</p>
+            <Button className="bg-blue-600 text-white dark:text-black hover:bg-opacity-80  shadow-lg"
+              onClick={() => setIsAddBookingOpen(true)}>
+              <Plus className="text-20 h-60 w-60 stroke-[4px]" />
+            </Button> 
+          </div>
+          :
+          <div className="w-full h-full py-28 gap-2 flex justify-center items-center">
+            <span className="sr-only">Loading...</span>
+            <div className="h-8 w-8 bg-primary border-[2px] border-border rounded-full animate-bounce [animation-delay:-0.3s]"></div>
+            <div className="h-8 w-8 bg-primary border-[2px] border-border rounded-full animate-bounce [animation-delay:-0.15s]"></div>
+            <div className="h-8 w-8 bg-primary border-[2px] border-border rounded-full animate-bounce"></div>
+          </div>
+          }
+        </>
+        )}
       </main>
     </div>
   )

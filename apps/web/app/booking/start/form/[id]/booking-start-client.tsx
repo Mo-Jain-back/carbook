@@ -21,6 +21,7 @@ import dayjs from "dayjs"
 import { set } from "date-fns"
 import { calculateCost } from "@/components/add-booking"
 import { BsFilePdfFill, BsFiletypePdf } from "react-icons/bs"
+import { uploadMultipleToDrive, uploadToDrive } from "@/app/actions/upload"
 
 interface FormErrors {
   [key: string]: string;
@@ -116,6 +117,20 @@ export default function BookingStartClient({booking,bookingId} : {
     const handleFileUpload = (event: React.ChangeEvent<HTMLInputElement>, type: string) => {
       const files = event.target.files
       if (files) {
+        if(type === "selfie"){
+          if(files.length > 1){
+            setErrors(prev => ({ ...prev, [type]: "Please upload only one image" }));
+            setUploadedFiles(prev => ({ ...prev, [type]: [] }));
+            return;
+          }
+        }
+        else{
+          if(files.length > 5){
+            setErrors(prev => ({ ...prev, [type]: "You can upload upto 5 documents or images" }));
+            setUploadedFiles(prev => ({ ...prev, [type]: [] }));
+            return;
+          }
+        }
         for (const file of files) {
           if(file.size > 1024*1024*6){
             setErrors(prev => ({ ...prev, [type]: "File size should be less than 6MB" }));
@@ -124,12 +139,14 @@ export default function BookingStartClient({booking,bookingId} : {
           if(type === "documents"){
             if(!file.type.startsWith("image/") && !file.type.includes("pdf")){
               setErrors(prev => ({ ...prev, [type]: "Please upload only image or pdf files" }));
+              setUploadedFiles(prev => ({ ...prev, [type]: [] }));
               return;
             }
           }
           else{
             if(!file.type.startsWith("image/")){
               setErrors(prev => ({ ...prev, [type]: "Please upload only image" }));
+              setUploadedFiles(prev => ({ ...prev, [type]: [] }));
               return;
             }
           }
@@ -164,39 +181,42 @@ export default function BookingStartClient({booking,bookingId} : {
           setErrors(prev => ({ ...prev, ["documents"]: "Please upload at least one document" }));
           return;
         }
-        const formData = new FormData();
-        Array.from(uploadedFiles["documents"]).forEach((file) => {
-          formData.append("files", file);
-        });
 
-        const res = await axios.post(`${BASE_URL}/api/v1/upload/multiple`, formData, {
-          headers: {
-            "Content-Type": "multipart/form-data",
-            authorization: `Bearer ` + localStorage.getItem("token"),
-          },
-        });
+        if(uploadedFiles.selfie.length == 0) {
+          toast.error("Please upload at least one document");
+          setErrors(prev => ({ ...prev, ["selfie"]: "Please upload at least one document" }));
+          return;
+        }
 
-        const selfieFormData = new FormData();
-        selfieFormData.append("file", uploadedFiles.selfie[0]);
+        if(uploadedFiles.photos.length == 0) {
+          toast.error("Please upload at least one document");
+          setErrors(prev => ({ ...prev, ["photos"]: "Please upload at least one document" }));
+          return;
+        }
+        
+        
+        const resSelfie = await uploadToDrive(uploadedFiles.selfie[0],"name",booking.customerName + "_" + booking.carName);
+        
+        if(resSelfie.error || !resSelfie.folderId){
+          throw new Error("Failed to upload selfie photo");
+          return;
+        }
 
-        const resSelfie = await axios.post(`${BASE_URL}/api/v1/upload`,selfieFormData, {
-          headers: {
-            "Content-type": "multipart/form-data",
-            authorization: `Bearer ` + localStorage.getItem('token')
-            }
-          })
+        const resPhoto = await uploadMultipleToDrive(uploadedFiles.photos,resSelfie.folderId);
+        
+        if(resPhoto.error){
+          throw new Error("Failed to upload car photo");
+          return;
+        }
 
-        const photosFormData = new FormData();
-        photosFormData.append("file", uploadedFiles.photos[0]);
+        const resDoc = await uploadMultipleToDrive(uploadedFiles.documents,resSelfie.folderId);
 
-        const resPhoto = await axios.post(`${BASE_URL}/api/v1/upload`,photosFormData, {
-          headers: {
-            "Content-type": "multipart/form-data",
-            authorization: `Bearer ` + localStorage.getItem('token')
-            }
-          })
+        if(resDoc.error){
+          throw new Error("Failed to upload aadhar card and driving license");
+          return;
+        }
        
-        console.log("documents", res.data.uploadedFiles);  
+        console.log("documents", resDoc.uploadedFiles);  
         await axios.put(`${BASE_URL}/api/v1/booking/${bookingId}/start`, {
           customerName,
           phoneNumber,
@@ -213,9 +233,9 @@ export default function BookingStartClient({booking,bookingId} : {
           totalAmount,
           paymentMethod,
           notes,
-          documents:res.data.uploadedFiles,
-          selfieUrl:resSelfie.data.url,
-          carPhotoUrl:resPhoto.data.url
+          documents:resDoc.uploadedFiles,
+          selfieUrl:resSelfie.url,
+          carImages:resPhoto.uploadedFiles
         }, {
           headers: {
             "Content-type": "application/json",
@@ -557,18 +577,24 @@ export default function BookingStartClient({booking,bookingId} : {
           {errors.terms && <p className="text-red-500 text-sm mt-1">{errors.terms}</p>}
 
           <div className="flex items-center space-x-2">
-            <Button type="submit" className="bg-blue-600 text-black dark:text-white text-card hover:bg-opacity-80 w-full">
-              {isLoading &&
-                <Loader2 className="h-7 w-7 stroke-[3px] animate-spin text-white-500" />
-              }
-              Create
-            </Button>
-            <Button  
-              onClick={() => router.push('/booking/'+bookingId)}
-              className="bg-red-600 text-card text-white hover:bg-red-500 w-full"
-            >
-              Cancel
-            </Button>
+            <Button type="submit" className={`bg-blue-600 dark:text-white hover:bg-opacity-80 w-full ${isLoading && "cursor-not-allowed opacity-50"}`}>
+                  {isLoading ?
+                    <>
+                    <Loader2 className="h-7 w-7 stroke-[3px] animate-spin text-white-500" />
+                    <span>Please wait...</span>
+                    </>
+                  :
+                  <span>Create</span>
+                  }
+              </Button>
+              {!isLoading &&
+                  <Button  
+                    onClick={() => router.push('/booking/'+bookingId)}
+                    className="bg-red-600 text-card text-white hover:bg-red-500 w-full"
+                  >
+                    Cancel
+                  </Button>
+            }
           </div>
         </form>
       </div>

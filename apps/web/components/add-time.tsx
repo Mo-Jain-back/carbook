@@ -44,21 +44,33 @@ export default function AddTime({
             {selectedTime}
           </div>
         </PopoverTrigger>
-      <PopoverContent className=" max-h-40 p-1 dark:border-muted overflow-scroll flex flex-col items-center w-24 overflow-x-hidden rounded-md border bg-popover dark:bg-gray-800 text-popover-foreground shadow-md"
-          onClick={() => setIsPopoverOpen(false)}
-          style={{ pointerEvents: "auto" }} >
-             
-              {generateTimeIntervals().map((time) => (
-                <div
-                  key={time}
-                  className="w-full sm:text-sm text-xs cursor-pointer dark:hover:bg-card rounded-md justify-start p-1 px-4"
-                  onClick={() =>{ 
-                    setSelectedTime(time)}}
-                >
-                  {time}
-                </div>
-              ))}
-      </PopoverContent>
+        <PopoverContent
+          className="h-40 w-20 p-0 border-border overflow-y-auto"
+          style={{
+            pointerEvents: "auto",
+            touchAction: "auto",
+            WebkitOverflowScrolling: "touch", // Smooth scrolling on iOS
+          }}
+        >
+          <div
+            className="p-1 dark:border-muted flex flex-col items-center overflow-x-hidden rounded-md border bg-popover dark:bg-gray-800 text-popover-foreground shadow-md"
+            onClick={() => setIsPopoverOpen(false)}
+          >
+            {generateTimeIntervals().map((time) => (
+              <div
+                key={time}
+                className="w-full sm:text-sm text-xs cursor-pointer dark:hover:bg-card rounded-md justify-start p-1 px-4"
+                onClick={() => {
+                  setSelectedTime(time);
+                }}
+              >
+                {time}
+              </div>
+            ))}
+          </div>
+        </PopoverContent>
+
+
       </Popover>
     </div>
   )

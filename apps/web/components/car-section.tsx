@@ -2,7 +2,7 @@
 
 import {  useState } from "react"
 import { Button } from "@/components/ui/button"
-import {   PlusSquare } from "lucide-react"
+import {   Plus, PlusSquare } from "lucide-react"
 import { CarCard } from "./car-card"
 import Link from "next/link";
 import LoadingScreen from "./loading-screen"
@@ -29,34 +29,48 @@ export function CarSection() {
     <AddCarDialog isOpen={isOpen} setIsOpen={setIsOpen} />
     { name ?
       <div>
-        <section className="py-6 bg-muted px-4 border-b border-border">
-            <div className="flex justify-between items-center mb-8 px-4">
+        <section className="py-6 bg-muted px-4">
+            <div className="flex justify-between items-center border-b border-border pb-5 mb-3 px-4">
                 <h1 style={{ fontFamily: "var(--font-equinox), sans-serif",
                  }} className="sm:text-3xl text-xl font-black font-myfont">MOHIT's GARRAGE</h1>
+                {cars.length > 0 &&
                 <Button className="bg-blue-600 text-white dark:text-black hover:bg-opacity-80  shadow-lg"
                   onClick={() => setIsOpen(true)}>
                   <PlusSquare className="text-20 h-12 w-12" />
                   <span className="">Add Car</span> 
                 </Button>
+                }
             </div>
-            <div className="grid z-0 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+            {cars.length > 0 ? (
+            <div key={cars.length} className="grid z-0 sm:grid-cols-2 lg:grid-cols-3 gap-6">
                 {cars.map((car) => (
                 <Link
                     href={`/car/${car.id}`}
                     key={car.id}
                     className="transform transition-all z-0 duration-300 hover:scale-105"
                 >
+                    
                     <CarCard name={car.brand + " " + car.model} imageUrl={car.imageUrl} plateNumber={car.plateNumber} color={car.colorOfBooking} />
                 </Link>
                 ))}
             </div>
+            ) : (
+            <div className="flex flex-col items-center justify-center">
+              <CarIcon className="w-48 h-20 stroke-gray-400 fill-gray-400 mb-4 mb-4 stroke-[1px]" />
+              <h1 className="text-center text-3xl mb-3 text-gray-400 font-bold">Click below to add your first car</h1>
+              <Button className="bg-blue-600 text-white dark:text-black hover:bg-opacity-80  shadow-lg"
+                  onClick={() => setIsOpen(true)}>
+                  <Plus className="text-20 h-60 w-60 stroke-[4px]" />
+               </Button> 
+            </div>
+            )}
         </section>
         <section className="py-6 bg-muted px-2 sm:px-4">
         <h1 style={{ fontFamily: "var(--font-equinox), sans-serif",
-                 }} className="sm:text-3xl mb-3 text-xl font-black font-myfont">CARs INFO</h1>
+                 }} className="sm:text-3xl border-b border-border pb-5 mb-3 text-xl font-black font-myfont">CARs INFO</h1>
           <div className="grid z-0 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-            <TakeAction/>
             <MonthEarnings/>
+            <TakeAction/>
           </div>
         </section>
         </div>

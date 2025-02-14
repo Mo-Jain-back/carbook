@@ -3,12 +3,16 @@ import { BASE_URL } from "@/lib/config";
 import { useCarStore, useUserStore } from "@/lib/store";
 import axios from "axios";
 import React, { useEffect } from "react"
+import SplashScreen from "./SplashScreen";
+import InitiateScreen from "./InitiateScreen";
 
 const Initiate = () => {
     const {setName,setImageUrl} = useUserStore();
     const {setCars} = useCarStore();
+    const [isLoading, setIsLoading] = React.useState(true);
 
     useEffect(() => {
+        setIsLoading(true);
         const fetchData = async () => {
                 try{
                 const res = await axios.get(`${BASE_URL}/api/v1/me/name`,{
@@ -30,11 +34,12 @@ const Initiate = () => {
                     console.log(error);
                 }
             }
+            setIsLoading(false);
             fetchData();
     }, []);
 
-
-    return null;
+    if(!isLoading) return <SplashScreen/>
+    return <InitiateScreen/>
 };
 
 export default Initiate;

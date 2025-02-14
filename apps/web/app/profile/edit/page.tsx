@@ -13,12 +13,14 @@ import { BASE_URL } from "@/lib/config"
 import LoadingScreen from "@/components/loading-screen"
 import { useUserStore } from "@/lib/store"
 import { Input } from "@/components/ui/input"
+import { uploadToDrive } from "@/app/actions/upload"
 
 interface User {
   name: string;
-  profileImageUrl: string;
+  imageUrl: string;
   username: string;
   password: string;
+  profileFolderId:string | null;
 }
 
 export default function ProfilePage() {
@@ -89,19 +91,21 @@ export default function ProfilePage() {
       if (file.size > maxSize) {
         return
       }
-      const formData = new FormData();
-      formData.append("file", file);
+      
 
       try{
-        const resImage = await axios.post(`${BASE_URL}/api/v1/upload`, formData, {
-          headers: {
-            "Content-type": "multipart/form-data",
-            authorization: `Bearer ` + localStorage.getItem('token')
-          }
-        });
+        const type = (!user.profileFolderId || user.profileFolderId === "" || user.profileFolderId === null) ? "name" : "id";
+        console.log("type",type);
+        const currentDate = new Date();
+        const unixTimestamp = Math.floor(currentDate.getTime() / 1000);
+        const resImage = await uploadToDrive(file,type,user.profileFolderId ? user.profileFolderId : user.name + " " + "profile_img"+unixTimestamp);
 
+        if(resImage.error || !resImage.url){
+          return
+        }
         await axios.put(`${BASE_URL}/api/v1/me`,{
-          imageUrl: resImage.data.url
+          imageUrl: resImage.url,
+          profileFolderId:resImage.folderId
         },{
           headers: {
             "Content-type": "application/json",

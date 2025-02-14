@@ -20,6 +20,7 @@ import { BASE_URL } from "@/lib/config";
 import { toast } from "sonner"
 import { Car } from "@/lib/store";
 import { Booking as BookingType } from "@/app/bookings/page";
+import { Loader2 } from "lucide-react";
 
 interface FormErrors {
   [key: string]: string;
@@ -59,6 +60,7 @@ export function CarBookingDialog({isOpen, setIsOpen, cars,setBookings}:
   const [name,setName] = useState<string>("");
   const [contact,setContact] = useState<string>("");
   const [errors, setErrors] = useState<FormErrors>({});
+  const [isLoading,setIsLoading] = useState(false);
 
   useEffect(() => {
     const cost  = calculateCost(startDate,endDate,startTime,endTime,price);
@@ -118,10 +120,8 @@ export function CarBookingDialog({isOpen, setIsOpen, cars,setBookings}:
       return;
     }
 
-    
+    setIsLoading(true);
     try {
-
-      
 
       const res = await axios.post(`${BASE_URL}/api/v1/booking`,{
         startDate: startDate.toLocaleDateString('en-US'),
@@ -160,11 +160,13 @@ export function CarBookingDialog({isOpen, setIsOpen, cars,setBookings}:
       setBookings((prev:BookingType[]) => {
         return [...prev,newBooking]
       })
+      setIsLoading(false);
       handleClear(event);
       console.log(res.data);
     }
     catch(error){
       console.log(error);
+      setIsLoading(false);
     }
   }
 
@@ -330,14 +332,21 @@ export function CarBookingDialog({isOpen, setIsOpen, cars,setBookings}:
             {errors.totalAmount && <p className="text-red-500 text-sm mt-1">{errors.totalAmount}</p>}
           </div>
           <div className="flex items-center gap-2 sm:gap-4">
-            <Button type="submit" className="bg-blue-600 text-white hover:bg-opacity-80 w-full">
-                Create
-            </Button>
-            <Button variant="ghost" 
+          <Button type="submit" className={`bg-blue-600 dark:text-white hover:bg-opacity-80 w-full ${isLoading && "cursor-not-allowed opacity-50"}`}>
+              {isLoading ?
+                <>
+                <Loader2 className="h-7 w-7 stroke-[3px] animate-spin text-white-500" />
+                <span>Please wait...</span>
+                </>
+              :
+              <span>Create</span>
+              }
+          </Button>
+            {!isLoading && <Button variant="ghost" 
               onClick={handleClear}
               className="border border-border w-full">
                 Clear
-            </Button>
+            </Button>}
           </div>
         </form>
       </DialogContent>

@@ -1,6 +1,6 @@
 
 const nextConfig = {
-    webpack(config) {
+    webpack(config:any) {
         config.module.rules.push({
             test: /\.svg$/,
             use: ["@svgr/webpack"],
@@ -9,16 +9,27 @@ const nextConfig = {
         return config;
         },
  
-  images: {
-      remotePatterns: [
-          {
-              protocol: 'https',
-              hostname: '**',
-              port: '',
-              pathname: '**',
-          },
-      ],
-  },
+    images: {
+        remotePatterns: [
+            {
+                protocol: 'https',
+                hostname: '**',
+                port: '',
+                pathname: '**',
+            },
+        ],
+    },
+    api: {
+        bodyParser: {
+          sizeLimit: "100mb", // Set to 100MB
+        },
+      },
+
+    experimental: {
+    serverActions: {
+        bodySizeLimit: '30mb',
+    },
+    },
 }
 
 export default nextConfig;

@@ -19,6 +19,7 @@ import ActionDialog from "@/components/action-dialog";
 import { calculateCost } from "@/components/add-booking";
 import { getHeader } from "@/app/bookings/page";
 import Link from "next/link";
+import { BsFilePdfFill } from "react-icons/bs";
 
 
 interface BookingDetailsClientProps {
@@ -43,7 +44,7 @@ export function BookingDetailsClient({ booking,setBooking }: BookingDetailsClien
   const [startTime,setStartTime] = useState(booking.startTime);
   const [endTime,setEndTime] = useState(booking.endTime);
   const [bookingStatus, setBookingStatus] = useState(booking.status);
-  const [action,setAction] = useState<"Start"| "Stop" | "Delete" | "Update">("Start");
+  const [action,setAction] = useState<string>("Start");
   const [name,setName] = useState<string>(booking.customerName);
   const [number,setNumber] = useState<string>(booking.customerContact);
   const [dailyRentalPrice,setDailyRentalPrice] = useState<number>(booking.dailyRentalPrice);
@@ -69,8 +70,21 @@ export function BookingDetailsClient({ booking,setBooking }: BookingDetailsClien
     else if(action === "Update"){
       handleEdit();
     }
+    else if(action === "delete the documents of"){
+      handleDocumentDelete();
+    }
+    else if(action === "delete the car photos of"){
+      handleCarImageDelete();
+    }
     return;
   }
+
+  const getFileIcon = (type: string) => {
+      if(!type.startsWith('image/')){
+        return <BsFilePdfFill className="w-4 h-4" />
+      }
+      return <ImageIcon className="w-4 h-4" />
+    }
 
   const handleBookingStop = async () => {
     let currDate = new Date();
@@ -140,6 +154,34 @@ export function BookingDetailsClient({ booking,setBooking }: BookingDetailsClien
       console.log(res.data);
     }
     catch(error){
+      console.log(error);
+    }
+  }
+
+  const handleDocumentDelete = async() => {
+    try {
+      await axios.delete(`${BASE_URL}/api/v1/booking/${booking.id}/documents/all`, {
+        headers: {
+          authorization: `Bearer ` + localStorage.getItem('token')
+        }
+      });
+      setBooking({...booking, documents:[]});
+
+    } catch(error) {
+      console.log(error);
+    }
+  }
+
+  const handleCarImageDelete = async() => {
+    try {
+      await axios.delete(`${BASE_URL}/api/v1/booking/${booking.id}/car-images/all`, {
+        headers: {
+          authorization: `Bearer ` + localStorage.getItem('token')
+        }
+      });
+      setBooking({...booking, carImages:[]});
+      
+    } catch(error) {
       console.log(error);
     }
   }
@@ -223,7 +265,7 @@ export function BookingDetailsClient({ booking,setBooking }: BookingDetailsClien
                   <p className="font-semibold max-sm:text-sm">{formatDateTime(bookingStatus==="Upcoming" ? startDate : endDate)}</p>
             </div>
             <div className="text-right">
-            <div className="relative sm:w-24 flex items-center sm:h-20 rounded-md border border-border w-12 h-12 mb-2"> 
+            <div className="relative flex items-center sm:h-24 sm:w-30 rounded-md border border-border h-12 mb-2"> 
                   { booking.carImageUrl !== "" ?
                     <Image
                     src={booking.carImageUrl}
@@ -365,7 +407,7 @@ export function BookingDetailsClient({ booking,setBooking }: BookingDetailsClien
                 <div className="space-y-3">
                    
                   <p className="text-sm text-blue-500">Payment Remaining</p>
-                  <span className="text-sm">1200</span> 
+                  <span className="text-sm">{(totalAmount ? totalAmount : 0) - (advancePayment ? advancePayment : 0)}</span> 
                   {advancePayment && <div>
                     <p className="text-sm text-blue-500">Payment Done</p>
                     { !isEditable ?
@@ -394,16 +436,26 @@ export function BookingDetailsClient({ booking,setBooking }: BookingDetailsClien
                 <span className="text-sm">{booking.odometerReading}</span>
               </div>}
               {booking.documents &&<div>
-                <p className="text-sm text-blue-500">Customer Aadhar Card and Driving License</p>
+                <div className="flex gap-1 items-center">
+                  <p className="text-sm text-blue-500">Customer Aadhar Card and Driving License</p>
+                  {isEditable && <Button className="cursor-pointer bg-gray-200 dark:bg-muted dark:text-white text-black hover:bg-gray-300 dark:hover:bg-secondary hover:bg-opacity-30" onClick={() => {
+                    setAction("delete the documents of");
+                    setIsDialogOpen(true);
+                  }}>
+                    <Trash2 className="h-4 w-4" />
+                  </Button>}
+                </div>
                 <div className="mt-2 text-sm">
                   {booking.documents.map((file, index) => (
                     <Link
-                      href={file.document}
+                      href={file.url}
                       key={index}
                       className="flex w-fit cursor-pointer max-w-[200px] max-h-[40px] my-1 items-center gap-2 bg-gray-200 dark:bg-muted p-2 rounded-md"
+                      target="_blank"
+                      rel="noopener noreferrer"
                     >
                       <span className="min-w-4">
-                        <ImageIcon className="w-4 h-4" />
+                        {getFileIcon(file.type)}
                       </span>
                       <span className="whitespace-nowrap overflow-hidden text-ellipsis text-sm">{file.name}</span>
                     </Link>
@@ -416,6 +468,8 @@ export function BookingDetailsClient({ booking,setBooking }: BookingDetailsClien
                   <Link
                       href={booking.selfieUrl}
                       className="flex w-fit cursor-pointer max-w-[200px] max-h-[40px] my-1 items-center gap-2 bg-gray-200 dark:bg-muted p-2 rounded-md"
+                      target="_blank"
+                      rel="noopener noreferrer"
                     >
                       <span className="min-w-4">
                         <ImageIcon className="w-4 h-4" />
@@ -429,17 +483,33 @@ export function BookingDetailsClient({ booking,setBooking }: BookingDetailsClien
                 <p className="text-sm text-blue-500">Notes if any</p>
                 <span className="text-sm">{booking.notes}</span>
               </div>}
-              {booking.carPhotoUrl &&<div>
-                <p className="text-sm text-blue-500">Photos Before pick-up</p>
-                  <Link
-                      href={booking.carPhotoUrl}
+              
+              {booking.carImages && booking.carImages.length >0 && <div>
+                <div className="flex gap-1 items-center">
+                  <p className="text-sm text-blue-500">Photos Before pick-up</p>
+                  {isEditable && <Button className="cursor-pointer bg-gray-200 dark:bg-muted dark:text-white text-black hover:bg-gray-300 dark:hover:bg-secondary hover:bg-opacity-30" onClick={() => {
+                    setAction("delete the documents of");
+                    setIsDialogOpen(true);
+                  }}>
+                    <Trash2 className="h-4 w-4" />
+                  </Button>}
+                </div>
+                <div className="mt-2 text-sm">
+                  {booking.carImages.map((file, index) => (
+                    <Link
+                      href={file.url}
+                      key={index}
                       className="flex w-fit cursor-pointer max-w-[200px] max-h-[40px] my-1 items-center gap-2 bg-gray-200 dark:bg-muted p-2 rounded-md"
+                      target="_blank"
+                      rel="noopener noreferrer"
                     >
                       <span className="min-w-4">
-                        <ImageIcon className="w-4 h-4" />
+                      <ImageIcon className="w-4 h-4" />
                       </span>
-                      <span className="whitespace-nowrap overflow-hidden text-ellipsis text-sm">Car Image</span>
+                      <span className="whitespace-nowrap overflow-hidden text-ellipsis text-sm">{file.name}</span>
                     </Link>
+                  ))}
+                </div>
               </div>}
               
             </div>

@@ -53,7 +53,9 @@ export function BottomNav() {
           <Link href="/profile" className={`flex flex-col items-center ${selectedTab=="profile" ? "text-[#27272A] dark:text-primary" : "text-white"} hover:text-[#27272A] dark:hover:text-primary`}>
             <div className="max-h-6 max-w-6">
               {imageUrl ? 
-                <Image src={imageUrl || "/placeholder.svg"} alt="Profile" width={24} height={24} className="max-h-6 max-w-6 object-cover rounded-full" />
+                <div className={`h-fit w-fit ${selectedTab=="profile" ? " border-[#27272A] dark:border-primary" : "border-transparent"} border-2 hover:border-[#27272A] rounded-full dark:hover:border-primary`} >
+                  <Image src={imageUrl || "/placeholder.svg"} alt="Profile" width={24} height={24} className="max-h-6 max-w-6 object-cover rounded-full" />
+                </div>
                 :
                 <UserIcon className={`h-6 w-6 ${selectedTab=="profile" ? "fill-[#27272A] stroke-[#27272A] dark:fill-primary dark:stroke-primary" : "fill-white stroke-white"} stroke-[18px] hover:fill-[#27272A] hover:stroke-[#27272A] dark:hover:fill-primary dark:hover:stroke-primary`} />
               }

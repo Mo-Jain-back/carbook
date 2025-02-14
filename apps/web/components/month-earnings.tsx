@@ -15,7 +15,7 @@ interface Earning {
 }
 
 const MonthEarnings = () => {
-    const [flag,setFlag] = useState(true);
+    const [flag,setFlag] = useState(false);
     const router = useRouter();
     const [earnings,setEarnings] = useState<Earning[]>([]);
     
@@ -27,12 +27,11 @@ const MonthEarnings = () => {
                 authorization: `Bearer ` + localStorage.getItem('token')
                 }
               })
-            if(!res.data.earnings || res.data.earnings.length === 0){
-              setFlag(false);
-              return;
+            if(res.data.earnings){
+              setFlag(true);
+              setEarnings(res.data.earnings);
             }
           
-            setEarnings(res.data.earnings);
           }
           catch (error) {
             console.log(error);

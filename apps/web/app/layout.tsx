@@ -55,7 +55,6 @@ export default function RootLayout({
     <html lang="en">
         <body className={`${inter.className} ${teratur.variable} ${alcova.variable} ${xova.variable} ${equinox.variable} ${alma.variable} antialiased`}>
           <Providers>
-            <SplashScreen/>
             <Initiate/>
             <NavBar/>
             {children}

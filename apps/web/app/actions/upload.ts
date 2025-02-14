@@ -13,16 +13,36 @@ oauth2Client.setCredentials({ refresh_token: REFRESH_TOKEN });
 
 const drive = google.drive({ version: "v3", auth: oauth2Client });
 
+
 // 🚀 **Single File Upload**
-export async function uploadToDrive(file: File) {
+export async function uploadToDrive(file: File,type:"name"|"id",folder:string ) {
   try {
     const buffer = Buffer.from(await file.arrayBuffer());
+   
+    let newFolderId = FOLDER_ID;
+    if(type === "name"){
+        const folderMetadata = {
+            name: folder,
+            mimeType: "application/vnd.google-apps.folder",
+            parents: [FOLDER_ID],
+        };
+        const newFolderResponse = await drive.files.create({
+            requestBody: folderMetadata,
+            fields: "id",
+          });
+
+        if (!newFolderResponse.data.id) throw new Error("Failed to create folder");
+
+        newFolderId = newFolderResponse.data.id;
+    }else{
+        newFolderId = folder;
+    }
 
     const fileMetadata = {
-      name: file.name,
-      parents: [FOLDER_ID],
+        name: file.name,
+        parents: [newFolderId],
     };
-
+    
     const media = {
       mimeType: file.type,
       body: BufferToStream(buffer),
@@ -40,7 +60,12 @@ export async function uploadToDrive(file: File) {
       requestBody: { role: "reader", type: "anyone" },
     });
 
-    return { url: `https://drive.google.com/uc?id=${response.data.id}` };
+    return { 
+        url: `https://drive.google.com/uc?id=${response.data.id}` ,
+        name:file.name,
+        type:file.type,
+        folderId:newFolderId
+        };
   } catch (error) {
     console.error("Upload Error:", error);
     return { error: (error as Error).message };
@@ -48,11 +73,11 @@ export async function uploadToDrive(file: File) {
 }
 
 // 🚀 **Multiple Files Upload**
-export async function uploadMultipleToDrive(files: File[]) {
+export async function uploadMultipleToDrive(files: File[],folderId:string) {
   const uploadedFiles = [];
 
   for (const file of files) {
-    const result = await uploadToDrive(file);
+    const result = await uploadToDrive(file,"id",folderId);
     if (result.error) {
       return { error: result.error };
     }

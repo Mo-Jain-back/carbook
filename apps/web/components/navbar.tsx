@@ -69,7 +69,9 @@ export function NavBar() {
         <div className={`flex flex-col items-center px-2 hover:text-blue-700 max-sm:hidden ${selectedTab == "profile" ? "text-blue-700 border-b-blue-700": ""} border-transparent transition-all border duration-300 border-y-4 p-2 cursor-pointer font-bold`} 
           onClick={() => router.push('/profile')}>
             {imageUrl ? 
-              <Image src={imageUrl || "/placeholder.svg"} alt="Profile" width={32} height={32} className="max-h-8 min-w-8 object-cover rounded-full" />
+                <div className={`h-fit w-fit ${selectedTab=="profile" ? " border-primary" : "border-transparent"} border-2  rounded-full hover:border-primary`} >
+                  <Image src={imageUrl || "/placeholder.svg"} alt="Profile" width={32} height={32} className="max-h-8 min-w-8 object-cover rounded-full" />
+                </div>
               : 
             <UserIcon className={`h-8 w-8 dark:fill-white dark:stroke-white fill-gray-700 stroke-gray-700 stroke-[20px] `} />
           }

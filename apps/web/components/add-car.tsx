@@ -14,6 +14,7 @@ import axios from "axios"
 import {  useCarStore } from "@/lib/store"
 import { toast } from "sonner"
 import Image from "next/image"
+import { uploadToDrive } from "@/app/actions/upload"
 
 interface AddCarDialogProps {
   isOpen:boolean;
@@ -62,24 +63,14 @@ export function AddCarDialog({isOpen,setIsOpen}:AddCarDialogProps) {
 
     if (!imageFile) return;
     setIsLoading(true);
-    const formData = new FormData();
-    formData.append("file", imageFile);
+    
 
     try {
-        const resImage = await axios.post(`${BASE_URL}/api/v1/upload`,formData, {
-          headers: {
-            "Content-type": "multipart/form-data",
-            authorization: `Bearer ` + localStorage.getItem('token')
-            }
-          })
-          
-
-          // if (!resImage.data.url) {
-          //     const errorData = await resImage.data.error // Log the response text if error occurs
-          //     console.error("Upload failed:", errorData);
-          //     return;
-          // }
-          
+        const currentDate = new Date();
+        const unixTimestamp = Math.floor(currentDate.getTime() / 1000);
+        const resImage = await uploadToDrive(imageFile,"name",carBrand + " " + carModel + " car_img" + unixTimestamp); 
+        
+        console.log("response Image",resImage);
         
         const body = {
           brand: carBrand,
@@ -88,7 +79,8 @@ export function AddCarDialog({isOpen,setIsOpen}:AddCarDialogProps) {
           color: color,
           price: price,
           mileage: mileage,
-          imageUrl: resImage.data.url ? resImage.data.url : "",
+          imageUrl: resImage.url ? resImage.url : "",
+          carFolderId:resImage.folderId
         }
         const res = await axios.post(`${BASE_URL}/api/v1/car`,body, {
           headers: {
@@ -132,7 +124,7 @@ export function AddCarDialog({isOpen,setIsOpen}:AddCarDialogProps) {
         return
       }
 
-      const maxSize = 5 * 1024 * 1024 // 5MB
+      const maxSize = 6 * 1024 * 1024 // 5MB
       if (file.size > maxSize) {
         setErrors(prev => ({ ...prev, imageFile: "File size should not exceed 5MB" }));
         setSelectedImage(null)
@@ -269,7 +261,7 @@ export function AddCarDialog({isOpen,setIsOpen}:AddCarDialogProps) {
                             </Label>
                             <Input type="number" id="price" placeholder="0"
                                 className="w-1/3 border-black max-sm:text-xs dark:border-gray-700 placeholder:text-gray-700 dark:placeholder:text-gray-400  focus:border-blue-400 focus-visible:ring-blue-400 [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none" 
-                                value={price} 
+                                value={price || 0} 
                                 onChange={(e) => {
                                   setPrice(parseInt(e.target.value));
                                   setErrors(prev => ({ ...prev, price: "" }));
@@ -316,11 +308,15 @@ export function AddCarDialog({isOpen,setIsOpen}:AddCarDialogProps) {
                     </div>
                 </div>
                 <div>
-                <Button type="submit" className="bg-blue-600 dark:text-white hover:bg-opacity-80 w-full">
-                    {isLoading &&
+                <Button type="submit" className={`bg-blue-600 dark:text-white hover:bg-opacity-80 w-full ${isLoading && "cursor-not-allowed opacity-50"}`}>
+                    {isLoading ?
+                      <>
                       <Loader2 className="h-7 w-7 stroke-[3px] animate-spin text-white-500" />
+                      <span>Please wait...</span>
+                      </>
+                    :
+                    <span>Create</span>
                     }
-                    Create
                 </Button>
                 </div>
             </form>
