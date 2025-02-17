@@ -2,7 +2,6 @@ import {  Router } from "express";
 import {  CalendarUpdateSchema } from "../../types";
 import client from "@repo/db/client";
 import { middleware } from "../../middleware";
-import { start } from "node:repl";
 
 export const calendarRouter = Router();
 
@@ -13,7 +12,8 @@ calendarRouter.get("/all",middleware,async (req,res) => {
                 userId: req.userId!
             },
             include:{
-                car:true
+                car:true,
+                customer:true
             }
         })
         const formatedBookings = bookings.map(booking => {
@@ -26,8 +26,8 @@ calendarRouter.get("/all",middleware,async (req,res) => {
                 endTime:booking.endTime,
                 color:booking.car.colorOfBooking,
                 allDay:booking.allDay,
-                customerName:booking.customerName,
-                customerContact:booking.customerContact,
+                customerName:booking.customer.name,
+                customerContact:booking.customer.contact,
                 carId:booking.carId,
                 carName:booking.car.brand + " " + booking.car.model,
             }
@@ -53,7 +53,7 @@ calendarRouter.put("/:id", middleware, async (req, res) => {
     try {
         const booking = await client.booking.findFirst({
             where: {
-                id: parseInt(req.params.id),
+                id: req.params.id,
                 userId: req.userId!
             },
             include: {
@@ -77,7 +77,7 @@ calendarRouter.put("/:id", middleware, async (req, res) => {
         await client.booking.update({
             data: updateData,
             where: {
-                id: parseInt(req.params.id),
+                id: req.params.id,
             },
         });
 
@@ -95,7 +95,7 @@ calendarRouter.delete("/:id",middleware,async (req,res) => {
     try {
         const booking = await client.booking.findFirst({
             where: {
-                id: parseInt(req.params.id),
+                id: req.params.id,
                 userId: req.userId!
             },
             include:{
@@ -108,9 +108,15 @@ calendarRouter.delete("/:id",middleware,async (req,res) => {
             return
         }
 
+        await client.carImages.deleteMany({
+            where:{
+                bookingId:req.params.id
+            }
+        })
+
         await client.booking.delete({
             where: {
-                id: parseInt(req.params.id)
+                id: req.params.id
             }
         })
 

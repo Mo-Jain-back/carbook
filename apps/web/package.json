@@ -21,6 +21,7 @@
     "@radix-ui/react-scroll-area": "^1.2.2",
     "@radix-ui/react-select": "^2.1.4",
     "@radix-ui/react-slot": "^1.1.1",
+    "@radix-ui/react-toast": "^1.2.6",
     "@syncfusion/ej2-base": "^28.1.33",
     "@syncfusion/ej2-buttons": "^28.1.39",
     "@syncfusion/ej2-calendars": "^28.1.41",
@@ -54,6 +55,7 @@
     "sonner": "^1.7.4",
     "tailwind-merge": "^2.6.0",
     "tailwindcss-animate": "^1.0.7",
+    "xlsx": "^0.18.5",
     "zustand": "^5.0.3"
   },
   "devDependencies": {

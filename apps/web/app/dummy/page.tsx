@@ -1,73 +1,85 @@
-import Link from "next/link"
-import { Car } from "lucide-react"
-import Calendar from "@/public/calendar.svg"
-import UserIcon from "@/public/user.svg"
+"use client";
 
-export default function Home() {
-  return (
-    <div className="min-h-screen bg-background text-foreground">
-      
-      <main>
-        <section className="bg-card py-20">
-          <div className="container mx-auto px-4">
-            <div className="max-w-3xl mx-auto text-center">
-              <h1 className="text-4xl font-bold mb-4">Effortless Car Rental Scheduling</h1>
-              <p className="text-xl text-muted-foreground mb-8">
-                Manage your car rentals with ease using our intuitive booking scheduler.
-              </p>
-              <Link
-                href="/booking"
-                className="bg-primary text-primary-foreground px-6 py-3 rounded-md font-semibold hover:bg-primary/90 transition duration-300"
-              >
-                Start Booking Now
-              </Link>
-            </div>
-          </div>
-        </section>
+import { Input } from "@/components/ui/input";
+import { Button } from "@/components/ui/button";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import { useState, useRef } from "react";
+import { User, UserPlus } from "lucide-react";
 
-        <section className="py-20 bg-muted">
-          <div className="container mx-auto px-4">
-            <h2 className="text-3xl font-bold text-center mb-12">Key Features</h2>
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-              <div className="bg-card p-6 rounded-lg shadow-md">
-                <Car className="w-12 h-12 text-primary mb-4" />
-                <h3 className="text-xl font-semibold mb-2">Easy Booking</h3>
-                <p className="text-muted-foreground">Book your desired car with just a few clicks.</p>
-              </div>
-              <div className="bg-card p-6 rounded-lg shadow-md">
-                <Calendar className="w-12 h-12 stroke-primary fill-primary mb-4 mb-4" />
-                <h3 className="text-xl font-semibold mb-2">Calendar View</h3>
-                <p className="text-muted-foreground">Visualize all bookings in an intuitive calendar interface.</p>
-              </div>
-              <div className="bg-card p-6 rounded-lg shadow-md">
-                <UserIcon className="w-12 h-12 stroke-[12px] stroke-primary fill-primary mb-4" />
-                <h3 className="text-xl font-semibold mb-2">User Profiles</h3>
-                <p className="text-muted-foreground">Manage your account and booking history with ease.</p>
-              </div>
-            </div>
-          </div>
-        </section>
+// Sample customer data - in a real app, this would come from an API or database
+const initialCustomers = [
+  { id: 1, name: "John Doe", contact: "+1 234-567-8901" },
+  { id: 2, name: "Jane Smith", contact: "+1 234-567-8902" },
+  { id: 3, name: "Robert Johnson", contact: "+1 234-567-8903" },
+  { id: 4, name: "Emily Davis", contact: "+1 234-567-8904" },
+  { id: 5, name: "Michael Brown", contact: "+1 234-567-8905" },
+];
 
-        <section className="bg-primary text-primary-foreground py-20">
-          <div className="container mx-auto px-4 text-center">
-            <h2 className="text-3xl font-bold mb-4">Ready to streamline your car rentals?</h2>
-            <p className="text-xl mb-8">Join CarScheduler today and experience hassle-free booking management.</p>
-            <Link
-              href="/booking"
-              className="bg-card text-card-foreground px-6 py-3 rounded-md font-semibold hover:bg-muted transition duration-300"
-            >
-              Get Started
-            </Link>
-          </div>
-        </section>
-      </main>
-
-      <footer className="bg-muted text-muted-foreground py-8">
-        <div className="container mx-auto px-4 text-center">
-          <p>&copy; 2025 CarScheduler. All rights reserved.</p>
-        </div>
-      </footer>
-    </div>
-  )
+interface Customer {
+  id: number;
+  name: string;
+  contact: string;
 }
 
+export default function Home({customers,input,setInput}:{
+  customers:Customer[],
+  input:string,
+  setInput:React.Dispatch<React.SetStateAction<string>>
+}) {
+  const [isfocused,setIsFocused] = useState(false);
+
+  const filteredCustomers = customers.filter((customer) =>
+    customer.name.toLowerCase().includes(input.toLowerCase())
+  );
+
+  return (
+    <div className="min-h-screen bg-background p-8">
+        <h1 className="text-2xl font-bold text-foreground">Customer Search</h1>
+      <div className="max-w-md mx-auto space-y-4 relative">
+            <div className=" w-full">
+              <Input
+                placeholder="Search or add new customer..."
+                value={input}
+                onChange={(e) => {
+                  setInput(e.target.value);
+                }}
+                onFocus={() => setIsFocused(true)}
+                onBlur={() => setIsFocused(false)}
+                className="w-full"
+              />
+            </div>
+          { isfocused && input.length > 0 &&
+            <div 
+            className="w-[calc(100%-24px)] bg-muted ba p-0 absolute rounded-md scrollbar-hide top-7 left-0" 
+          >
+            {filteredCustomers.length > 0 && (
+              <div className="max-h-[300px] overflow-auto">
+                {filteredCustomers.map((customer) => (
+                  <div
+                    key={customer.id}
+                    className="flex items-start gap-3 p-3 hover:bg-muted cursor-pointer transition-colors"
+                    onClick={() => {
+                      setInput(customer.name);
+                    }}
+                    onMouseDown={(e) => e.preventDefault()}
+                  >
+                    <div className="flex-shrink-0 mt-1">
+                      <User className="h-5 w-5 text-muted-foreground" />
+                    </div>
+                    <div>
+                      <div className="font-medium text-sm">{customer.name}</div>
+                      <div className="text-sm text-muted-foreground">
+                        {customer.contact}
+                      </div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
+          }
+
+      </div>
+    </div>
+  );
+}

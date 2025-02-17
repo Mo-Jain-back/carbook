@@ -5,9 +5,11 @@ import Booking from "@/public/online-booking.svg"
 import axios from "axios";
 import { BASE_URL } from "@/lib/config";
 import { useRouter } from "next/navigation";
+import { calculateCost } from "./add-booking";
+import { toast } from "@/hooks/use-toast";
 
 export interface Booking{
-    id: number;
+    id: string;
     carId: number;
     carImageUrl: string;
     carName: string;
@@ -45,7 +47,7 @@ const TakeAction = () => {
               })
             let tempBookings:Booking[] = [];
             const currDate = new Date();
-            currDate.setMinutes(currDate.getMinutes() + 30);
+            currDate.setMinutes(currDate.getMinutes() + 120);
             res1.data.bookings.forEach((booking:Booking) => {
                 let startDateTime = new Date(booking.start);
                 let endDateTime = new Date(booking.end);
@@ -59,7 +61,7 @@ const TakeAction = () => {
                 tempBookings.push({...booking, action:"Start"});
               }
               else if(booking.status === "Ongoing" && endDateTime <= currDate){
-                tempBookings.push({...booking, action:"Stop"});
+                tempBookings.push({...booking, action:"End"});
               }
             })
             setBookings(tempBookings);
@@ -71,6 +73,46 @@ const TakeAction = () => {
         }
         fetchData();
       },[])
+
+      const handleBookingStop = async (id:string) => {
+        let booking = bookings.find(booking => booking.id === id);
+        if(!booking) return;
+        let currDate = new Date();
+      
+        // Format back to HH:MM
+        let newHours = currDate.getHours().toString().padStart(2, "0");
+        let newMinutes = currDate.getMinutes().toString().padStart(2, "0");
+        try {
+          const newEndDate = new Date();
+          const newEndTime = `${newHours}:${newMinutes}`;
+          await axios.put(`${BASE_URL}/api/v1/booking/${booking.id}/end`, {
+            endDate: newEndDate.toLocaleDateString('en-US'),
+            endTime:newEndTime,
+          },{
+            headers: {
+              "Content-type": "application/json",
+              authorization: `Bearer ` + localStorage.getItem('token')
+            }
+          });
+         
+          setBookings(prev => prev.filter(booking => booking.id !== id));
+          toast({
+            title: `Booking ended`,
+            description: `Booking Successfully ended`,
+            className: "text-black bg-white border-0 rounded-md shadow-mg shadow-black/5 font-normal",
+          });
+          router.push('/bookings');
+        }
+        catch(error){ 
+          console.log(error);
+          toast({
+            title: `Error`,
+            description: `Booking failed to end`,
+            className: "text-black bg-white border-0 rounded-md shadow-mg shadow-black/5 font-normal",
+            variant: "destructive",
+          });
+        }
+      }
   return (
         <div className="w-full z-0 relative p-1 rounded-xl shadow-md bg-gray-200 dark:bg-[#161717] z-0 flex flex-col" >
             <div className="px-4 py-3 border-b border-gray-300 dark:border-border">
@@ -110,9 +152,15 @@ const TakeAction = () => {
                                 </div>
                             </div>
                         </div>
+                        {booking.action === "Start" ?
                         <div 
                         onClick={() => router.push(`/booking/${booking.action.toLowerCase()}/form/${booking.id}`)}
-                        className="rounded-full text-sm cursor-pointer bg-red-400 hover:bg-opacity-80 text-white py-1 px-2 sm:px-3">{booking.action}</div>
+                        className="rounded-full text-sm cursor-pointer bg-red-400 hover:bg-opacity-80 text-white py-1 px-2 sm:px-3">Start</div>
+                        :
+                        <div 
+                        onClick={() => handleBookingStop(booking.id)}
+                        className="rounded-full text-sm cursor-pointer bg-green-400 hover:bg-opacity-80 text-white py-1 px-2 sm:px-3">End</div>
+                        }
                     </div>
                 ))}
                 </div>

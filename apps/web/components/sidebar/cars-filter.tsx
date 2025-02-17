@@ -10,6 +10,7 @@ import { CalendarEventType, Car, useCarStore, useEventStore } from "@/lib/store"
 import axios from "axios";
 import { BASE_URL } from "@/lib/config";
 import dayjs from "dayjs";
+import { toast } from "@/hooks/use-toast";
 
 
 export default function CarsFilters() {
@@ -75,10 +76,21 @@ export default function CarsFilters() {
           return car;
         }
       }));
+      toast({
+        title: `Color updated`,
+        description: `Car color Successfully updated`,
+        className: "text-black bg-white border-0 rounded-md shadow-mg shadow-black/5 font-normal",
+      });
       setIsOpen(false);
     }
     catch(error){
       console.log(error);
+      toast({
+        title: `Error`,
+        description: `Car color failed to update`,
+        className: "text-black bg-white border-0 rounded-md shadow-mg shadow-black/5 font-normal",
+        variant: "destructive",
+      });
     }
    
   }

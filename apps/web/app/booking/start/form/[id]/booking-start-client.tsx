@@ -8,12 +8,11 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Textarea } from "@/components/ui/textarea"
 import { Checkbox } from "@/components/ui/checkbox"
 import { cn } from "@/lib/utils"
-import { Image, ImageIcon, Loader2 } from "lucide-react"
-import { useParams } from "next/navigation"
+import { ImageIcon } from "lucide-react"
 import { useRouter } from "next/navigation"
 import axios from "axios"
 import { BASE_URL } from "@/lib/config"
-import { toast } from "sonner"
+import { toast } from "@/hooks/use-toast";
 import { useCarStore } from "@/lib/store"
 import { DatePicker } from "@/components/ui/datepicker"
 import AddTime from "@/components/add-time"
@@ -28,7 +27,7 @@ interface FormErrors {
 }
 
 export interface Booking {
-    id: number;
+    id: string;
     start: string;
     end: string;
     startTime: string;
@@ -117,15 +116,16 @@ export default function BookingStartClient({booking,bookingId} : {
     const handleFileUpload = (event: React.ChangeEvent<HTMLInputElement>, type: string) => {
       const files = event.target.files
       if (files) {
+        const length = uploadedFiles[type].length + files.length;
         if(type === "selfie"){
-          if(files.length > 1){
+          if(length > 1){
             setErrors(prev => ({ ...prev, [type]: "Please upload only one image" }));
             setUploadedFiles(prev => ({ ...prev, [type]: [] }));
             return;
           }
         }
         else{
-          if(files.length > 5){
+          if(length > 5){
             setErrors(prev => ({ ...prev, [type]: "You can upload upto 5 documents or images" }));
             setUploadedFiles(prev => ({ ...prev, [type]: [] }));
             return;
@@ -170,48 +170,67 @@ export default function BookingStartClient({booking,bookingId} : {
       event.preventDefault()
       
       if (!validateForm()) {
-        toast.error("Please fill all mandatory fields");
+        toast({
+          title: `Error`,
+          description: `Please fill all mandatory fields`,
+          className: "text-black bg-white border-0 rounded-md shadow-mg shadow-black/5 font-normal",
+          variant: "destructive",
+        });
         return;
       }
       setIsLoading(true);
       try {
       
         if(uploadedFiles.documents.length == 0) {
-          toast.error("Please upload at least one document");
           setErrors(prev => ({ ...prev, ["documents"]: "Please upload at least one document" }));
           return;
         }
 
         if(uploadedFiles.selfie.length == 0) {
-          toast.error("Please upload at least one document");
-          setErrors(prev => ({ ...prev, ["selfie"]: "Please upload at least one document" }));
+          setErrors(prev => ({ ...prev, ["selfie"]: "Please upload at least one selfie photo" }));
           return;
         }
 
         if(uploadedFiles.photos.length == 0) {
-          toast.error("Please upload at least one document");
-          setErrors(prev => ({ ...prev, ["photos"]: "Please upload at least one document" }));
+          setErrors(prev => ({ ...prev, ["photos"]: "Please upload at least one car photo" }));
           return;
         }
-        
         
         const resSelfie = await uploadToDrive(uploadedFiles.selfie[0],"name",booking.customerName + "_" + booking.carName);
         
         if(resSelfie.error || !resSelfie.folderId){
+          toast({
+            title: `Error`,
+            description: `Failed to upload selfie photo`,
+            className: "text-black bg-white border-0 rounded-md shadow-mg shadow-black/5 font-normal",
+            variant: "destructive",
+          });
           throw new Error("Failed to upload selfie photo");
           return;
         }
 
-        const resPhoto = await uploadMultipleToDrive(uploadedFiles.photos,resSelfie.folderId);
+        const resPhoto = await uploadMultipleToDrive(uploadedFiles.photos,"id",resSelfie.folderId);
         
         if(resPhoto.error){
+          toast({
+            title: `Error`,
+            description: `Failed to upload car photo`,
+            className: "text-black bg-white border-0 rounded-md shadow-mg shadow-black/5 font-normal",
+            variant: "destructive",
+          });
           throw new Error("Failed to upload car photo");
           return;
         }
 
-        const resDoc = await uploadMultipleToDrive(uploadedFiles.documents,resSelfie.folderId);
+        const resDoc = await uploadMultipleToDrive(uploadedFiles.documents,"id",resSelfie.folderId);
 
         if(resDoc.error){
+          toast({
+            title: `Error`,
+            description: `Failed to upload aadhar card and driving license`,
+            className: "text-black bg-white border-0 rounded-md shadow-mg shadow-black/5 font-normal",
+            variant: "destructive",
+          });
           throw new Error("Failed to upload aadhar card and driving license");
           return;
         }
@@ -219,7 +238,7 @@ export default function BookingStartClient({booking,bookingId} : {
         console.log("documents", resDoc.uploadedFiles);  
         await axios.put(`${BASE_URL}/api/v1/booking/${bookingId}/start`, {
           customerName,
-          phoneNumber,
+          customerContact:phoneNumber,
           selectedCar,
           startDate:startDate.toLocaleDateString('en-US'),
           startTime,
@@ -227,7 +246,7 @@ export default function BookingStartClient({booking,bookingId} : {
           returnTime,
           securityDeposit,
           odometerReading:odometerReading.toString(),
-          address,
+          customerAddress:address,
           bookingAmountReceived,
           dailyRentalPrice,
           totalAmount,
@@ -243,11 +262,21 @@ export default function BookingStartClient({booking,bookingId} : {
           }
         });
         setIsLoading(false);
+        toast({
+          title: `Booking started`,
+          description: `Booking Successfully started`,
+          className: "text-black bg-white border-0 rounded-md shadow-mg shadow-black/5 font-normal",
+        });
         router.push("/bookings");
         router.refresh();
       } catch(error) {
         console.log(error);
-        toast.error("Failed to submit form");
+        toast({
+          title: `Error`,
+          description: `Failed to submit form`,
+          className: "text-black bg-white border-0 rounded-md shadow-mg shadow-black/5 font-normal",
+          variant: "destructive",
+        });
         setIsLoading(false);
       }
     }
@@ -577,11 +606,16 @@ export default function BookingStartClient({booking,bookingId} : {
           {errors.terms && <p className="text-red-500 text-sm mt-1">{errors.terms}</p>}
 
           <div className="flex items-center space-x-2">
-            <Button type="submit" className={`bg-blue-600 dark:text-white hover:bg-opacity-80 w-full ${isLoading && "cursor-not-allowed opacity-50"}`}>
+            <Button type="submit" className={`bg-blue-600 text-white hover:bg-opacity-80 w-full ${isLoading && "cursor-not-allowed opacity-50"}`}>
                   {isLoading ?
                     <>
-                    <Loader2 className="h-7 w-7 stroke-[3px] animate-spin text-white-500" />
-                    <span>Please wait...</span>
+                    <span>Please wait</span>
+                    <div className="flex items-end py-1 h-full">
+                        <span className="sr-only">Loading...</span>
+                        <div className="h-1 w-1 bg-white mx-[2px] border-border rounded-full animate-bounce [animation-delay:-0.3s]"></div>
+                        <div className="h-1 w-1 bg-white mx-[2px] border-border rounded-full animate-bounce [animation-delay:-0.15s]"></div>
+                        <div className="h-1 w-1 bg-white mx-[2px] border-border rounded-full animate-bounce"></div>
+                      </div>
                     </>
                   :
                   <span>Create</span>

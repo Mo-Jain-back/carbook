@@ -7,6 +7,7 @@ import { useRouter } from "next/navigation";
 import CarFrontIcon from "@/public/car-front.svg";
 import UserIcon from "@/public/user.svg"
 import { useUserStore } from "@/lib/store"
+import { Users } from "lucide-react";
 
 // This would typically come from your auth system
 
@@ -60,23 +61,33 @@ export default function Profile() {
           <Card className="overflow-hidden bg-muted dark:border-gray-700 hover:shadow-md transition-shadow my-2">
             <CardContent className="p-4 text-black dark:text-gray-400">
               <div 
-                className="flex items-center justify-between p-2 cursor-pointer dark:hover:bg-gray-700 rounded-md hover:bg-gray-200"
+                className="flex items-center border-border border-b justify-between p-2 cursor-pointer dark:hover:bg-gray-700 hover:bg-gray-200"
                 onClick={() => router.push("/profile/manage-garrage")}>
                 <div className="flex items-center" >
                   <span className="w-8 h-8 mx-2 p-[6px] rounded-full bg-gray-300 dark:bg-gray-900">
-                    <CarFrontIcon  className="w-5 h-4 fill-blue-700 stroke-blue-700 dark:fill-blue-500 dark:stroke-blue-500 stroke-[10px]"/>
+                    <CarFrontIcon  className="w-5 h-4 fill-blue-700 stroke-blue-700 dark:fill-green-500 dark:stroke-green-500 stroke-[10px]"/>
                   </span>
                   <span className="mx-2 max-sm:text-sm">Manage Garrage</span>
                 </div>
                 <div className="border-t-2 border-r-2 rotate-45 sm:mr-4 mr-2 w-2 h-2 border-black dark:border-gray-400"></div>
               </div>
-              <div className="flex items-center justify-between p-2 cursor-pointer dark:hover:bg-gray-700 rounded-md hover:bg-gray-200"
+              <div className="flex items-center border-border border-b justify-between p-2 cursor-pointer dark:hover:bg-gray-700 hover:bg-gray-200"
                     onClick={() => router.push("/profile/edit")}>
                 <div className="flex items-center">
                   <span className="w-8 h-8 mx-2 p-[6px] rounded-full bg-gray-300 dark:bg-gray-900">
-                    <UserIcon  className="w-5 h-5 stroke-[12px] stroke-blue-700 dark:stroke-blue-500 fill-blue-700 dark:fill-green-500 "/>
+                    <UserIcon  className="w-5 h-5 stroke-[12px] stroke-blue-700 dark:stroke-green-500 fill-blue-700 dark:fill-green-500 "/>
                   </span>
                   <span className="mx-2 max-sm:text-sm">Manage Profile</span>
+                </div>
+                <div className="border-t-2 border-r-2 rotate-45 sm:mr-4 mr-2 w-2 h-2 border-black dark:border-gray-400"></div>
+              </div>
+              <div className="flex items-center border-border border-b justify-between p-2 cursor-pointer dark:hover:bg-gray-700 hover:bg-gray-200"
+                    onClick={() => router.push("/profile/manage-customer")}>
+                <div className="flex items-center">
+                  <span className="w-8 h-8 mx-2 p-[6px] rounded-full bg-gray-300 dark:bg-gray-900">
+                    <Users className="w-5 h-5 text-blue-500 dark:text-green-500 "/>
+                  </span>
+                  <span className="mx-2 max-sm:text-sm">Manage Customers</span>
                 </div>
                 <div className="border-t-2 border-r-2 rotate-45 sm:mr-4 mr-2 w-2 h-2 border-black dark:border-gray-400"></div>
               </div>

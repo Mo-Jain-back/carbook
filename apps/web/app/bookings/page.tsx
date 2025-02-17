@@ -15,6 +15,8 @@ import { cn } from "@/lib/utils"
 import { useCarStore } from "@/lib/store"
 import Booking from "@/public/online-booking.svg"
 import LoadingScreen from "@/components/loading-screen"
+import { toast } from "@/hooks/use-toast"
+import ExcelUploader from "@/components/excel-upload"
 
 type BookingStatus = "Upcoming" | "Ongoing" | "Completed" | "Cancelled" | "All"
 
@@ -71,6 +73,7 @@ function getReturnTime(startDate: string,startTime: string) {
 
 function getTimeUntilBooking(startTime: string,status:string) {
   if(status === "Completed") return "Trip has ended";
+  if(status === "Ongoing") return "Trip has started";
   const now = new Date()
   const start = new Date(startTime)
   const diffTime = start.getTime() - now.getTime()
@@ -116,7 +119,7 @@ export function getHeader(status:string,startDate:string,startTime:string,endDat
 
 
 export interface Booking{
-  id: number;
+  id: string;
   carId: number;
   carImageUrl: string;
   carName: string;
@@ -161,6 +164,19 @@ export default function Bookings() {
     fetchData();
   },[])
 
+  const handleAddBooking = () =>{
+    if(cars.length === 0){
+      toast({
+        title: `Error`,
+        description: `Please add cars`,
+        className: "text-black bg-white border-0 rounded-md shadow-mg shadow-black/5 font-normal",
+        variant: "destructive",
+      });
+      return;
+    }
+    setIsAddBookingOpen(true);
+  }
+
   useEffect(() => {
     const newfilteredBookings = bookings.filter(
       (booking) =>
@@ -180,11 +196,11 @@ export default function Bookings() {
           <CarBookingDialog cars={cars} isOpen={isAddBookingOpen} setIsOpen={setIsAddBookingOpen} setBookings={setBookings} />
         }
         {/* Add Booking button */}
-        {filteredBookings.length > 0 && (
+        {bookings.length > 0 && (
         <div className="fixed z-[50] sm:hidden bottom-[70px] right-5 flex items-center justify-start whitespace-nowrap"
             onMouseEnter={() => setIsHovered(true)}
             onMouseLeave={() => setIsHovered(false)}
-            onClick={() => setIsAddBookingOpen(true)}
+            onClick={handleAddBooking}
           >
           <div className={cn("bg-black px-[15px] overflow-hidden  text-blue-100 hover:border hover:border-gray-700  shadow-lg  rounded-xl w-12 h-12 flex items-center shadow-lg transition-all duration-300 hover:w-40",
             cars && cars.length > 0 ? "cursor-pointer" : "cursor-not-allowed"
@@ -201,19 +217,22 @@ export default function Bookings() {
       <main className="container mx-auto px-4 py-8 pb-16 sm:pb-8">
         <div className="flex justify-between items-center mb-6">
           <h1 style={{fontFamily:"var(--font-equinox)"}} className="text-3xl max-sm:text-xl font-black">MY BOOKINGS</h1>
-          <Select value={selectedCar} onValueChange={setSelectedCar} >
-            <SelectTrigger className="w-[180px] hover:bg-gray-200 dark:hover:bg-gray-700">
-              <SelectValue placeholder="Select car"/>
-            </SelectTrigger>
-            <SelectContent className="dark:border-gray-700">
-              <SelectItem value="All" className="hover:bg-blue-100 hover:text-black cursor-pointer">All Cars</SelectItem>
-              {cars && cars.length > 0 && cars.map((car) => (
-                <SelectItem key={car.id} value={car.id.toString()} className="hover:bg-blue-100 cursor-pointer hover:text-black">
-                  {car.brand + " " + car.model}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
+          <div className="flex items-center justify-between max-sm:flex-col gap-1">
+            <ExcelUploader bookings={bookings} setBookings={setBookings}/>
+            <Select value={selectedCar} onValueChange={setSelectedCar} >
+              <SelectTrigger className="w-[180px] max-sm:w-[130px] hover:bg-gray-200 dark:hover:bg-gray-700">
+                <SelectValue placeholder="Select car"/>
+              </SelectTrigger>
+              <SelectContent className="dark:border-gray-700">
+                <SelectItem value="All" className="hover:bg-blue-100 hover:text-black cursor-pointer">All Cars</SelectItem>
+                {cars && cars.length > 0 && cars.map((car) => (
+                  <SelectItem key={car.id} value={car.id.toString()} className="hover:bg-blue-100 cursor-pointer hover:text-black">
+                    {car.brand + " " + car.model}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
         </div>
         <div className=" flex justify-between border-b border-border w-full scrollbar-hide">
           <div className="flex gap-2 mb-6 overflow-x-auto pb-2 scrollbar-hide">
@@ -243,18 +262,18 @@ export default function Bookings() {
           </div>
           {filteredBookings.length > 0 && (
           <Button className="max-sm:hidden bg-blue-600 text-white hover:bg-opacity-10 dark:text-black shadow-lg"
-            onClick={() => setIsAddBookingOpen(true)}>
+            onClick={handleAddBooking}>
             <PlusSquare className="h-12 w-12" />
             <span className="">Add Booking</span> 
           </Button>
           )}
         </div>
 
-        {filteredBookings.length > 0 ? (
-        <div key={filteredBookings.length} className="space-y-4">
+        {bookings.length > 0 ? (
+        <div className="space-y-4">
           {filteredBookings.map((booking) => (
-            <Link href={`/booking/${booking.id}`} key={booking.id}>
-              <Card className="overflow-hidden hover:shadow-md dark:border-card transition-shadow my-2">
+            <Card key={booking.id} className="overflow-hidden hover:shadow-md dark:border-card transition-shadow my-2">
+                <Link href={`/booking/${booking.id}`} >
                 <CardContent className="p-0">
                   {/* Rest of the card content remains the same */}
                   <div className="flex justify-between bg-gray-100   dark:bg-muted sm:pr-12 pr-2 items-center">
@@ -271,7 +290,7 @@ export default function Bookings() {
                     </div>
                     }
                     <div className="flex items-center">
-                      <div style={{backgroundColor:booking.carColor}} className="sm:w-8 z-10 bg-green-200 flex-shrink-0 sm:h-8 w-6 h-6 rounded-md"/>
+                      <div style={{backgroundColor:booking.carColor}} className="sm:w-8 z-0 bg-green-200 flex-shrink-0 sm:h-8 w-6 h-6 rounded-md"/>
                       <div className="p-4 max-sm:p-2">
                         <p className="text-sm max-sm:text-xs text-blue-500">BOOKING ID:</p>
                         <p className=" text-[#5B4B49] max-sm:text-xs text-sm dark:text-gray-400">{booking.id} </p>
@@ -326,12 +345,16 @@ export default function Bookings() {
                     
                   </div>
                 </CardContent>
+                </Link>
               </Card>
-            </Link>
           ))}
+          {filteredBookings.length === 0 && <div className="w-full h-full py-28 gap-2 flex flex-col justify-center items-center">
+            <Booking className={`sm:h-16 h-12 sm:w-16 w-12 stroke-[5px] fill-gray-400 `}/>
+            <p className="text-center text-lg sm:text-2xl text-gray-400 font-bold">No Bookings in this category</p>
+          </div>}
         </div>
         ) : (
-        <>
+        <div key={2}>
           {!isLoading ? <div className="w-full h-full py-28 gap-2 flex flex-col justify-center items-center">
             <Booking className={`sm:h-16 h-12 sm:w-16 w-12 stroke-[5px] fill-gray-400 `}/>
             <p className="text-center text-lg sm:text-2xl text-gray-400 font-bold">Click below to create your first booking</p>
@@ -348,7 +371,7 @@ export default function Bookings() {
             <div className="h-8 w-8 bg-primary border-[2px] border-border rounded-full animate-bounce"></div>
           </div>
           }
-        </>
+        </div>
         )}
       </main>
     </div>

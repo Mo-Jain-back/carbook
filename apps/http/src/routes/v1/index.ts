@@ -7,6 +7,7 @@ import client from "@repo/db/client";
 import { carRouter } from "./car";
 import { bookingRouter } from "./booking";
 import { calendarRouter } from "./calendar";
+import { customerRouter } from "./customer";
 
 export const router = Router();
 
@@ -149,6 +150,7 @@ router.put("/me", middleware,async (req, res) => {
 router.use("/car",carRouter)
 router.use("/booking",bookingRouter)
 router.use("/calendar",calendarRouter)
+router.use("/customer",customerRouter)
 
 
 

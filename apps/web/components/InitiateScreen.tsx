@@ -21,7 +21,7 @@ const InitiateScreen = () => {
 
     return (
         <div className="relative">
-            <div className="fixed top-0 left-0 z-[999999] w-full h-full flex items-center justify-center bg-black bg-opacity-90">
+            <div className="fixed top-0 left-0 z-[999999] w-full h-full flex items-center justify-center bg-black/95 backdrop-blur-sm">
             </div>
         </div>
     )

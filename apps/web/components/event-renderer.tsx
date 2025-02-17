@@ -20,7 +20,6 @@ export function EventRenderer({ date, view, events, hour}: EventRendererProps) {
   const {eventsRow,setEventsRow} = useEventRows();
   const {wrappedEvents,setWrappedEvents} = useWrappedEvent();
   const {cars} = useCarStore();
-  const [eventColor,setEventColor] = useState<string>("");
 
   useEffect(() => {
     Initialize();

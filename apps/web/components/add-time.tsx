@@ -33,7 +33,7 @@ export default function AddTime({
 
   return (
     <div className="relative" >
-      <Popover onOpenChange={(open) => setIsPopoverOpen(open)}>
+      <Popover onOpenChange={(open) => setIsPopoverOpen(open)} >
         <PopoverTrigger asChild >
           <div
             className={cn(
@@ -45,7 +45,7 @@ export default function AddTime({
           </div>
         </PopoverTrigger>
         <PopoverContent
-          className="h-40 w-20 p-0 border-border overflow-y-auto"
+          className="h-40 w-20 z-50 p-0 border-border overflow-y-auto  scrollbar-hide"
           style={{
             pointerEvents: "auto",
             touchAction: "auto",
@@ -53,7 +53,7 @@ export default function AddTime({
           }}
         >
           <div
-            className="p-1 dark:border-muted flex flex-col items-center overflow-x-hidden rounded-md border bg-popover dark:bg-gray-800 text-popover-foreground shadow-md"
+            className="p-1 dark:border-muted flex flex-col items-center scrollbar-hide overflow-x-hidden rounded-md border bg-popover dark:bg-gray-800 text-popover-foreground shadow-md"
             onClick={() => setIsPopoverOpen(false)}
           >
             {generateTimeIntervals().map((time) => (

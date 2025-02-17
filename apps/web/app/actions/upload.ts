@@ -73,11 +73,11 @@ export async function uploadToDrive(file: File,type:"name"|"id",folder:string ) 
 }
 
 // 🚀 **Multiple Files Upload**
-export async function uploadMultipleToDrive(files: File[],folderId:string) {
+export async function uploadMultipleToDrive(files: File[],type:"name"|"id",folder:string) {
   const uploadedFiles = [];
 
   for (const file of files) {
-    const result = await uploadToDrive(file,"id",folderId);
+    const result = await uploadToDrive(file,type,folder);
     if (result.error) {
       return { error: result.error };
     }

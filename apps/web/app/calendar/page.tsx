@@ -1,7 +1,5 @@
 import Header from "@/components/header/Header";
 import MainView from "@/components/MainView";
-import { CalendarEventType } from "@/lib/store";
-import { eventsData } from "./datasource";
 import MappingEvents from "@/components/mapping-events";
 
 

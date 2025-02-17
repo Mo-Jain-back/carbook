@@ -17,6 +17,7 @@ import Booking from "@/public/online-booking.svg"
 import { useCarStore } from "@/lib/store"
 import ActionDialog from "./action-dialog"
 import { uploadToDrive } from "@/app/actions/upload"
+import { toast } from "@/hooks/use-toast"
 
 interface Car {
   id: number;
@@ -56,8 +57,7 @@ export function CarDetailsClient({ carId }: { carId: number }) {
   const [imageUrl, setImageUrl] = useState(car?.imageUrl || "");
   const {cars,setCars} = useCarStore();
   const [earnings,setEarnings] = useState<Earnings>();
-  const [action,setAction] = useState<string>("");
-  const [actionDialogOpen,setActionDialogOpen] = useState(false);
+  const [action,setAction] = useState<"Delete booking" | "Update car" | "Delete car">("Update car");
   const [deleteBookingId,setDeleteBookingId] = useState<number>(0);
   const [imageFile, setImageFile] = useState<File | null>(null);
   const [isLoading, setIsLoading] = useState(false);
@@ -109,11 +109,14 @@ export function CarDetailsClient({ carId }: { carId: number }) {
 
   function handleAction() {
     
-    if(action === "Delete" && deleteBookingId !== 0){
+    if(action === "Delete booking" && deleteBookingId !== 0){
       handleDeleteBooking(deleteBookingId)
     }
-    else if(action === "Update"){
+    else if(action === "Update car"){
       handleEdit();
+    }
+    else if(action === "Delete car"){
+      handleDelete();
     }
     return;
   }
@@ -127,17 +130,26 @@ export function CarDetailsClient({ carId }: { carId: number }) {
         }
       });
       setCars(cars.filter(car => car.id !== car.id));
-      router.back();
+      toast({
+        title: `Car deleted`,
+        description: `Car Successfully deleted`,
+        className: "text-black bg-white border-0 rounded-md shadow-mg shadow-black/5 font-normal",
+      });
+      router.push('/');
     }
     catch(error){
       console.log(error);
+      toast({
+        title: `Error`,
+        description: `Car failed to delete`,
+        className: "text-black bg-white border-0 rounded-md shadow-mg shadow-black/5 font-normal",
+        variant: "destructive",
+      });
     }
   }
 
   const handleEdit = async () => {
-    // Implement edit functionality here
-    console.log("Step 1")
-    console.log("imageFile",imageFile);
+
     setIsLoading(true);
     let imageUrl: string | undefined = undefined;
 
@@ -147,8 +159,6 @@ export function CarDetailsClient({ carId }: { carId: number }) {
       const resImage = await uploadToDrive(imageFile,"id",car.carFolderId);
       imageUrl = resImage.url;
     }
-    console.log("Step 2");
-    console.log("imageUrl",imageUrl);
     
     // Prepare data for update
     const updateData: Record<string, any> = {
@@ -164,15 +174,14 @@ export function CarDetailsClient({ carId }: { carId: number }) {
     else{
       setImageUrl(car.imageUrl || "");
     }
-    console.log("Step 3");
-    console.log("updateData",updateData);
+     
 
-    await axios.put(`${BASE_URL}/api/v1/car/${car.id}`, updateData, {
-      headers: {
-        "Content-type": "application/json",
-        authorization: `Bearer ${localStorage.getItem("token")}`
-      }
-    });
+      await axios.put(`${BASE_URL}/api/v1/car/${car.id}`, updateData, {
+        headers: {
+          "Content-type": "application/json",
+          authorization: `Bearer ${localStorage.getItem("token")}`
+        }
+      });
 
       const carId = car.id;
       setCars(cars.map(car => {
@@ -190,10 +199,21 @@ export function CarDetailsClient({ carId }: { carId: number }) {
         }
       }));
       setIsLoading(false);
+      toast({
+        title: `Car updated`,
+        description: `Car Successfully updated`,
+        className: "text-black bg-white border-0 rounded-md shadow-mg shadow-black/5 font-normal",
+      });
       setIsEditable(false);
     }
     catch(error){ 
       console.log(error);
+      toast({
+        title: `Error`,
+        description: `Car failed to update`,
+        className: "text-black bg-white border-0 rounded-md shadow-mg shadow-black/5 font-normal",
+        variant: "destructive",
+      });
       setIsLoading(false);
     }
   }
@@ -268,10 +288,21 @@ export function CarDetailsClient({ carId }: { carId: number }) {
           bookings: prev.bookings.filter((booking) => booking.id !== bookingId)
         }
       })
+      toast({
+        title: `Booking deleted`,
+        description: `Booking Successfully deleted`,
+        className: "text-black bg-white border-0 rounded-md shadow-mg shadow-black/5 font-normal",
+      });
       console.log(res.data);
     }
     catch(error){
       console.log(error);
+      toast({
+        title: `Error `,
+        description: `Booking failed to delete`,
+        className: "text-black bg-white border-0 rounded-md shadow-mg shadow-black/5 font-normal",
+        variant: "destructive",
+      });
     }
   }
   
@@ -279,7 +310,6 @@ export function CarDetailsClient({ carId }: { carId: number }) {
   
   return (
     <div >
-        <ActionDialog isDialogOpen={actionDialogOpen} setIsDialogOpen={setActionDialogOpen} action={action} handleAction={handleAction}/>
 
       <div className="flex items-center justify-between pb-2 border-b border-gray-300 dark:border-gray-700" >
           <div
@@ -296,7 +326,12 @@ export function CarDetailsClient({ carId }: { carId: number }) {
         <div className="text-center w-5 h-5">
           
         </div>
-        <div className="mr-4 cursor-pointer hover:bg-gray-100 dark:hover:bg-muted p-2 rounded-sm" onClick={() =>  setIsDialogOpen(true)}>
+        <div className="mr-4 cursor-pointer hover:bg-gray-100 dark:hover:bg-muted p-2 rounded-sm" onClick={() =>  
+          {
+            setAction("Delete car");
+            setIsDialogOpen(true)
+          }
+        }>
           <Trash2 className=" h-6 w-6" />
         </div> {/* Spacer for alignment */}
       </div>
@@ -321,7 +356,6 @@ export function CarDetailsClient({ carId }: { carId: number }) {
                 accept="image/*"
                 onChange={handleFileUpload}
                 className="hidden"
-                // className={cn("border-0 cursor-pointer overflow-hidden text-ellipsis border-b-gray-400 rounded-none border-b border-black p-0 focus:border-blue-500 focus:ring-0", "transition-colors duration-200")}
             />
           </button>}
         </div>
@@ -334,12 +368,20 @@ export function CarDetailsClient({ carId }: { carId: number }) {
           :
           <>
             <Button
-              onClick={() => handleEdit()}
+              onClick={() => {
+                setAction("Update car");
+                setIsDialogOpen(true)
+              }}
               className={`mx-3 flex items-center bg-primary text-primary-foreground p-2 rounded-md hover:bg-primary/90 transition-colors ${isLoading && "cursor-not-allowed opacity-50"}`}>
                     {isLoading ?
                       <>
-                      <Loader2 className="h-7 w-7 stroke-[3px] animate-spin text-white-500" />
-                      <span>Please wait...</span>
+                      <span>Please wait</span>  
+                      <div className="flex items-end py-1 h-full">
+                        <span className="sr-only">Loading...</span>
+                        <div className="h-1 w-1 dark:bg-primary-foreground mx-[2px] border-border rounded-full animate-bounce [animation-delay:-0.3s]"></div>
+                        <div className="h-1 w-1 dark:bg-primary-foreground mx-[2px] border-border rounded-full animate-bounce [animation-delay:-0.15s]"></div>
+                        <div className="h-1 w-1 dark:bg-primary-foreground mx-[2px] border-border rounded-full animate-bounce"></div>
+                      </div>
                       </>
                     :
                     <span>Update</span>
@@ -492,8 +534,9 @@ export function CarDetailsClient({ carId }: { carId: number }) {
                               </div>
                             </div>
                             <div className="text-center ml-4" onClick={() => {
-                              setActionDialogOpen(true);
                               setDeleteBookingId(booking.id);
+                              setAction("Delete booking");
+                              setIsDialogOpen(true);
                             }}>
                               <Trash2 className="h-6 w-6 hover:text-red-500" />
                             </div>
@@ -524,12 +567,12 @@ export function CarDetailsClient({ carId }: { carId: number }) {
               <DialogHeader>
                 <DialogTitle>Delete</DialogTitle>
                 <DialogDescription className="text-blue-500">
-                  "Are you sure you want to Delete this car from garrage?" 
+                  "Are you sure you want to {action}?" 
                 </DialogDescription>
               </DialogHeader>
               <DialogFooter>
               <Button className="max-sm:w-full hover:bg-black bg-black hover:bg-opacity-80 text-white  shadow-lg" onClick={() => {
-                  handleDelete();
+                  handleAction();
                   setIsDialogOpen(false)
                 }}>Delete</Button>
               </DialogFooter>

@@ -8,7 +8,7 @@ import { BASE_URL } from "@/lib/config"
 import BookingStartClient from "./booking-start-client"
 
 export interface Booking {
-  id: number;
+  id: string;
   start: string;
   end: string;
   startTime: string;

@@ -3,8 +3,7 @@ import { BottomNav } from "@/components/bottom-nav";
 import { NavBar } from "@/components/navbar"
 import { Inter } from "next/font/google";
 import localFont from "next/font/local";
-import { ThemeProvider } from "@/components/theme-provider"
-import SplashScreen from "@/components/SplashScreen";
+import { Toaster } from "@/components/ui/toaster"
 import Providers from "@/components/provider";
 import Initiate from "@/components/initiate";
 
@@ -59,6 +58,7 @@ export default function RootLayout({
             <NavBar/>
             {children}
             <BottomNav/>
+            <Toaster />
           </Providers>
           </body>
     </html>

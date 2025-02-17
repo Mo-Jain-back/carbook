@@ -49,7 +49,8 @@ export const BookingSchema = z.object({
     customerName: z.string(),
     customerContact: z.string(),
     dailyRentalPrice: z.number(),
-    totalAmount:z.number()
+    totalAmount:z.number(),
+    customerId: z.number().optional(),
 })
 
 export const BookingUpdateSchema = z.object({
@@ -68,6 +69,26 @@ export const BookingUpdateSchema = z.object({
     totalAmount: z.number()
 });
 
+export const MultipleBookingSchema = z.array(z.object({
+    startDate: z.string(),
+    endDate: z.string(),
+    startTime: z.string(),
+    endTime: z.string(),
+    allDay: z.boolean(),
+    status: z.string(),
+    carId: z.number(),
+    securityDeposit: z.string().optional(),
+    dailyRentalPrice: z.number(),
+    advancePayment: z.number().optional(),
+    totalEarnings: z.number().optional(),
+    paymentMethod: z.string().optional(),
+    odometerReading: z.string().optional(),
+    notes: z.string().optional(),
+    customerName: z.string(),
+    customerContact: z.string(),
+    customerAddress: z.string().optional(),
+}));
+
 
 const DocumentSchema = z.object({
     name: z.string(),
@@ -78,30 +99,29 @@ const DocumentSchema = z.object({
 
 
 export  const BookingStartSchema = z.object({
-address: z.string(),
-bookingAmountReceived: z.number(),
-customerName: z.string(),
-dailyRentalPrice: z.number(),
-documents: z.array(DocumentSchema),
-notes: z.string(),
-odometerReading: z.string(),
-paymentMethod: z.string(),
-phoneNumber: z.string(),
-returnDate: z.string(),
-returnTime: z.string(),
-securityDeposit: z.string(),
-selectedCar: z.number(),
-startDate: z.string(),
-startTime: z.string(),
-totalAmount: z.number(),
-selfieUrl: z.string().url(),
-carImages: z.array(DocumentSchema),
+    bookingAmountReceived: z.number(),
+    dailyRentalPrice: z.number(),
+    documents: z.array(DocumentSchema),
+    notes: z.string().optional(),
+    odometerReading: z.string(),
+    paymentMethod: z.string(),
+    returnDate: z.string(),
+    returnTime: z.string(),
+    securityDeposit: z.string(),
+    selectedCar: z.number(),
+    startDate: z.string(),
+    startTime: z.string(),
+    totalAmount: z.number(),
+    selfieUrl: z.string().url(),
+    carImages: z.array(DocumentSchema),
+    customerAddress: z.string(),
+    customerName: z.string(),
+    customerContact: z.string(),
 });
 
 export const BookingEndSchema = z.object({
     endDate: z.string(),
     endTime: z.string(),
-    totalAmount: z.number(),
 })
 
 export const CalendarUpdateSchema = z.object({
@@ -111,6 +131,14 @@ export const CalendarUpdateSchema = z.object({
     endTime: z.string().optional(),
     allDay: z.boolean().optional(),
     customerName: z.string().optional(),
+});
+
+export const CustomerUpdateSchema = z.object({
+    name: z.string(),
+    contact: z.string(),
+    address: z.string(),
+    folderId: z.string().optional(),
+    documents: z.array(DocumentSchema).optional()
 });
 
 declare global {

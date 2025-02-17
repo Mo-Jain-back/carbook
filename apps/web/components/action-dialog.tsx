@@ -10,12 +10,17 @@ const ActionDialog = ({isDialogOpen,setIsDialogOpen,action,handleAction}:
         action:string,
         handleAction:() => void
     }) => {
+
+      //make the first letter as uppercase
+      const heading = action.split(" ")[0];
+      const upperHeading = heading.charAt(0).toUpperCase() + heading.slice(1);
   return (
+
     <div>
         <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
           <DialogContent className="sm:max-w-[425px] bg-muted border-border">
             <DialogHeader>
-              <DialogTitle>{action}</DialogTitle>
+              <DialogTitle>{upperHeading}</DialogTitle>
               <DialogDescription className="text-grey-500">
                 "Are you sure you want to {action} the booking?" 
               </DialogDescription>

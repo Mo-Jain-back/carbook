@@ -1,8 +1,42 @@
 import {  Router } from "express";
-import { BookingEndSchema, BookingSchema, BookingStartSchema, BookingUpdateSchema } from "../../types";
+import { BookingEndSchema, BookingSchema, BookingStartSchema, BookingUpdateSchema, MultipleBookingSchema } from "../../types";
 import client from "@repo/db/client";
 import { middleware } from "../../middleware";
-import { parse } from "node:url";
+
+export function calculateCost(startDate:Date, endDate:Date, startTime:string, endTime:string, pricePer24Hours:number) {
+    let startDateTime = new Date(startDate);
+    let endDateTime = new Date(endDate);
+  
+    let [startHour, startMinute] = startTime.split(':').map(Number);
+    let [endHour, endMinute] = endTime.split(':').map(Number);
+  
+    startDateTime.setHours(startHour, startMinute, 0, 0);
+    endDateTime.setHours(endHour, endMinute, 0, 0);
+  
+    let timeDifference = endDateTime.getTime() - startDateTime.getTime();
+    let hoursDifference = timeDifference / (1000 * 60 * 60);
+    let cost = (hoursDifference / 24) * pricePer24Hours;
+  
+    return Math.floor(cost);
+  }
+
+  const generateBookingId = async () => {
+    // Get the last booking entry
+    const lastBooking = await client.booking.findFirst({
+      orderBy: { id: 'desc' }, // Get the latest booking
+    });
+  
+    let newId;
+    if (!lastBooking) {
+      newId = "JCR010001"; // Start from this if no bookings exist
+    } else {
+      // Extract numeric part from last ID
+      const lastIdNumber = parseInt(lastBooking.id.replace("JCR01", ""), 10);
+      newId = `JCR01${(lastIdNumber + 1).toString().padStart(4, "0")}`;
+    }
+  
+    return newId;
+  };
 
 export const bookingRouter = Router();
 
@@ -13,26 +47,40 @@ bookingRouter.post("/",middleware,async (req,res) => {
         return
     }
     try {
+        let customerId = parsedData.data.customerId;
+
+        if(!customerId || customerId === 0) {
+            const customer = await client.customer.create({
+                data: {
+                    name: parsedData.data.customerName,
+                    contact: parsedData.data.customerContact,
+                }
+            })
+            customerId = customer.id;
+        }
+        
+        const newBookingId = await generateBookingId();
+
         const booking = await client.booking.create({
             data: {
+                id: newBookingId,
                 startDate: parsedData.data.startDate,
                 endDate: parsedData.data.endDate,
                 startTime: parsedData.data.startTime,
                 endTime: parsedData.data.endTime,
                 allDay: parsedData.data.allDay,
                 carId: parsedData.data.carId,
-                customerName: parsedData.data.customerName,
-                customerContact: parsedData.data.customerContact,
                 dailyRentalPrice: parsedData.data.dailyRentalPrice,
                 totalEarnings:parsedData.data.totalAmount,
                 userId: req.userId!,
-                status:"Upcoming"
+                status:"Upcoming",
+                customerId: customerId
             }
         })
         
         res.json({
             message:"Booking created successfully",
-            BookingId:booking.id
+            bookingId:booking.id
         })
     } catch(e) {
         console.error(e);
@@ -48,7 +96,8 @@ bookingRouter.get("/all",middleware,async (req,res) => {
                 userId: req.userId!
             },
             include:{
-                car:true
+                car:true,
+                customer:true
             },
             orderBy: [
                 { startDate: 'asc' }, 
@@ -67,8 +116,8 @@ bookingRouter.get("/all",middleware,async (req,res) => {
                 carName:booking.car.brand + " " + booking.car.model,
                 carPlateNumber:booking.car.plateNumber,
                 carImageUrl:booking.car.imageUrl,
-                customerName:booking.customerName,
-                customerContact:booking.customerContact,
+                customerName:booking.customer.name,
+                customerContact:booking.customer.contact,
                 carColor:booking.car.colorOfBooking
             }
         })
@@ -88,13 +137,17 @@ bookingRouter.get("/:id",middleware,async (req,res) => {
     try {
         const booking = await client.booking.findFirst({
             where: {
-                id: parseInt(req.params.id),
+                id: req.params.id,
                 userId: req.userId!
             },
             include:{
                 car:true,
-                documents:true,
-                carImages:true
+                carImages:true,
+                customer:{
+                    include:{
+                        documents:true
+                    }
+                }
             }
         })
 
@@ -110,8 +163,8 @@ bookingRouter.get("/:id",middleware,async (req,res) => {
             startTime:booking.startTime,
             endTime:booking.endTime,
             status:booking.status,
-            customerName:booking.customerName,
-            customerContact:booking.customerContact,
+            customerName:booking.customer.name,
+            customerContact:booking.customer.contact,
             carId:booking.car.id,
             carName:booking.car.brand + " " + booking.car.model,
             carPlateNumber:booking.car.plateNumber,
@@ -120,14 +173,14 @@ bookingRouter.get("/:id",middleware,async (req,res) => {
             securityDeposit:booking.securityDeposit,
             totalPrice:booking.totalEarnings,
             advancePayment:booking.advancePayment,
-            customerAddress:booking.customerAddress,
+            customerAddress:booking.customer.address,
             paymentMethod:booking.paymentMethod,
             odometerReading:booking.odometerReading,
             notes:booking.notes,
             selfieUrl:booking.selfieUrl,
-            carPhotoUrl:booking.carPhotoUrl,
-            documents:booking.documents,
-            carImages:booking.carImages
+            documents:booking.customer.documents,
+            carImages:booking.carImages,
+            customerId:booking.customerId
         }
 
         // Filter out null values dynamically
@@ -154,11 +207,8 @@ bookingRouter.put("/:id",middleware,async (req,res) => {
     try {
         const booking = await client.booking.findFirst({
             where: {
-                id: parseInt(req.params.id),
+                id: req.params.id,
                 userId: req.userId!
-            },
-            include:{
-                car:true
             }
         })
 
@@ -168,6 +218,7 @@ bookingRouter.put("/:id",middleware,async (req,res) => {
         }
 
         const updateData: Record<string, any> = {};
+        const updateCustomerData: Record<string, any> = {};
 
         if (parsedData.data.startDate !== undefined) updateData.startDate = parsedData.data.startDate;
         if (parsedData.data.endDate !== undefined) updateData.endDate = parsedData.data.endDate;
@@ -175,18 +226,27 @@ bookingRouter.put("/:id",middleware,async (req,res) => {
         if (parsedData.data.endTime !== undefined) updateData.endTime = parsedData.data.endTime;
         if (parsedData.data.allDay !== undefined) updateData.allDay = parsedData.data.allDay;
         if (parsedData.data.carId !== undefined) updateData.carId = parsedData.data.carId;
-        if (parsedData.data.customerName !== undefined) updateData.customerName = parsedData.data.customerName;
-        if (parsedData.data.customerAddress !== undefined) updateData.customerAddress = parsedData.data.customerAddress;
-        if (parsedData.data.customerContact !== undefined) updateData.customerContact = parsedData.data.customerContact;
         if (parsedData.data.securityDeposit !== undefined) updateData.securityDeposit = parsedData.data.securityDeposit;
         if (parsedData.data.dailyRentalPrice !== undefined) updateData.dailyRentalPrice = parsedData.data.dailyRentalPrice;
         if (parsedData.data.paymentMethod !== undefined) updateData.paymentMethod = parsedData.data.paymentMethod;
-        updateData.totalAmount = parsedData.data.totalAmount;
+        updateData.totalEarnings = parsedData.data.totalAmount;
+
+        if (parsedData.data.customerName !== undefined) updateCustomerData.name = parsedData.data.customerName;
+        if (parsedData.data.customerAddress !== undefined) updateCustomerData.address = parsedData.data.customerAddress;
+        if (parsedData.data.customerContact !== undefined) updateCustomerData.contact = parsedData.data.customerContact;
+
+        if (updateCustomerData && booking.customerId) {
+            await client.customer.update({
+                where: { id: booking.customerId },
+                data: updateCustomerData,
+            });
+        }
 
         await client.booking.update({
-            data: updateData,
+            data: updateData
+            ,
             where: {
-                id: parseInt(req.params.id)
+                id: booking.id
             }
         })
 
@@ -211,7 +271,7 @@ bookingRouter.put("/:id/start",middleware,async (req,res) => {
     try {
         const booking = await client.booking.findFirst({
             where: {
-                id: parseInt(req.params.id),
+                id: req.params.id,
                 userId: req.userId!
             }
         })
@@ -221,10 +281,17 @@ bookingRouter.put("/:id/start",middleware,async (req,res) => {
             return
         }
 
+        await client.customer.update({
+            where: { id: booking.customerId },
+            data: {
+                name: parsedData.data.customerName,
+                contact: parsedData.data.customerContact,
+                address: parsedData.data.customerAddress
+            }
+        });
+
         const updatedBooking = await client.booking.update({
                                 data: {
-                                    customerName: parsedData.data.customerName,
-                                    customerContact: parsedData.data.phoneNumber,
                                     carId: parsedData.data.selectedCar,
                                     startDate: parsedData.data.startDate,
                                     startTime: parsedData.data.startTime,
@@ -232,7 +299,6 @@ bookingRouter.put("/:id/start",middleware,async (req,res) => {
                                     endTime: parsedData.data.returnTime,
                                     securityDeposit: parsedData.data.securityDeposit,
                                     odometerReading: parsedData.data.odometerReading,
-                                    customerAddress: parsedData.data.address,
                                     advancePayment: parsedData.data.bookingAmountReceived,
                                     totalEarnings: parsedData.data.totalAmount,
                                     paymentMethod: parsedData.data.paymentMethod,
@@ -242,17 +308,17 @@ bookingRouter.put("/:id/start",middleware,async (req,res) => {
                                     selfieUrl: parsedData.data.selfieUrl,
                                 },
                                 where: {
-                                    id: parseInt(req.params.id)
+                                    id: req.params.id
                                 }   
                             })  
+        
         for (const document of parsedData.data.documents) {
             await client.documents.create({
                 data: {
                     name: document.name,
                     url: document.url,
                     type: document.type,
-                    folderId: document.folderId,
-                    bookingId: booking.id
+                    customerId: booking.customerId
                 }
             })
         }
@@ -262,7 +328,6 @@ bookingRouter.put("/:id/start",middleware,async (req,res) => {
                 data: {
                     name: carImage.name,
                     url: carImage.url,
-                    folderId: carImage.folderId,
                     bookingId: booking.id
                 }
             })
@@ -289,7 +354,7 @@ bookingRouter.put("/:id/end",middleware,async (req,res) => {
     try {
         const booking = await client.booking.findFirst({
             where: {
-                id: parseInt(req.params.id),
+                id: req.params.id,
                 userId: req.userId!
             }
         })
@@ -298,31 +363,36 @@ bookingRouter.put("/:id/end",middleware,async (req,res) => {
             res.status(400).json({message: "Booking not found"})
             return
         }
+        
+        const cost = calculateCost(new Date(booking.startDate),new Date(booking.endDate),booking.startTime,booking.endTime,booking.dailyRentalPrice);
+        console.log("cost",cost );
 
         const updatedBooking =  await client.booking.update({
                                     data: {
-                                        endDate: parsedData.data.endDate,
-                                        endTime: parsedData.data.endTime,
-                                        totalEarnings: parsedData.data.totalAmount,
                                         status: "Completed"
                                     },
                                     where: {
-                                        id: parseInt(req.params.id),
+                                        id: req.params.id,
                                         userId: req.userId!
                                     }
                                 });
         
-        await client.car.update({
-            where:{
-                id: parseInt(req.params.id),
-                userId: req.userId!
-            },
-            data:{
-                totalEarnings:{
-                    increment: parsedData.data.totalAmount || 0,
+                                console.log("booking updated");
+        
+        if(updatedBooking.totalEarnings && updatedBooking.totalEarnings > 0){
+            await client.car.update({
+                where:{
+                    id: updatedBooking.carId,
+                    userId: req.userId!
+                },
+                data:{
+                    totalEarnings:{
+                        increment: updatedBooking.totalEarnings ,
+                    }
                 }
-            }
-        })
+            })
+        }
+    
         
         res.json({
             message:"Booking ended successfully",
@@ -340,7 +410,7 @@ bookingRouter.delete("/:id",middleware,async (req,res) => {
     try {
         const booking = await client.booking.findFirst({
             where: {
-                id: parseInt(req.params.id),
+                id: req.params.id,
                 userId: req.userId!
             },
             include:{
@@ -353,9 +423,15 @@ bookingRouter.delete("/:id",middleware,async (req,res) => {
             return
         }
 
+        await client.carImages.deleteMany({
+            where:{
+                bookingId:req.params.id
+            }
+        })
+
         await client.booking.delete({
             where: {
-                id: parseInt(req.params.id),
+                id: req.params.id,
                 userId: req.userId!
             }
         })
@@ -377,7 +453,7 @@ bookingRouter.delete('/:id/documents/all',middleware, async (req, res) => {
     try {
         await client.documents.deleteMany({
             where:{
-                bookingId:parseInt(id),
+                customerId:parseInt(id),
             }
         })
         res.status(200).json({
@@ -397,7 +473,7 @@ bookingRouter.delete('/:id/car-images/all',middleware, async (req, res) => {
     try {
         await client.carImages.deleteMany({
             where:{
-                bookingId:parseInt(id),
+                bookingId:id,
             }
         })
         res.status(200).json({
@@ -410,4 +486,65 @@ bookingRouter.delete('/:id/car-images/all',middleware, async (req, res) => {
         res.status(400).json({message: "Internal server error"})
         
     }
+})
+
+bookingRouter.post("/multiple",middleware, async (req, res) => {
+    const parsedData = MultipleBookingSchema.safeParse(req.body);
+    if (!parsedData.success) {
+        res.status(400).json({message: "Wrong Input type"})
+        return
+    }
+
+    try{
+        const dataSet = parsedData.data;
+
+        for(const data of dataSet ){
+            let customer = await client.customer.findFirst({
+                where: {
+                    name: data.customerName,
+                    contact: data.customerContact
+                }
+            })
+
+            if(!customer){
+                customer = await client.customer.create({
+                    data: {
+                        name: data.customerName,
+                        contact: data.customerContact,
+                        address: data.customerAddress,
+                    }
+                })
+            }
+
+            const newBookingId = await generateBookingId();
+
+            let booking = await client.booking.create({
+                data: {
+                    id:newBookingId,
+                    startDate: data.startDate,
+                    endDate: data.endDate,
+                    startTime: data.startTime,
+                    endTime: data.endTime,
+                    allDay: data.allDay,
+                    status: data.status,
+                    carId: data.carId,
+                    userId: req.userId!,
+                    securityDeposit: data.securityDeposit,
+                    dailyRentalPrice: data.dailyRentalPrice,
+                    advancePayment: data.advancePayment,
+                    totalEarnings: data.totalEarnings,
+                    paymentMethod: data.paymentMethod,
+                    odometerReading: data.odometerReading,
+                    notes: data.notes,
+                    customerId: customer.id
+                }
+            })
+        }
+        res.status(200).json({message: "Booking created successfully"});
+    }
+    catch(err){
+        console.log(err);
+        res.status(500).json({message: "Internal server error"});
+    }
+
 })

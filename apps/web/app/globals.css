@@ -30,7 +30,6 @@
   }
 
   .dark {
-    --dark-background: 180, 2%, 9%;
     --background: 120, 2%, 11%;
     --foreground: 210 40% 98%;
     --card: 120, 4%, 20%;
@@ -61,6 +60,10 @@
   }
   input:focus-visible{
     @apply outline-none ring-blue-500;
+  }
+
+  body[aria-hidden="true"] {
+    overflow: auto !important;
   }
 
   input:not(:focus),

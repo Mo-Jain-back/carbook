@@ -12,9 +12,11 @@ import Speedometer  from "@/public/performance.svg";
 import { BASE_URL } from "@/lib/config";
 import axios from "axios"
 import {  useCarStore } from "@/lib/store"
-import { toast } from "sonner"
 import Image from "next/image"
-import { uploadToDrive } from "@/app/actions/upload"
+import { uploadToDrive } from "@/app/actions/upload";
+import { toast } from "@/hooks/use-toast";
+import CarNumberPlateInput from "./car-number-input"
+
 
 interface AddCarDialogProps {
   isOpen:boolean;
@@ -57,7 +59,12 @@ export function AddCarDialog({isOpen,setIsOpen}:AddCarDialogProps) {
   const handleSubmit = async (event: React.FormEvent) => {
     event.preventDefault();
     if (!validateForm()) {
-      toast.error("Please fill all mandatory fields");
+      toast({
+        title: `Error`,
+        description: `Please fill all mandatory fields`,
+        className: "text-black bg-white border-0 rounded-md shadow-mg shadow-black/5 font-normal",
+        variant: "destructive",
+      });
       return;
     }
 
@@ -108,9 +115,20 @@ export function AddCarDialog({isOpen,setIsOpen}:AddCarDialogProps) {
         setImageFile(null);
         setIsLoading(false);
         setIsOpen(false);
+        toast({
+          title: `Car added`,
+          description: `Car Successfully added`,
+          className: "text-black bg-white border-0 rounded-md shadow-mg shadow-black/5 font-normal",
+        });
       }
       catch (error) {
         console.log(error);
+        toast({
+          title: `Error`,
+          description: `Failed to submit form`,
+          className: "text-black bg-white border-0 rounded-md shadow-mg shadow-black/5 font-normal",
+          variant: "destructive",
+        });
         setIsLoading(false);
       }
   }
@@ -133,6 +151,7 @@ export function AddCarDialog({isOpen,setIsOpen}:AddCarDialogProps) {
       setImageFile(file);
       const imageUrl = URL.createObjectURL(file);
       setSelectedImage(imageUrl);
+      
     }
     setErrors(prev => ({ ...prev, imageFile: "" }));
   }
@@ -165,7 +184,7 @@ export function AddCarDialog({isOpen,setIsOpen}:AddCarDialogProps) {
                       setCarBrand(e.target.value);
                       setErrors(prev => ({ ...prev, carBrand: "" }));
                     }}
-                    placeholder="Add Car Brand"
+                    placeholder="ADD CAR BRAND"
                     className="my-4 rounded-none placeholder:text-[30px] text-[30px] max-sm:placeholder:text-[24px]  md:text-[30px] file:text-[30px] placeholder:text-gray-700 dark:placeholder:text-gray-400  border-0 border-b focus-visible:border-b-2 border-b-gray-400 focus-visible:border-b-blue-600  focus-visible:ring-0 focus-visible:ring-offset-0 w-full"
                     />
                     {errors.carBrand && <p className="text-red-500 text-sm mt-1">{errors.carBrand}</p>}
@@ -178,7 +197,7 @@ export function AddCarDialog({isOpen,setIsOpen}:AddCarDialogProps) {
                               <Input
                                   type="text"
                                   name="title"
-                                  placeholder="Add Car Model"
+                                  placeholder="ADD CAR MODEL"
                                   value={carModel} 
                                   onChange={(e) => {
                                     setCarModel(e.target.value);
@@ -189,17 +208,10 @@ export function AddCarDialog({isOpen,setIsOpen}:AddCarDialogProps) {
                                 {errors.carModel && <p className="text-red-500 text-sm mt-1">{errors.carModel}</p>}
                             </div>
                             <div>
-                              <Input
-                                  type="text"
-                                  name="title"
-                                  placeholder="Add Car Number"
-                                  value={carNumber} 
-                                  onChange={(e) => {
-                                    setCarNumber(e.target.value);
-                                    setErrors(prev => ({ ...prev, carNumber: "" }));
-                                  }}
-                                  className="my-4 w-full rounded-none placeholder:text-[14px] max-sm:placeholder:text-[12px] max-sm:text-[12px] text-[14px] md:text-[14px] placeholder:text-gray-700 dark:placeholder:text-gray-400  border-0 border-b focus-visible:border-b-2 border-b-gray-400 focus-visible:border-b-blue-600  focus-visible:ring-0 focus-visible:ring-offset-0"
-                                  />
+                            <CarNumberPlateInput value={carNumber} onChange={(value) => {
+                                    setCarNumber(value);
+                                    setErrors(prev => ({ ...prev, carModel: "" }));
+                                  }} />
                                 {errors.carNumber && <p className="text-red-500 text-sm mt-1">{errors.carNumber}</p>}
                             </div>
                             
@@ -311,8 +323,13 @@ export function AddCarDialog({isOpen,setIsOpen}:AddCarDialogProps) {
                 <Button type="submit" className={`bg-blue-600 dark:text-white hover:bg-opacity-80 w-full ${isLoading && "cursor-not-allowed opacity-50"}`}>
                     {isLoading ?
                       <>
-                      <Loader2 className="h-7 w-7 stroke-[3px] animate-spin text-white-500" />
-                      <span>Please wait...</span>
+                      <span>Please wait</span>
+                      <div className="flex items-end py-1 h-full">
+                        <span className="sr-only">Loading...</span>
+                        <div className="h-1 w-1 dark:bg-white mx-[2px] border-border rounded-full animate-bounce [animation-delay:-0.3s]"></div>
+                        <div className="h-1 w-1 dark:bg-white mx-[2px] border-border rounded-full animate-bounce [animation-delay:-0.15s]"></div>
+                        <div className="h-1 w-1 dark:bg-white mx-[2px] border-border rounded-full animate-bounce"></div>
+                      </div>
                       </>
                     :
                     <span>Create</span>

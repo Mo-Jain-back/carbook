@@ -113,7 +113,11 @@ carRouter.get("/:id",middleware,async (req,res) => {
                 userId: req.userId!
             },
             include:{
-                bookings:true   
+                bookings:{
+                    include:{
+                        customer:true
+                    }
+                }  
             }
         })
         if(!car) {
@@ -129,8 +133,8 @@ carRouter.get("/:id",middleware,async (req,res) => {
                     start:booking.startDate,
                     end:booking.endDate,
                     status:booking.status,
-                    customerName:booking.customerName,
-                    customerContact:booking.customerContact,
+                    customerName:booking.customer.name,
+                    customerContact:booking.customer.contact,
                 }
             })
         }

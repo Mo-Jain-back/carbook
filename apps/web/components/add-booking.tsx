@@ -17,15 +17,24 @@ import Rupee from "@/public/rupee-symbol.svg";
 import Booking from "@/public/online-booking.svg";
 import axios from "axios";
 import { BASE_URL } from "@/lib/config";
-import { toast } from "sonner"
-import { Car } from "@/lib/store";
+import { CalendarEventType, Car, useEventStore } from "@/lib/store";
 import { Booking as BookingType } from "@/app/bookings/page";
-import { Loader2 } from "lucide-react";
+import { toast } from "@/hooks/use-toast";
+import CustomerName from "./customer-name";
+import CustomerContact from "./customer-contact";
 
 interface FormErrors {
   [key: string]: string;
 }
 
+interface Customer {
+  id: number;
+  name: string;
+  contact: string;
+  address: string;
+  imageUrl: string;
+  folderId: string;
+}
 
 export function calculateCost(startDate:Date, endDate:Date, startTime:string, endTime:string, pricePer24Hours:number) {
   let startDateTime = new Date(startDate);
@@ -61,6 +70,10 @@ export function CarBookingDialog({isOpen, setIsOpen, cars,setBookings}:
   const [contact,setContact] = useState<string>("");
   const [errors, setErrors] = useState<FormErrors>({});
   const [isLoading,setIsLoading] = useState(false);
+  const [customerId, setCustomerId] = useState<number>();
+  const [customers,setCustomers] = useState<Customer[]>();
+  const {events,setEvents} = useEventStore();
+  
 
   useEffect(() => {
     const cost  = calculateCost(startDate,endDate,startTime,endTime,price);
@@ -74,7 +87,7 @@ export function CarBookingDialog({isOpen, setIsOpen, cars,setBookings}:
       setPrice(currCar.price);
     }
   },[carId])
-
+  
   const validateDate = () => {
     if(startDate < endDate) return true;
 
@@ -105,24 +118,58 @@ export function CarBookingDialog({isOpen, setIsOpen, cars,setBookings}:
   };
 
   
+  useEffect(() => {
+      async function fetchData() {
+        try {
+          const res = await axios.get(`${BASE_URL}/api/v1/customer/all`, {
+            headers: {
+              authorization: `Bearer ` + localStorage.getItem('token')
+            }
+          })
+          setCustomers(res.data.customers);
+        }
+        catch (error) {
+          console.log(error);
+        }
+      }
+      fetchData();
+    },[])
 
   const handleSubmit = async (event: React.FormEvent) => {
     event.preventDefault();
 
     if (!validateForm()) {
-      toast.error("Please fill all mandatory fields");
+      toast({
+        title: `Error`,
+        description: `Please fill all mandatory fields`,
+        className: "text-black bg-white border-0 rounded-md shadow-mg shadow-black/5 font-normal",
+        variant: "destructive",
+      });
       setErrors(prev => ({ ...prev, startDate: "Enter correct start date" }));
       return;
     }
 
     if (!validateDate()) {
-      toast.error("Start date can't be equal or before End date");
+      toast({
+        title: `Error`,
+        description: `Start date can't be equal or before End date`,
+        className: "text-black bg-white border-0 rounded-md shadow-mg shadow-black/5 font-normal",
+        variant: "destructive",
+      });
+      setErrors(prev => ({ ...prev, startDate: "Start date can't be equal or after end date" }));
       return;
     }
 
     setIsLoading(true);
     try {
-
+      if(customers){
+        const customer = customers.find(customer => {
+          return customer.name === name && customer.contact === contact;
+        });
+        if(!customer){
+          setCustomerId(undefined);
+        }
+      }
       const res = await axios.post(`${BASE_URL}/api/v1/booking`,{
         startDate: startDate.toLocaleDateString('en-US'),
         endDate: endDate.toLocaleDateString('en-US'),
@@ -133,7 +180,8 @@ export function CarBookingDialog({isOpen, setIsOpen, cars,setBookings}:
         customerName: name,
         customerContact: contact,
         dailyRentalPrice: price,
-        totalAmount:totalAmount
+        totalAmount:totalAmount,
+        customerId:customerId
       },{
         headers: {
           "Content-type": "application/json",
@@ -141,8 +189,9 @@ export function CarBookingDialog({isOpen, setIsOpen, cars,setBookings}:
           }
       });
       const car = cars.find(car => car.id === carId); 
+
       const newBooking:BookingType = {
-        id:res.data.id,
+        id:res.data.bookingId,
         start: startDate.toLocaleDateString('en-US'),
         end: endDate.toLocaleDateString('en-US'),
         startTime: startTime,
@@ -156,17 +205,43 @@ export function CarBookingDialog({isOpen, setIsOpen, cars,setBookings}:
         carColor:car?.colorOfBooking || '',
         status: "Upcoming",
       }
+      const newEvent:CalendarEventType = {
+        id:res.data.bookingId,
+        startDate: dayjs(startDate.toLocaleDateString('en-US')),
+        endDate: dayjs(endDate.toLocaleDateString('en-US')),
+        startTime: startTime,
+        endTime: endTime,
+        status: "Upcoming",
+        color:car?.colorOfBooking || '',
+        carId,
+        customerName: name,
+        customerContact: contact,
+        carName: car?.brand + ' ' + car?.model,
+        allDay: false
+      }
       setIsOpen(false);
       setBookings((prev:BookingType[]) => {
         return [...prev,newBooking]
       })
+      setEvents([...events,newEvent])
       setIsLoading(false);
       handleClear(event);
+      toast({
+        title: `Booking created`,
+        description: `Booking Successfully created`,
+        className: "text-black bg-white border-0 rounded-md shadow-mg shadow-black/5 font-normal",
+      });
       console.log(res.data);
     }
     catch(error){
       console.log(error);
       setIsLoading(false);
+      toast({
+        title: `Error`,
+        description: `Booking failed to create`,
+        className: "text-black bg-white border-0 rounded-md shadow-mg shadow-black/5 font-normal",
+        variant: "destructive",
+      });
     }
   }
 
@@ -191,7 +266,9 @@ export function CarBookingDialog({isOpen, setIsOpen, cars,setBookings}:
   }
 
   return (
-    <Dialog open={isOpen} onOpenChange={setIsOpen}>
+    <>
+    <div className={`${isOpen? "" : "hidden"} fixed top-0 left-0 h-screen w-screen z-10 bg-black/50 backdrop-blur-sm`}></div>
+    <Dialog open={isOpen} onOpenChange={setIsOpen} modal={false}>
       <DialogContent className="sm:max-w-[425px] dark:border-gray-700 md:max-w-[600px] h-[82vh] sm:top-[55%] sm:h-auto overflow-y-auto">
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2 mt-30 text-blue-700 dark:text-blue-600">
@@ -283,22 +360,28 @@ export function CarBookingDialog({isOpen, setIsOpen, cars,setBookings}:
                 <Label htmlFor="name" className="w-1/3">
                   Customer Name
                 </Label>
-                <Input type="text" id="name" value={name} onChange={(e) => {
+              <CustomerName name={name} contact={contact} onChangeInput={(e) => {
                   setName(e.target.value);
-                  setErrors(prev => ({ ...prev, car: "" }));
-                }} 
-                  className="w-2/3 border-input min-w-[130px] w-full focus:border-blue-400 focus-visible:ring-blue-400 "/>
+                  setErrors(prev => ({ ...prev, name: "" }));
+                }} setCustomerId={setCustomerId} customerId={customerId} setName={setName} setContact={setContact} customers={customers} />
                 {errors.name && <p className="text-red-500 text-sm mt-1">{errors.name}</p>}
               </div>
               <div>
                 <Label htmlFor="name" className="w-1/3">
                   Contact
                 </Label>
-                <Input type="text" id="name" value={contact} onChange={(e) => {
-                  setContact(e.target.value)
-                  setErrors(prev => ({ ...prev, car: "" }));
+                <Input 
+                value={contact}
+                type="number" 
+                id="contact" 
+                maxLength={10}
+                onChange={(e) => {
+                  setContact(e.target.value);
+                  setErrors(prev => ({ ...prev, contact: "" }));
                 }} 
-                  className="w-2/3 border-input min-w-[130px] w-full focus:border-blue-400 focus-visible:ring-blue-400 "/>
+                className="w-2/3 border-input min-w-[130px] w-full focus:border-blue-400 focus-visible:ring-blue-400 "
+                 />
+
                {errors.contact && <p className="text-red-500 text-sm mt-1">{errors.contact}</p>}
               </div>
             </div>
@@ -335,8 +418,13 @@ export function CarBookingDialog({isOpen, setIsOpen, cars,setBookings}:
           <Button type="submit" className={`bg-blue-600 dark:text-white hover:bg-opacity-80 w-full ${isLoading && "cursor-not-allowed opacity-50"}`}>
               {isLoading ?
                 <>
-                <Loader2 className="h-7 w-7 stroke-[3px] animate-spin text-white-500" />
-                <span>Please wait...</span>
+                <span>Please wait</span>
+                <div className="flex items-end py-1 h-full">
+                  <span className="sr-only">Loading...</span>
+                  <div className="h-1 w-1 dark:bg-white mx-[2px] border-border rounded-full animate-bounce [animation-delay:-0.3s]"></div>
+                  <div className="h-1 w-1 dark:bg-white mx-[2px] border-border rounded-full animate-bounce [animation-delay:-0.15s]"></div>
+                  <div className="h-1 w-1 dark:bg-white mx-[2px] border-border rounded-full animate-bounce"></div>
+                </div>
                 </>
               :
               <span>Create</span>
@@ -351,6 +439,7 @@ export function CarBookingDialog({isOpen, setIsOpen, cars,setBookings}:
         </form>
       </DialogContent>
     </Dialog>
+    </>
   )
 }
 

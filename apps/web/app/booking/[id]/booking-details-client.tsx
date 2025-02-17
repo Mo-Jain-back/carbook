@@ -2,7 +2,7 @@ import { Button } from "@/components/ui/button"
 import {  Edit, ImageIcon, MoreVertical, Trash2 } from "lucide-react"
 import Image from "next/image"
 import {  useRouter } from "next/navigation"
-import { useEffect, useState } from "react";
+import { startTransition, useEffect, useState } from "react";
 import { DatePicker } from "@/components/ui/datepicker";
 import dayjs from "dayjs";
 import AddTime from "@/components/add-time";
@@ -20,6 +20,7 @@ import { calculateCost } from "@/components/add-booking";
 import { getHeader } from "@/app/bookings/page";
 import Link from "next/link";
 import { BsFilePdfFill } from "react-icons/bs";
+import { toast } from "@/hooks/use-toast";
 
 
 interface BookingDetailsClientProps {
@@ -54,7 +55,7 @@ export function BookingDetailsClient({ booking,setBooking }: BookingDetailsClien
   
   useEffect(() => {
     const cost = calculateCost(startDate,endDate,startTime,endTime,dailyRentalPrice);
-    setTotalAmount(cost)
+    setTotalAmount(cost);
   },[dailyRentalPrice,startDate,endDate,startTime,endTime])
 
   function handleAction() {
@@ -95,11 +96,9 @@ export function BookingDetailsClient({ booking,setBooking }: BookingDetailsClien
     try {
       const newEndDate = new Date();
       const newEndTime = `${newHours}:${newMinutes}`;
-      const cost = calculateCost(startDate,newEndDate,startTime,newEndTime,dailyRentalPrice);
       await axios.put(`${BASE_URL}/api/v1/booking/${booking.id}/end`, {
-        endDate: new Date().toLocaleDateString('en-US'),
-        endTime:`${newHours}:${newMinutes}`,
-        totalAmount:cost
+        endDate: newEndDate.toLocaleDateString('en-US'),
+        endTime:newEndTime,
       },{
         headers: {
           "Content-type": "application/json",
@@ -109,10 +108,21 @@ export function BookingDetailsClient({ booking,setBooking }: BookingDetailsClien
       setBookingStatus("Completed");
       setEndDate(newEndDate);
       setEndTime(newEndTime);
+      toast({
+        title: `Booking ended`,
+        description: `Booking Successfully ended`,
+        className: "text-black bg-white border-0 rounded-md shadow-mg shadow-black/5 font-normal",
+      });
       router.push('/bookings');
     }
     catch(error){ 
       console.log(error);
+      toast({
+        title: `Error`,
+        description: `Booking failed to end`,
+        className: "text-black bg-white border-0 rounded-md shadow-mg shadow-black/5 font-normal",
+        variant: "destructive",
+      });
     }
   }
 
@@ -124,11 +134,7 @@ export function BookingDetailsClient({ booking,setBooking }: BookingDetailsClien
     }
   }
 
-  function handleClick() {
-    //add code to stop or start the booking
 
-    return;
-  }
 
   function handleCancel() {
     //add code to stop or start the booking
@@ -143,31 +149,57 @@ export function BookingDetailsClient({ booking,setBooking }: BookingDetailsClien
 
   const handleDelete = async () => {
     try {
-      const res = await axios.delete(`${BASE_URL}/api/v1/booking/${booking.id}`,{
+      await axios.delete(`${BASE_URL}/api/v1/booking/${booking.id}`, {
         headers: {
           "Content-type": "application/json",
-          authorization: `Bearer ${localStorage.getItem("token")}`
-        }
+          authorization: `Bearer ${localStorage.getItem("token")}`,
+        },
       });
-      setBooking(undefined);
+  
+      toast({
+        title: `Booking deleted`,
+        description: `Booking Successfully deleted`,
+        className: "text-black bg-white border-0 rounded-md shadow-mg shadow-black/5 font-normal",
+      });
+  
       router.push('/bookings');
-      console.log(res.data);
+      // Await the push to ensure smooth navigation
+  
+    } catch (error) {
+      toast({
+        title: `Error`,
+        description: `Booking failed to delete`,
+        className: "text-black bg-white border-0 rounded-md shadow-mg shadow-black/5 font-normal",
+        variant: "destructive",
+      });
+      
+      console.error(error);
+      router.push('/bookings');
     }
-    catch(error){
-      console.log(error);
-    }
-  }
+  };
+  
 
   const handleDocumentDelete = async() => {
     try {
-      await axios.delete(`${BASE_URL}/api/v1/booking/${booking.id}/documents/all`, {
+      await axios.delete(`${BASE_URL}/api/v1/booking/${booking.customerId}/documents/all`, {
         headers: {
           authorization: `Bearer ` + localStorage.getItem('token')
         }
       });
       setBooking({...booking, documents:[]});
+      toast({
+        title: `Document deleted`,
+        description: `Document Successfully deleted`,
+        className: "text-black bg-white border-0 rounded-md shadow-mg shadow-black/5 font-normal",
+      });
 
     } catch(error) {
+      toast({
+        title: `Error`,
+        description: `Failed to delete document`,
+        className: "text-black bg-white border-0 rounded-md shadow-mg shadow-black/5 font-normal",
+        variant: "destructive",
+      });
       console.log(error);
     }
   }
@@ -180,8 +212,19 @@ export function BookingDetailsClient({ booking,setBooking }: BookingDetailsClien
         }
       });
       setBooking({...booking, carImages:[]});
+      toast({
+        title: `Car image deleted`,
+        description: `Car image Successfully deleted`,
+        className: "text-black bg-white border-0 rounded-md shadow-mg shadow-black/5 font-normal",
+      });
       
     } catch(error) {
+      toast({
+        title: `Error`,
+        description: `Failed to delete car image`,
+        className: "text-black bg-white border-0 rounded-md shadow-mg shadow-black/5 font-normal",
+        variant: "destructive",
+      });      
       console.log(error);
     }
   }
@@ -209,9 +252,20 @@ export function BookingDetailsClient({ booking,setBooking }: BookingDetailsClien
         }
       });
       setIsEditable(false);
+      toast({
+        title: `Booking updated`,
+        description: `Booking Successfully updated`,
+        className: "text-black bg-white border-0 rounded-md shadow-mg shadow-black/5 font-normal",
+      });
     }
     catch(error){ 
       console.log(error);
+      toast({
+        title: `Error`,
+        description: `Booking failed to update`,
+        className: "text-black bg-white border-0 rounded-md shadow-mg shadow-black/5 font-normal",
+        variant: "destructive",
+      });
     }
   }
   
@@ -265,7 +319,7 @@ export function BookingDetailsClient({ booking,setBooking }: BookingDetailsClien
                   <p className="font-semibold max-sm:text-sm">{formatDateTime(bookingStatus==="Upcoming" ? startDate : endDate)}</p>
             </div>
             <div className="text-right">
-            <div className="relative flex items-center sm:h-24 sm:w-30 rounded-md border border-border h-12 mb-2"> 
+            <div className="relative flex items-center sm:h-24 sm:w-36 rounded-md border border-border h-12 mb-2"> 
                   { booking.carImageUrl !== "" ?
                     <Image
                     src={booking.carImageUrl}
@@ -377,7 +431,8 @@ export function BookingDetailsClient({ booking,setBooking }: BookingDetailsClien
               </>
               }
             </div>
-            {booking.securityDeposit &&<div>
+            {booking.securityDeposit && 
+            <div>
               <p className="text-sm text-blue-500">Security Deposit</p>
               <span className="text-sm">{booking.securityDeposit}</span>
             </div>}
@@ -488,7 +543,7 @@ export function BookingDetailsClient({ booking,setBooking }: BookingDetailsClien
                 <div className="flex gap-1 items-center">
                   <p className="text-sm text-blue-500">Photos Before pick-up</p>
                   {isEditable && <Button className="cursor-pointer bg-gray-200 dark:bg-muted dark:text-white text-black hover:bg-gray-300 dark:hover:bg-secondary hover:bg-opacity-30" onClick={() => {
-                    setAction("delete the documents of");
+                    setAction("delete the car photos of");
                     setIsDialogOpen(true);
                   }}>
                     <Trash2 className="h-4 w-4" />
@@ -516,7 +571,7 @@ export function BookingDetailsClient({ booking,setBooking }: BookingDetailsClien
           </div>
       </div>
       }
-      {!isEditable && <div className=" flex justify-center space-x-2 mt-2" onClick={handleClick}>
+      {!isEditable && <div className=" flex justify-center space-x-2 mt-2">
         {bookingStatus === "Upcoming" &&
         <Button className="px-4 py-4 max-sm:w-full bg-blue-600 dark:text-black text-blue-100  shadow-lg"
           onClick={() => {

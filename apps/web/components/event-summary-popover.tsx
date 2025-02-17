@@ -16,6 +16,7 @@ import UserIcon from "@/public/user.svg"
 import axios from "axios"
 import { BASE_URL } from "@/lib/config"
 import ActionDialog from "./action-dialog"
+import { toast } from "@/hooks/use-toast"
 
 enum Status {
   pending = "pending",
@@ -52,6 +53,16 @@ export function EventSummaryPopup({ event, isOpen, onClose }: EventSummaryPopupP
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [action,setAction] = useState<"Delete" | "Update">("Delete");
 
+
+  useEffect(() => {
+    const originalStyle = document.body.style.overflow;
+    document.body.style.overflow = "auto";
+    
+    return () => {
+      document.body.style.overflow = originalStyle; // Restore on unmount
+    };
+  }, [isOpen]);
+
   function handleAction() {
    if(action === "Delete"){
       handleDelete();
@@ -71,10 +82,21 @@ export function EventSummaryPopup({ event, isOpen, onClose }: EventSummaryPopupP
       });
       const updatedEvents = events.filter((e) => e.id !== event.id)
       setEvents(updatedEvents)
+      toast({
+        title: `Booking deleted`,
+        description: `Event Successfully deleted`,
+        className: "text-black bg-white border-0 rounded-md shadow-mg shadow-black/5 font-normal",
+      });
       onClose()
     }
     catch(error){
       console.log(error);
+      toast({
+        title: `Error`,
+        description: `Booking failed to delete`,
+        className: "text-black bg-white border-0 rounded-md shadow-mg shadow-black/5 font-normal",
+        variant: "destructive",
+      });
     }
   }
 
@@ -113,9 +135,20 @@ export function EventSummaryPopup({ event, isOpen, onClose }: EventSummaryPopupP
       const updatedEvents = events.map((e) => (e.id === event.id ? editedEvent : e))
       setEvents(updatedEvents)
       setIsEditing(false)
+      toast({
+        title: `Booking updated`,
+        description: `Event Successfully updated`,
+        className: "text-black bg-white border-0 rounded-md shadow-mg shadow-black/5 font-normal",
+      });
     }
     catch(error){
       console.log(error);
+      toast({
+        title: `Error`,
+        description: `Booking failed to update`,
+        className: "text-black bg-white border-0 rounded-md shadow-mg shadow-black/5 font-normal",
+        variant: "destructive",
+      });
     }
     
   }
@@ -131,10 +164,10 @@ export function EventSummaryPopup({ event, isOpen, onClose }: EventSummaryPopupP
   return (
     <>
     <ActionDialog isDialogOpen={isDialogOpen} setIsDialogOpen={setIsDialogOpen} action={action} handleAction={handleAction}/>
-
-    <Dialog open={isOpen}  onOpenChange={onClose}>
+    <div className="fixed top-0 left-0 h-screen w-screen z-10 bg-black/50 backdrop-blur-sm"></div>
+    <Dialog open={isOpen}  onOpenChange={onClose} modal={false} >
       
-      <DialogContent className="sm:max-w-[425px] border-border max-sm:min-h-[70%] flex flex-col p-0 items-center ">
+      <DialogContent className="sm:max-w-[425px] z-20 border-border max-sm:min-h-[70%] flex flex-col p-0 items-center overflow-auto">
         <DialogHeader className="flex flex-row justify-between items-center w-full px-6 py-0">
           <DialogTitle >
             <div className="flex justify-start w-full whitespace-nowrap mt-2">BookingId : {event.id}</div>
@@ -168,7 +201,7 @@ export function EventSummaryPopup({ event, isOpen, onClose }: EventSummaryPopupP
                   </div>
                   {!event.allDay && (
                     <div className="mt-[-10px] mx-2">
-                      <AddTime className="p-0 m-0 w-[50px] border-none bg-gray-200 hover:bg-gray-300 rounded-sm" selectedTime={startTime} setSelectedTime={setStartTime} />
+                      <AddTime className="" selectedTime={startTime} setSelectedTime={setStartTime} />
                       <input type="hidden" name="time" value={startTime} />
                     </div>
                   )}
@@ -178,7 +211,7 @@ export function EventSummaryPopup({ event, isOpen, onClose }: EventSummaryPopupP
                   </div>
                   {!event.allDay && (
                     <div className="mt-[-10px] mx-2">
-                      <AddTime className="p-0 m-0 w-[50px] border-none bg-gray-200 hover:bg-gray-300 rounded-sm" selectedTime={endTime} setSelectedTime={setEndTime} />
+                      <AddTime className="z-30" selectedTime={endTime} setSelectedTime={setEndTime} />
                       <input type="hidden" name="time" value={endTime} />
                     </div>
                   )}

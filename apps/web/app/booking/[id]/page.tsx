@@ -8,7 +8,7 @@ import axios from "axios"
 import { BASE_URL } from "@/lib/config"
 
 export interface Booking {
-  id: number;
+  id: string;
   start: string;
   end: string;
   startTime: string;
@@ -29,9 +29,9 @@ export interface Booking {
   odometerReading?: string;
   notes?: string;
   selfieUrl?: string;
-  carPhotoUrl?: string;
   documents? : {name:string,url:string,type:string}[];
   carImages? : {name:string,url:string}[];
+  customerId: number;
 }
 
 export default function BookingDetails() {
