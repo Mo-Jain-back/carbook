@@ -148,7 +148,7 @@ export function BookingDetailsClient({ booking,setBooking }: BookingDetailsClien
   const handleDelete = async () => {
     setIsDeleting(true);
     try {
-      await axios.delete(`${BASE_URL}/api/v1/booking/${booking.id}`, {
+        await axios.delete(`${BASE_URL}/api/v1/booking/${booking.id}`, {
         headers: {
           "Content-type": "application/json",
           authorization: `Bearer ${localStorage.getItem("token")}`,
@@ -241,7 +241,6 @@ export function BookingDetailsClient({ booking,setBooking }: BookingDetailsClien
 
   const handleUpdate = async () => {
     // Implement edit functionality here
-    console.log("Edit car:", booking.id);
     setIsLoading(true);
     try {
       let resSelfie;
@@ -473,7 +472,7 @@ export function BookingDetailsClient({ booking,setBooking }: BookingDetailsClien
 
         
         <div className="mr-4">
-          <DropdownMenu open={isDropDownOpen} onOpenChange={setIsDropdownOpen}>
+          <DropdownMenu open={isDropDownOpen} onOpenChange={setIsDropdownOpen} modal={false}>
                 <DropdownMenuTrigger asChild>
                   <Button variant="ghost" className="h-8 w-8 p-0">
                     <span className="sr-only">Open menu</span>

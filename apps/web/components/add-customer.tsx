@@ -88,6 +88,7 @@ duration: 2000
               variant: "destructive",
 duration: 2000
             });
+            setIsLoading(false);
             return;
         }
 

@@ -172,7 +172,6 @@ export default function Bookings() {
 
 
   useEffect(() => {
-    console.log("selectedBooking",selectedBookings)
     if(selectedBookings.length === 0){
       setIsSelectionMode(false);
     }else {
@@ -211,7 +210,7 @@ export default function Bookings() {
       toast({
         description: "Something went wrong",
         variant: "destructive",
-duration: 2000
+        duration: 2000
       })
     }
   }
@@ -330,7 +329,9 @@ duration: 2000
           )}
         </div>
         <div className="border-t overflow-hidden border-border w-full ">
-              <div className={`flex items-center justify-between w-full ml-0 transition-all duration-300 gap-3 ${isSelectionMode ? "mt-0" : "-mt-9 " } items-center mt-2`}>
+              <div 
+              style={{marginTop:selectedBookings.length === 0 ? "-38px" : "4px"}}
+              className={`flex items-center justify-between w-full ml-0 transition-all duration-300 gap-3 ${isSelectionMode ? "mt-0" : "" } items-center mt-2`}>
                 <div className="flex items-center gap-3">
                   <Checkbox
                     checked={filteredBookings.length === selectedBookings.length}
@@ -350,122 +351,7 @@ duration: 2000
         {bookings.length > 0 ? (
         <div ref={containerRef} className="space-y-4">
           {filteredBookings.map((booking,index) => (
-            <div key={index} className="flex gap-2 overflow-hidden items-center w-full">
-                <Checkbox
-                checked={selectedBookings.includes(booking.id)}
-                onClick={() => handleCheckboxChange(booking.id)}
-                className={`h-5 w-5 max-sm:w-4 max-sm:h-4 ${isSelectionMode ? "ml-0" : "-ml-6"} transition-all duration-300 p-0 sm:rounded-md accent-blue-300`}
-              />
-              <Card className="w-full overflow-hidden hover:shadow-md dark:border-card transition-shadow my-2">
-                  <Link href={`/booking/${booking.id}`} >
-                  <CardContent className="p-0">
-                    {/* Rest of the card content remains the same */}
-                    <div className="flex justify-between bg-gray-100   dark:bg-muted pr-2 items-center">
-                      {booking.status === "Upcoming" 
-                      ? 
-                      <div className="px-2 sm:px-4 ">
-                        <p className="text-sm max-sm:text-xs text-blue-500">{getHeader(booking.status,booking.start,booking.startTime,booking.end,booking.endTime)}</p>
-                        <p className="font-semibold text-[#5B4B49] max-sm:text-xs dark:text-gray-400">{getPickupTime(booking.start,booking.startTime)} </p>
-                      </div>
-                      :
-                      <div className="px-2 sm:px-4 ">
-                        <p className="text-sm max-sm:text-xs text-blue-500">{getHeader(booking.status,booking.start,booking.startTime,booking.end,booking.endTime)}</p>
-                        <p className="font-semibold text-[#5B4B49] max-sm:text-xs dark:text-gray-400">{getReturnTime(booking.end,booking.endTime)} </p>
-                      </div>
-                      }
-                      <div className="flex items-center justify-between w-fit ">
-                        <div className="flex items-center sm:pr-10">
-                          <div style={{backgroundColor:booking.carColor}} className="sm:w-8 z-0 bg-green-200 flex-shrink-0 sm:h-8 w-6 h-6 rounded-md"/>
-                          <div className="p-4 max-sm:p-1">
-                            <p className="text-sm max-sm:text-xs text-blue-500">BOOKING ID:</p>
-                            <p className=" text-[#5B4B49] max-sm:text-xs text-sm dark:text-gray-400">{booking.id} </p>
-                          </div>
-
-                        </div>
-                        <div className="">
-                            <DropdownMenu open={isDropDownOpen} onOpenChange={setIsDropdownOpen} modal={false}>
-                              <DropdownMenuTrigger asChild
-                                onClick={(e) => {
-                                  e.preventDefault(); 
-                                  e.stopPropagation();
-                                }}
-                              >
-                                <Button variant="ghost" className="h-8 w-8 p-0">
-                                  <span className="sr-only">Open menu</span>
-                                  <MoreVertical className="h-4 w-4 sm:w-6 sm:h-6" />
-                                </Button>
-                              </DropdownMenuTrigger>
-                              <DropdownMenuContent align="end" className="border-border">
-                                <DropdownMenuItem className="cursor-pointer" 
-                                    onClick={(e) => {
-                                      e.preventDefault(); 
-                                      e.stopPropagation();
-                                      setIsDropdownOpen(false);
-                                      setSelectedBookings((prev) =>
-                                        prev.includes(booking.id) ? prev : [...prev, booking.id]
-                                      );
-                                    }}  
-                                >
-                                  <span>Select</span>
-                                </DropdownMenuItem>
-                              </DropdownMenuContent>
-                            </DropdownMenu>
-                        </div>
-                      </div>
-                    </div>
-                    <hr className="border-t border-border" />
-                    <div className=" bg-white dark:bg-background flex flex-row-reverse items-start justify-between">
-                      <div className="flex-1 sm:p-4 py-2 px-2">
-                        <div className="flex items-center sm:gap-12 gap-2">
-                          <div >
-                            <p className="text-xs sm:text-sm text-blue-500">FROM</p>
-                            <p className="font-semibold text-[#5B4B49] text-center text-xs sm:text-sm dark:text-gray-400">{formatDateTime(booking.start)} {booking.startTime}</p>
-                          </div>
-                          <ArrowRight className="mt-4 stroke-0 sm:w-12 w-8 filter drop-shadow-[2px_2px_rgba(0,0,0,0.1)] fill-blue-400 flex-shrink-0" />
-                          <div>
-                            <p className="sm:text-sm text-xs text-blue-500">TO</p>
-                            <p className="font-semibold text-[#5B4B49] text-center text-xs sm:text-sm dark:text-gray-400">{formatDateTime(booking.end)} {booking.endTime}</p>
-                          </div>
-                        </div>
-                        <div className="flex items-center w-full sm:w-4/5 justify-between mt-2 sm:mt-8 sm:gap-8 gap-2">
-                          <div>
-                            <p className="text-xs sm:text-sm text-blue-500">BOOKED BY</p>
-                            <p className="font-semibold text-[#5B4B49] text-xs sm:text-sm dark:text-gray-400">{booking.customerName}</p>
-                          </div>
-                          <div>
-                            <p className="sm:text-sm text-xs text-blue-500">CONTACT</p>
-                            <p className="font-semibold text-[#5B4B49] text-xs sm:text-sm dark:text-gray-400">{booking.customerContact}</p>
-                          </div>
-                        </div>
-                      </div>
-                      <div className="text-center flex flex-col items-center p-4 max-sm:p-2  border-r border-border">
-                        <div className="relative sm:w-24 flex items-center sm:h-20 rounded-md border border-border w-16 h-12 mb-2"> 
-                          { booking.carImageUrl ?
-                            <Image
-                            src={booking.carImageUrl}
-                            alt={booking.carName}
-                            fill
-                            priority={true}
-                            sizes={'6'}
-                            className="object-cover rounded w-full"
-                          />
-                          :
-                          <CarIcon className="w-full dark:stroke-blue-200  dark:fill-blue-200 p-1 stroke-black fill-black" /> 
-                          }
-                        </div>
-                        <p className="text-sm max-sm:text-xs max-sm:max-w-[80px] overflow-hidden font-semibold">{booking.carName}</p>
-                        <p className="text-xs text-blue-400 max-sm:text-[10px]">{booking.carPlateNumber}</p>
-                      </div>
-                    </div>
-                    <div className="p-4 max-sm:p-2 bg-green-100 flex dark:bg-secondary items-center text-green-600 dark:text-green-400 gap-2">
-                      <CarIcon className="w-8 h-3 stroke-green-600 dark:stroke-green-400 fill-green-600 dark:fill-green-400 stroke-[4px]" />
-                      <p className="text-sm max-sm:text-xs ">{getTimeUntilBooking(booking.start,booking.status)}</p>
-                      
-                    </div>
-                  </CardContent>
-                  </Link>
-                </Card>
-            </div>
+            <BookingCard key={index} booking={booking} selectedBookings={selectedBookings} setSelectedBookings={setSelectedBookings}/>
           ))}
           {filteredBookings.length === 0 && <div className="w-full h-full py-28 gap-2 flex flex-col justify-center items-center">
             <Booking className={`sm:h-16 h-12 sm:w-16 w-12 stroke-[5px] fill-gray-400 `}/>
@@ -494,6 +380,141 @@ duration: 2000
         )}
       </main>
     </div>
+  )
+}
+
+
+const BookingCard =({booking,selectedBookings,setSelectedBookings}:{
+  selectedBookings:string[],
+  setSelectedBookings:React.Dispatch<React.SetStateAction<string[]>>,
+  booking:Booking
+}) => {
+
+  const [isDropDownOpen,setIsDropdownOpen] = useState(false);
+  const handleCheckboxChange = (id: string) => {
+    setSelectedBookings((prev) =>
+      prev.includes(id) ? prev.filter((b) => b !== id) : [...prev, id]
+    );
+  };
+
+  return (
+      <div style={{marginTop:0}} className="flex gap-2 overflow-hidden mt-0 items-center w-full">
+          <Checkbox
+          checked={selectedBookings.includes(booking.id)}
+          onClick={() => handleCheckboxChange(booking.id)}
+          className={`h-5 w-5 max-sm:w-4 max-sm:h-4 ${selectedBookings.length > 0 ? "ml-0" : "-ml-6"} transition-all duration-300 p-0 sm:rounded-md accent-blue-300`}
+        />
+        <Card className="w-full overflow-hidden hover:shadow-md dark:border-card transition-shadow my-2">
+            <Link href={`/booking/${booking.id}`} >
+            <CardContent className="p-0">
+              {/* Rest of the card content remains the same */}
+              <div className="flex justify-between bg-gray-100   dark:bg-muted pr-2 items-center">
+                {booking.status === "Upcoming" 
+                ? 
+                <div className="px-2 sm:px-4 ">
+                  <p className="text-sm max-sm:text-xs text-blue-500">{getHeader(booking.status,booking.start,booking.startTime,booking.end,booking.endTime)}</p>
+                  <p className="font-semibold text-[#5B4B49] max-sm:text-xs dark:text-gray-400">{getPickupTime(booking.start,booking.startTime)} </p>
+                </div>
+                :
+                <div className="px-2 sm:px-4 ">
+                  <p className="text-sm max-sm:text-xs text-blue-500">{getHeader(booking.status,booking.start,booking.startTime,booking.end,booking.endTime)}</p>
+                  <p className="font-semibold text-[#5B4B49] max-sm:text-xs dark:text-gray-400">{getReturnTime(booking.end,booking.endTime)} </p>
+                </div>
+                }
+                <div className="flex items-center justify-between w-fit ">
+                  <div className="flex items-center sm:pr-10">
+                    <div style={{backgroundColor:booking.carColor}} className="sm:w-8 z-0 bg-green-200 flex-shrink-0 sm:h-8 w-6 h-6 rounded-md"/>
+                    <div className="p-4 max-sm:p-1">
+                      <p className="text-sm max-sm:text-xs text-blue-500">BOOKING ID:</p>
+                      <p className=" text-[#5B4B49] max-sm:text-xs text-sm dark:text-gray-400">{booking.id} </p>
+                    </div>
+
+                  </div>
+                  <div className="">
+                      <DropdownMenu modal={false} open={isDropDownOpen} onOpenChange={setIsDropdownOpen}>
+                        <DropdownMenuTrigger asChild
+                          onClick={(e) => {
+                            e.preventDefault(); 
+                            e.stopPropagation();
+                          }}
+                        >
+                          <Button variant="ghost" className="h-8 w-8 p-0">
+                            <span className="sr-only">Open menu</span>
+                            <MoreVertical className="h-4 w-4 sm:w-6 sm:h-6" />
+                          </Button>
+                        </DropdownMenuTrigger>
+                        <DropdownMenuContent align="end" className="border-border">
+                          <DropdownMenuItem className="cursor-pointer" 
+                              onClick={(e) => {
+                                e.preventDefault(); 
+                                e.stopPropagation();
+                                setIsDropdownOpen(false);
+                                setSelectedBookings((prev) =>
+                                  prev.includes(booking.id) ? prev : [...prev, booking.id]
+                                );
+                              }}  
+                          >
+                            <span>Select</span>
+                          </DropdownMenuItem>
+                        </DropdownMenuContent>
+                      </DropdownMenu>
+                  </div>
+                </div>
+              </div>
+              <hr className="border-t border-border" />
+              <div className=" bg-white dark:bg-background flex flex-row-reverse items-start justify-between">
+                <div className="flex-1 sm:p-4 py-2 px-2">
+                  <div className="flex items-center sm:gap-12 gap-2">
+                    <div >
+                      <p className="text-xs sm:text-sm text-blue-500">FROM</p>
+                      <p className="font-semibold text-[#5B4B49] text-center text-xs sm:text-sm dark:text-gray-400">{formatDateTime(booking.start)} {booking.startTime}</p>
+                    </div>
+                    <ArrowRight className="mt-4 stroke-0 sm:w-12 w-8 filter drop-shadow-[2px_2px_rgba(0,0,0,0.1)] fill-blue-400 flex-shrink-0" />
+                    <div>
+                      <p className="sm:text-sm text-xs text-blue-500">TO</p>
+                      <p className="font-semibold text-[#5B4B49] text-center text-xs sm:text-sm dark:text-gray-400">{formatDateTime(booking.end)} {booking.endTime}</p>
+                    </div>
+                  </div>
+                  <div className="flex items-center w-full sm:w-4/5 justify-between mt-2 sm:mt-8 sm:gap-8 gap-2">
+                    <div>
+                      <p className="text-xs sm:text-sm text-blue-500">BOOKED BY</p>
+                      <p className="font-semibold text-[#5B4B49] text-xs sm:text-sm dark:text-gray-400">{booking.customerName}</p>
+                    </div>
+                    <div>
+                      <p className="sm:text-sm text-xs text-blue-500">CONTACT</p>
+                      <p className="font-semibold text-[#5B4B49] text-xs sm:text-sm dark:text-gray-400">{booking.customerContact}</p>
+                    </div>
+                  </div>
+                </div>
+                <div className="text-center flex flex-col items-center p-4 max-sm:p-2  border-r border-border">
+                  <div className="relative sm:w-24 flex items-center sm:h-20 rounded-md border border-border w-16 h-12 mb-2"> 
+                    { booking.carImageUrl ?
+                      <Image
+                      src={booking.carImageUrl}
+                      alt={booking.carName}
+                      fill
+                      priority={true}
+                      sizes={'6'}
+                      className="object-cover rounded w-full"
+                    />
+                    :
+                    <CarIcon className="w-full dark:stroke-blue-200  dark:fill-blue-200 p-1 stroke-black fill-black" /> 
+                    }
+                  </div>
+                  <p className="text-sm max-sm:text-xs max-sm:max-w-[80px] overflow-hidden font-semibold">{booking.carName}</p>
+                  <p className="text-xs text-blue-400 max-sm:text-[10px]">{booking.carPlateNumber}</p>
+                </div>
+              </div>
+              <div className="p-4 max-sm:p-2 bg-green-100 flex dark:bg-secondary items-center text-green-600 dark:text-green-400 gap-2">
+                <CarIcon className="w-8 h-3 stroke-green-600 dark:stroke-green-400 fill-green-600 dark:fill-green-400 stroke-[4px]" />
+                <p className="text-sm max-sm:text-xs ">{getTimeUntilBooking(booking.start,booking.status)}</p>
+                
+              </div>
+            </CardContent>
+            </Link>
+          </Card>
+      </div>
+
   )
 }
 

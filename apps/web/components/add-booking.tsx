@@ -136,7 +136,6 @@ export function AddBookingDialog({isOpen, setIsOpen, cars,setBookings}:
 
   const handleSubmit = async (event: React.FormEvent) => {
     event.preventDefault();
-    setIsLoading(true);
 
     if (!validateForm()) {
       toast({
@@ -159,6 +158,7 @@ duration: 2000
       setErrors(prev => ({ ...prev, startDate: "Start date can't be equal or after end date" }));
       return;
     }
+    setIsLoading(true);
 
     try {
       if(customers){

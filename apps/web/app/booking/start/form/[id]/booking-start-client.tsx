@@ -61,6 +61,7 @@ export default function BookingStartClient({booking,bookingId} : {
       selfie: [],
     });
     const [progress,setProgress] = useState(0);
+    const [loadingMessage,setLoadingMessage] = useState("Please wait");
 
     useEffect(() => {
         const cost = calculateCost(startDate,returnDate,startTime,returnTime,dailyRentalPrice);
@@ -199,64 +200,55 @@ export default function BookingStartClient({booking,bookingId} : {
       setIsLoading(true);
       try {
         if(uploadedFiles.selfie.length == 0) {
+          setIsLoading(false);
           return;
         }
         if(uploadedFiles.photos.length == 0) {
+          setIsLoading(false);
           return;
         }
-        let overallProgress = 2;
+        let overallProgress = 1;
+        
         setProgress(overallProgress);
         const totalSize = Object.values(uploadedFiles).flat().reduce((acc, file) => acc + file.size, 0);
-        
-        const resSelfie = await uploadToDrive(uploadedFiles.selfie[0],booking.bookingFolderId);
-        
-        const selfieSize = uploadedFiles.selfie[0].size;
-        overallProgress += Math.round((selfieSize / totalSize) * 100)*0.93;
-        setProgress(overallProgress);
 
-        if(resSelfie.error ){
-          toast({
-            description: `Failed to upload selfie photo`,
-            className: "text-black bg-white border-0 rounded-md shadow-mg shadow-black/5 font-normal",
-            variant: "destructive",
-            duration: 2000
-          });
-          throw new Error("Failed to upload selfie photo");
-          return;
-        }
-
-        const resPhoto = await uploadMultipleToDrive(uploadedFiles.photos,booking.bookingFolderId);
-        
-        const photoSize = uploadedFiles.photos.reduce((acc, file) => acc + file.size, 0);
-        overallProgress += Math.round((photoSize / totalSize) * 100)*0.93;
-        setProgress(overallProgress);
-
-        if(resPhoto.error){
-          toast({
-            description: `Failed to upload car photo`,
-            className: "text-black bg-white border-0 rounded-md shadow-mg shadow-black/5 font-normal",
-            variant: "destructive",
-            duration: 2000
-          });
-          throw new Error("Failed to upload car photo");
-          return;
-        }
-        let resDoc;
+        setLoadingMessage("Uploading Aadhar and Driving License");
+        let docFiles = [];
         if(uploadedFiles.documents){
-          resDoc = await uploadMultipleToDrive(uploadedFiles.documents,booking.folderId);
-          const docSize = uploadedFiles.documents.reduce((acc, file) => acc + file.size, 0);
-          overallProgress += Math.round((docSize / totalSize) * 100)*0.93;
+          for(const file of uploadedFiles.documents){
+            const res =await uploadToDrive(file,booking.folderId);
+            if(res.error){
+              throw new Error("Failed to upload documents");
+              return;
+            }
+            docFiles.push(res);
+            overallProgress += Math.round((file.size / totalSize) * 100)*0.97;
+            setProgress(overallProgress);
+          }
+        }
+        setLoadingMessage("Uploaded Aadhar and Driving License");
+
+        
+        const photoFiles =[]
+        setLoadingMessage("Uploading Car Photos");
+        for(const file of uploadedFiles.photos){
+          const res =await uploadToDrive(file,booking.bookingFolderId);
+          if(res.error){
+            throw new Error("Failed to upload car photos");
+            return;
+          }
+          photoFiles.push(res);
+          overallProgress += Math.round((file.size / totalSize) * 100)*0.97;
           setProgress(overallProgress);
         }
-
-        if(resDoc && resDoc.error){
-          toast({
-            description: `Failed to upload aadhar card and driving license`,
-            className: "text-black bg-white border-0 rounded-md shadow-mg shadow-black/5 font-normal",
-            variant: "destructive",
-            duration: 2000
-          });
-          throw new Error("Failed to upload aadhar card and driving license");
+        setLoadingMessage("Uploading Selfie");
+        const resSelfie = await uploadToDrive(uploadedFiles.selfie[0],booking.bookingFolderId);
+        setLoadingMessage("Uploaded Selfie");
+        const selfieSize = uploadedFiles.selfie[0].size;
+        overallProgress += Math.round((selfieSize / totalSize) * 100)*0.97;
+        setProgress(overallProgress);
+        if(resSelfie.error ){
+          throw new Error("Failed to upload selfie photo");
           return;
         }
        
@@ -276,9 +268,9 @@ export default function BookingStartClient({booking,bookingId} : {
           totalAmount,
           paymentMethod,
           notes,
-          documents:resDoc && resDoc.uploadedFiles,
+          documents:docFiles.length > 0 ? docFiles : null,
           selfieUrl:resSelfie.url,
-          carImages:resPhoto.uploadedFiles
+          carImages:photoFiles
         }, {
           headers: {
             "Content-type": "application/json",
@@ -618,10 +610,10 @@ export default function BookingStartClient({booking,bookingId} : {
             {isLoading ?
               <div className="w-full border-2 border-border rounded-lg relative">
                 <div 
-                style={{ width: `${isLoading ? progress : '100'}%` }}
-                className={`bg-primary rounded-lg text-white h-[35px] w-full hover:bg-opacity-80 ${isLoading && "rounded-e-none"}`}/>
+                style={{ width: `${progress}%` }}
+                className={`bg-primary rounded-lg text-white h-[35px] transition-all duration-300 ease-in-out hover:bg-opacity-80 ${isLoading && "rounded-e-none"}`}/>
                   <div className={`w-full h-[35px] p-1 flex justify-center items-center absolute top-0 left-0 `}>
-                        <span className="text-white">Please wait</span>
+                        <span className="text-white">{loadingMessage}</span>
                         <div className="flex items-end px-1 pb-2 h-full">
                             <span className="sr-only">Loading...</span>
                             <div className="h-1 w-1 bg-white mx-[2px] border-border rounded-full animate-bounce [animation-delay:-0.3s]"></div>

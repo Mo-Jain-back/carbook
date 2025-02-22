@@ -241,12 +241,19 @@ duration: 2000
 
   const handleFileUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
+    console.log("file",file);
     if (file) {
       if (!file.type.startsWith("image/")) {
         return
       }
-      const maxSize = 5 * 1024 * 1024 // 5MB
+      const maxSize = 10 * 1024 * 1024 // 5MB
       if (file.size > maxSize) {
+        toast({
+          description: `File size should not exceed 5MB`,
+          className: "text-black bg-white border-0 rounded-md shadow-mg shadow-black/5 font-normal",
+          variant: "destructive",
+          duration: 2000
+        });
         return
       }
       setImageFile(file);

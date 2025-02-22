@@ -59,7 +59,6 @@ export function AddCarDialog({isOpen,setIsOpen}:AddCarDialogProps) {
 
   const handleSubmit = async (event: React.FormEvent) => {
     event.preventDefault();
-    setIsLoading(true);
     if (!validateForm()) {
       toast({
         description: `Please fill all mandatory fields`,
@@ -72,6 +71,7 @@ export function AddCarDialog({isOpen,setIsOpen}:AddCarDialogProps) {
 
     if (!imageFile) return;
     
+    setIsLoading(true);
 
     try {
         const currentDate = new Date();
@@ -86,6 +86,7 @@ export function AddCarDialog({isOpen,setIsOpen}:AddCarDialogProps) {
             variant: "destructive",
             duration: 2000
           });
+          setIsLoading(false);
           return
         }
 

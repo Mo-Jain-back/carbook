@@ -54,7 +54,7 @@ export const BookingSchema = z.object({
 })
 
 const DocumentSchema = z.object({
-    id: z.number(),
+    id: z.number().optional(),
     name: z.string(),
     url: z.string().url(),
     type: z.string(),

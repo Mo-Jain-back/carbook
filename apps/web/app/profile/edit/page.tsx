@@ -92,6 +92,7 @@ export default function ProfilePage() {
           variant: "destructive",
 duration: 2000
         });
+        setIsLoading(false);
         return
       }
 
@@ -103,6 +104,8 @@ duration: 2000
           variant: "destructive",
 duration: 2000
         });
+        setIsLoading(false);
+
         return
       }
       
@@ -114,6 +117,7 @@ duration: 2000
         const resImage = await uploadToDriveWTParent(file,"profile",user.name+" "+unixTimestamp);
 
         if(resImage.error || !resImage.url){
+          setIsLoading(false);
           return
         }
         await axios.put(`${BASE_URL}/api/v1/me`,{

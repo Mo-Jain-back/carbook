@@ -17,6 +17,22 @@ export function NavBar() {
   const pathname = usePathname()
   const router = useRouter();
   const {name,imageUrl} = useUserStore();
+  const gethortName = () => {
+    if(!name) return;
+    let nameArray = name.split(" ");
+    let shortName = "";
+    for(let i = 0; i < nameArray.length; i++){
+      shortName += nameArray[i][0].toLocaleUpperCase();
+    }
+    return shortName;
+  }
+  const [shortName,setShortName] = useState(gethortName());
+
+  useEffect(()=>{
+    setShortName(gethortName());
+  },[name])
+  
+
 
   useEffect(() => {
     if (pathname.startsWith("/booking")) {
@@ -73,7 +89,8 @@ export function NavBar() {
                   <Image src={imageUrl || "/placeholder.svg"} alt="Profile" width={32} height={32} className="max-h-8 min-w-8 object-cover rounded-full" />
                 </div>
               : 
-            <UserIcon className={`h-8 w-8 ${selectedTab=="profile" ? " fill-primary stroke-primary" : "dark:fill-white dark:stroke-white fill-gray-700 stroke-gray-700"} stroke-[20px] `} />
+            <span className={`h-8 w-8 ${selectedTab=="profile" ? " border-primary text-primary" : "border-gray-700 dark:border-white text-gray-700 dark:text-white"} border-2  rounded-full hover:border-primary hover:dark:text-primary hover:dark:border-primary hover:text-primary  flex justify-center items-center `}>
+            {shortName}</span>
           }
         </div>
         
