@@ -36,9 +36,10 @@ calendarRouter.get("/all",middleware,async (req,res) => {
             message:"Bookings fetched successfully",
             bookings:formatedBookings
         })
+        return;
     } catch(e) {
         res.status(400).json({message: "Internal server error"})
-        
+        return;
     }
 })
 
@@ -85,8 +86,10 @@ calendarRouter.put("/:id", middleware, async (req, res) => {
             message: "Booking updated successfully",
             BookingId: booking.id,
         });
+        return;
     } catch (e) {
         res.status(500).json({ message: "Internal server error" });
+        return;
     }
 });
 
@@ -124,9 +127,10 @@ calendarRouter.delete("/:id",middleware,async (req,res) => {
             message:"Booking deleted successfully",
             BookingId:booking.id
         })
+        return;
     } catch(e) {
         res.status(400).json({message: "Internal server error"})
-        
+        return;
     }
 })
 
@@ -157,8 +161,10 @@ calendarRouter.put("/change-color/:id",middleware,async (req,res) => {
             message:"Booking color updated successfully",
             CarId:car.id
         })    
+        return;
     }
     catch(e) {
         res.status(400).json({message: "Internal server error"})
+        return;
     }    
 })

@@ -21,7 +21,6 @@ import { CalendarEventType, Car, useEventStore } from "@/lib/store";
 import { Booking as BookingType } from "@/app/bookings/page";
 import { toast } from "@/hooks/use-toast";
 import CustomerName from "./customer-name";
-import CustomerContact from "./customer-contact";
 
 interface FormErrors {
   [key: string]: string;
@@ -52,7 +51,7 @@ export function calculateCost(startDate:Date, endDate:Date, startTime:string, en
 
   return Math.floor(cost);
 }
-export function CarBookingDialog({isOpen, setIsOpen, cars,setBookings}: 
+export function AddBookingDialog({isOpen, setIsOpen, cars,setBookings}: 
   {
     isOpen: boolean, 
     setIsOpen: React.Dispatch<React.SetStateAction<boolean>>, 
@@ -137,13 +136,14 @@ export function CarBookingDialog({isOpen, setIsOpen, cars,setBookings}:
 
   const handleSubmit = async (event: React.FormEvent) => {
     event.preventDefault();
+    setIsLoading(true);
 
     if (!validateForm()) {
       toast({
-        title: `Error`,
         description: `Please fill all mandatory fields`,
         className: "text-black bg-white border-0 rounded-md shadow-mg shadow-black/5 font-normal",
         variant: "destructive",
+duration: 2000
       });
       setErrors(prev => ({ ...prev, startDate: "Enter correct start date" }));
       return;
@@ -151,16 +151,15 @@ export function CarBookingDialog({isOpen, setIsOpen, cars,setBookings}:
 
     if (!validateDate()) {
       toast({
-        title: `Error`,
         description: `Start date can't be equal or before End date`,
         className: "text-black bg-white border-0 rounded-md shadow-mg shadow-black/5 font-normal",
         variant: "destructive",
+duration: 2000
       });
       setErrors(prev => ({ ...prev, startDate: "Start date can't be equal or after end date" }));
       return;
     }
 
-    setIsLoading(true);
     try {
       if(customers){
         const customer = customers.find(customer => {
@@ -170,6 +169,8 @@ export function CarBookingDialog({isOpen, setIsOpen, cars,setBookings}:
           setCustomerId(undefined);
         }
       }
+
+
       const res = await axios.post(`${BASE_URL}/api/v1/booking`,{
         startDate: startDate.toLocaleDateString('en-US'),
         endDate: endDate.toLocaleDateString('en-US'),
@@ -181,13 +182,14 @@ export function CarBookingDialog({isOpen, setIsOpen, cars,setBookings}:
         customerContact: contact,
         dailyRentalPrice: price,
         totalAmount:totalAmount,
-        customerId:customerId
+        customerId:customerId,
       },{
         headers: {
           "Content-type": "application/json",
           authorization: `Bearer ` + localStorage.getItem('token')
           }
       });
+
       const car = cars.find(car => car.id === carId); 
 
       const newBooking:BookingType = {
@@ -205,29 +207,15 @@ export function CarBookingDialog({isOpen, setIsOpen, cars,setBookings}:
         carColor:car?.colorOfBooking || '',
         status: "Upcoming",
       }
-      const newEvent:CalendarEventType = {
-        id:res.data.bookingId,
-        startDate: dayjs(startDate.toLocaleDateString('en-US')),
-        endDate: dayjs(endDate.toLocaleDateString('en-US')),
-        startTime: startTime,
-        endTime: endTime,
-        status: "Upcoming",
-        color:car?.colorOfBooking || '',
-        carId,
-        customerName: name,
-        customerContact: contact,
-        carName: car?.brand + ' ' + car?.model,
-        allDay: false
-      }
+     
       setIsOpen(false);
       setBookings((prev:BookingType[]) => {
         return [...prev,newBooking]
       })
-      setEvents([...events,newEvent])
+     
       setIsLoading(false);
       handleClear(event);
       toast({
-        title: `Booking created`,
         description: `Booking Successfully created`,
         className: "text-black bg-white border-0 rounded-md shadow-mg shadow-black/5 font-normal",
       });
@@ -237,10 +225,10 @@ export function CarBookingDialog({isOpen, setIsOpen, cars,setBookings}:
       console.log(error);
       setIsLoading(false);
       toast({
-        title: `Error`,
         description: `Booking failed to create`,
         className: "text-black bg-white border-0 rounded-md shadow-mg shadow-black/5 font-normal",
         variant: "destructive",
+duration: 2000
       });
     }
   }
@@ -324,10 +312,10 @@ export function CarBookingDialog({isOpen, setIsOpen, cars,setBookings}:
               <div>
                 <div className="flex space-x-4" >
                   <div className="" >
-                    <DatePicker currDate={dayjs(startDate)} handleDateChange={handleDateChange} dateType="start"/>
+                    <DatePicker className="max-sm:w-[120px]" currDate={dayjs(startDate)} handleDateChange={handleDateChange} dateType="start"/>
                   </div>
                   <div className=" mx-2">
-                    <AddTime className="" selectedTime={startTime} setSelectedTime={setStartTime} />
+                    <AddTime className="max-sm:px-4 px-2 w-fit" selectedTime={startTime} setSelectedTime={setStartTime} />
                     <input type="hidden" name="time" value={startTime} />
                   </div>
                 </div>
@@ -341,10 +329,10 @@ export function CarBookingDialog({isOpen, setIsOpen, cars,setBookings}:
               <div>
                 <div className="flex space-x-4">
                   <div className="">
-                    <DatePicker currDate={dayjs(endDate)} handleDateChange={handleDateChange} dateType="end"/>
+                    <DatePicker className="max-sm:w-[120px]"  currDate={dayjs(endDate)} handleDateChange={handleDateChange} dateType="end"/>
                   </div>
                   <div className=" mx-2">
-                    <AddTime className="" selectedTime={endTime} setSelectedTime={setEndTime} />
+                    <AddTime className="max-sm:px-4 px-2 w-fit" selectedTime={endTime} setSelectedTime={setEndTime} />
                     <input type="hidden" name="time" value={endTime} />
                   </div>
                 </div>
@@ -372,14 +360,16 @@ export function CarBookingDialog({isOpen, setIsOpen, cars,setBookings}:
                 </Label>
                 <Input 
                 value={contact}
-                type="number" 
+                type="text" 
                 id="contact" 
                 maxLength={10}
                 onChange={(e) => {
                   setContact(e.target.value);
                   setErrors(prev => ({ ...prev, contact: "" }));
                 }} 
-                className="w-2/3 border-input min-w-[130px] w-full focus:border-blue-400 focus-visible:ring-blue-400 "
+                className="w-2/3 border-input max-sm:text-xs max-sm:placeholder:text-xs sm:min-w-[130px] w-full focus:border-blue-400 focus-visible:ring-blue-400 
+                  [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none
+                "
                  />
 
                {errors.contact && <p className="text-red-500 text-sm mt-1">{errors.contact}</p>}
@@ -395,7 +385,7 @@ export function CarBookingDialog({isOpen, setIsOpen, cars,setBookings}:
               24 hr price
             </Label>
             <Input type="number" id="price" 
-              className="w-2/3 border-input  focus:border-blue-400 focus-visible:ring-blue-400 [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none" 
+              className="w-2/3 border-input max-sm:text-xs  focus:border-blue-400 focus-visible:ring-blue-400 [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none" 
               value={price || 0} onChange={(e) => {
                 setPrice(Number(e.target.value))
                 setErrors(prev => ({ ...prev, car: "" }));
@@ -411,11 +401,11 @@ export function CarBookingDialog({isOpen, setIsOpen, cars,setBookings}:
               Total amount
             </Label>
             <Input type="number" id="totalAmount" value={totalAmount || 0} readOnly
-            className="w-2/3 cursor-not-allowed focus-visible:ring-0  [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none" />
+            className="w-2/3 max-sm:text-xs cursor-not-allowed focus-visible:ring-0  [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none" />
             {errors.totalAmount && <p className="text-red-500 text-sm mt-1">{errors.totalAmount}</p>}
           </div>
           <div className="flex items-center gap-2 sm:gap-4">
-          <Button type="submit" className={`bg-blue-600 dark:text-white hover:bg-opacity-80 w-full ${isLoading && "cursor-not-allowed opacity-50"}`}>
+          <Button type="submit" disabled={isLoading} className={`bg-blue-600 dark:text-white hover:bg-opacity-80 w-full ${isLoading && "cursor-not-allowed opacity-50"}`}>
               {isLoading ?
                 <>
                 <span>Please wait</span>

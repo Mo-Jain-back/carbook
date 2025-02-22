@@ -4,16 +4,16 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/u
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
-import { ImageIcon, Loader2, LocateIcon, Upload, X } from "lucide-react"
-import CarFrontIcon from "@/public/car-front.svg";
 import { BASE_URL } from "@/lib/config";
 import axios from "axios"
-import { uploadMultipleToDrive, uploadToDrive } from "@/app/actions/upload";
 import { toast } from "@/hooks/use-toast";
 import { cn } from "@/lib/utils"
-import { BsFilePdfFill } from "react-icons/bs"
 import { Textarea } from "@/components/ui/textarea";
 import LoactionIcon from "@/public/location.svg";
+import { RenderFileList } from "../app/profile/manage-customer/render-file-list"
+import { Phone, Upload } from "lucide-react"
+import { createFolder } from "@/app/actions/folder"
+import { uploadMultipleToDrive } from "@/app/actions/upload"
 
 interface Customer {
     id: number;
@@ -21,10 +21,11 @@ interface Customer {
     contact:string;
     address?:string;
     documents? : Document[];
-    folderId?:string;
+    folderId:string;
   }
 
-  interface Document {
+  export interface Document {
+    id:number;
     name:string;
     url:string;
     type:string;
@@ -66,10 +67,10 @@ export function AddCustomer({isOpen,setIsOpen,setCustomers}:AddCarDialogProps) {
     event.preventDefault();
     if (!validateForm()) {
       toast({
-        title: `Error`,
         description: `Please fill all mandatory fields`,
         className: "text-black bg-white border-0 rounded-md shadow-mg shadow-black/5 font-normal",
         variant: "destructive",
+duration: 2000
       });
       return;
     }
@@ -77,14 +78,27 @@ export function AddCustomer({isOpen,setIsOpen,setCustomers}:AddCarDialogProps) {
 
     setIsLoading(true);
     try {
-        const resDoc = await uploadMultipleToDrive(documents,"name",name);
+
+        const folder = await createFolder(name+"_"+contact,"customer");
+
+        if(folder.error || !folder.folderId){
+            toast({
+              description: `Failed to create folder`,
+              className: "text-black bg-white border-0 rounded-md shadow-mg shadow-black/5 font-normal",
+              variant: "destructive",
+duration: 2000
+            });
+            return;
+        }
+
+        const resDoc = await uploadMultipleToDrive(documents,folder.folderId);
 
         if(resDoc.error || !resDoc.uploadedFiles){
             toast({
-              title: `Error`,
               description: `Failed to upload aadhar card and driving license`,
               className: "text-black bg-white border-0 rounded-md shadow-mg shadow-black/5 font-normal",
               variant: "destructive",
+duration: 2000
             });
             throw new Error("Failed to upload aadhar card and driving license");
           }
@@ -104,16 +118,18 @@ export function AddCustomer({isOpen,setIsOpen,setCustomers}:AddCarDialogProps) {
         const documentsObj = resDoc.uploadedFiles;
        
         const customer = {
-          id: res.data.customerId,
+          id: res.data.id,
           name,
           contact,
           address,
           folderId:documentsObj[0].folderId || "",
-          documents:documentsObj.map(file => {
+          documents:resDoc.uploadedFiles.map(file => {
             return {
+              id:file.id,
               name:file.name|| "",
               url:file.url || "",
               type:file.type || "",
+              
             }
           })
         };
@@ -122,27 +138,29 @@ export function AddCustomer({isOpen,setIsOpen,setCustomers}:AddCarDialogProps) {
         setContact("");
         setAddress("");
         setDocuments([]);
+        setIsLoading(false);
+        setIsOpen(false);
         toast({
-          title: `Car added`,
-          description: `Car Successfully added`,
+          description: `Customer Successfully added`,
           className: "text-black bg-white border-0 rounded-md shadow-mg shadow-black/5 font-normal",
         });
       }
       catch (error) {
         console.log(error);
         toast({
-          title: `Error`,
           description: `Failed to submit form`,
           className: "text-black bg-white border-0 rounded-md shadow-mg shadow-black/5 font-normal",
           variant: "destructive",
+duration: 2000
         });
         setIsLoading(false);
       }
   }
+
   const handleFileUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
     const files = event.target.files
       if (files) {
-          if(files.length > 5){
+          if(files.length + documents.length > 5){
             setErrors(prev => ({ ...prev, ["documents"]: "You can upload upto 5 documents or images" }));
             setDocuments([]);
             return;
@@ -177,50 +195,18 @@ export function AddCustomer({isOpen,setIsOpen,setCustomers}:AddCarDialogProps) {
     "w-full text-sm",
     errors[fieldName] && "border-red-500 focus:border-red-500"
   );
-  const handleRemoveFile = ( index: number) => {
-    setDocuments(prev => prev.filter((_, i) => i !== index))
-  }
-
-  const getFileIcon = (type: string) => {
-    if(!type.startsWith('image/')){
-      return <BsFilePdfFill className="sm:w-4 sm:h-4 w-3 h-3" />
-    }
-    return <ImageIcon className="sm:w-4 sm:h-4 w-3 h-3" />
-  }
-
-  const renderFileList = () => (
-    <div className="mt-2 text-sm">
-      {documents.map((file, index) => (
-        <div
-          key={index}
-          className="flex w-fit sm:max-w-[200px] sm:max-h-[40px] max-w-[150px] max-h-[30px] my-1 items-center gap-2 bg-gray-200 dark:bg-muted p-2 rounded-md"
-        >
-          <span className="sm:min-w-4 min-w-3">
-            {getFileIcon(file.type)}
-          </span>
-          <span className="whitespace-nowrap overflow-hidden text-ellipsis text-xs sm:text-sm">{file.name}</span>
-          <span
-            className="rotate-45 text-red-500 w-3 cursor-pointer text-[25px]"
-            onClick={() => handleRemoveFile( index)}
-          >
-            +
-          </span>
-        </div>
-      ))}
-    </div>
-  )
 
   return (
     <>
         <Dialog open={isOpen} onOpenChange={setIsOpen}>
-        <DialogContent className="h-auto overflow-y-auto dark:border-gray-800 ">
+        <DialogContent className="h-auto overflow-y-auto dark:border-gray-800 px-4 py-2 ">
             <form onSubmit={handleSubmit} className="space-y-4">
                 <DialogHeader>
                     <DialogTitle>
                         <div></div>
                     </DialogTitle>
                 </DialogHeader>
-                <div className="text-[50px] font-bold">
+                <div className=" font-bold">
                     <Input
                     type="text"
                     name="title"
@@ -230,25 +216,26 @@ export function AddCustomer({isOpen,setIsOpen,setCustomers}:AddCarDialogProps) {
                       setErrors(prev => ({ ...prev, carBrand: "" }));
                     }}
                     placeholder="Add Customer Name"
-                    className="my-4 rounded-none placeholder:text-[30px] text-[30px] max-sm:placeholder:text-[24px]  md:text-[30px] file:text-[30px] placeholder:text-gray-700 dark:placeholder:text-gray-400  border-0 border-b focus-visible:border-b-2 border-b-gray-400 focus-visible:border-b-blue-600  focus-visible:ring-0 focus-visible:ring-offset-0 w-full"
+                    className="rounded-none placeholder:text-[25px] text-[25px] max-sm:placeholder:text-[20px]  md:text-[25px] placeholder:text-gray-700 dark:placeholder:text-gray-400  border-0 border-b focus-visible:border-b-2 border-b-gray-400 focus-visible:border-b-blue-600  focus-visible:ring-0 focus-visible:ring-offset-0 w-full"
                     />
-                    {errors.name && <p className="text-red-500 text-sm mt-1">{errors.name}</p>}
+                    {errors.name && <p className="text-red-500 font-normal text-sm mt-1">{errors.name}</p>}
                 </div>
                 
                 <div className="gap-4 w-10/11">
                             <div className="flex justify-between gap-1 items-center">
-                                <CarFrontIcon className="w-16 h-4 stroke-[6px] dark:stroke-white dark:fill-white  stroke-black fill-black" /> 
+                                <Phone className="w-16 h-4 text-black dark:text-white" />
                                 <div className="w-full">
                                     <Input
                                         type="text"
                                         name="title"
                                         placeholder="Add contact number"
                                         value={contact} 
+                                        maxLength={10}
                                         onChange={(e) => {
                                             setContact(e.target.value);
                                             setErrors(prev => ({ ...prev, contact: "" }));
                                         }}
-                                        className="my-4 w-full rounded-none placeholder:text-[14px] max-sm:placeholder:text-[12px] max-sm:text-[12px] text-[14px] md:text-[14px] placeholder:text-gray-700 dark:placeholder:text-gray-400  border-0 border-b focus-visible:border-b-2 border-b-gray-400 focus-visible:border-b-blue-600  focus-visible:ring-0 focus-visible:ring-offset-0"
+                                        className=" w-full rounded-none placeholder:text-[14px] max-sm:placeholder:text-[12px] max-sm:text-[12px] text-[14px] md:text-[14px] placeholder:text-gray-700 dark:placeholder:text-gray-400  border-0 border-b focus-visible:border-b-2 border-b-gray-400 focus-visible:border-b-blue-600  focus-visible:ring-0 focus-visible:ring-offset-0"
                                         />
                                         {errors.contact && <p className="text-red-500 text-sm mt-1">{errors.contact}</p>}
                                 </div>      
@@ -271,7 +258,7 @@ export function AddCustomer({isOpen,setIsOpen,setCustomers}:AddCarDialogProps) {
                             </div>
                 </div>
 
-                <div className="flex items-center gap-2 w-full">
+                <div className="flex items-center sm:gap-2 w-full">
                     <div>
                         <Label className="max-sm:text-xs" htmlFor="documents">Driving License and Aadhar Card <span className="text-red-500">*</span></Label>
                         <div onClick={() => {
@@ -291,9 +278,9 @@ export function AddCustomer({isOpen,setIsOpen,setCustomers}:AddCarDialogProps) {
                         {errors.documents && <p className="text-red-500 text-sm mt-1">{errors.documents}</p>}
                         
                     </div>
-                    <div className="flex justify-center items-center w-[210px] h-[220px] max-sm:min-w-[155px] min-h-[170px] border border-border px-[2px] sm:p-1">
+                    <div className="flex justify-center w-[210px] h-[175px] max-sm:min-w-[155px] min-h-[170px] border border-border px-[2px]">
                         
-                        {(renderFileList() )}
+                        <RenderFileList uploadedFiles={documents} setUploadedFiles={setDocuments} isEditable={true} />
                         {documents.length === 0 &&(
                             <span className="text-center text-sm text-gray-400 dark:text-gray-500">
                                 Upload upto 5 documents or images
@@ -303,7 +290,7 @@ export function AddCustomer({isOpen,setIsOpen,setCustomers}:AddCarDialogProps) {
                     </div>
                 </div>
                 <div>
-                <Button type="submit" className={`bg-blue-600 dark:text-white hover:bg-opacity-80 w-full ${isLoading && "cursor-not-allowed opacity-50"}`}>
+                <Button type="submit" disabled={isLoading} className={`bg-blue-600 dark:text-white hover:bg-opacity-80 w-full ${isLoading && "cursor-not-allowed opacity-50"}`}>
                     {isLoading ?
                       <>
                       <span>Please wait</span>

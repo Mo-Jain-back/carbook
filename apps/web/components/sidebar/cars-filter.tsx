@@ -77,7 +77,6 @@ export default function CarsFilters() {
         }
       }));
       toast({
-        title: `Color updated`,
         description: `Car color Successfully updated`,
         className: "text-black bg-white border-0 rounded-md shadow-mg shadow-black/5 font-normal",
       });
@@ -86,10 +85,10 @@ export default function CarsFilters() {
     catch(error){
       console.log(error);
       toast({
-        title: `Error`,
         description: `Car color failed to update`,
         className: "text-black bg-white border-0 rounded-md shadow-mg shadow-black/5 font-normal",
         variant: "destructive",
+duration: 2000
       });
     }
    

@@ -13,8 +13,9 @@ import { BASE_URL } from "@/lib/config"
 import LoadingScreen from "@/components/loading-screen"
 import { useUserStore } from "@/lib/store"
 import { Input } from "@/components/ui/input"
-import { uploadToDrive } from "@/app/actions/upload"
 import { toast } from "@/hooks/use-toast"
+import { deleteFile } from "@/app/actions/delete"
+import {  uploadToDriveWTParent } from "@/app/actions/upload"
 
 interface User {
   name: string;
@@ -86,10 +87,10 @@ export default function ProfilePage() {
     if (file) {
       if (!file.type.startsWith("image/")) {
         toast({
-          title: `Error`,
           description: `Please select an image file`,
           className: "text-black bg-white border-0 rounded-md shadow-mg shadow-black/5 font-normal",
           variant: "destructive",
+duration: 2000
         });
         return
       }
@@ -97,21 +98,20 @@ export default function ProfilePage() {
       const maxSize = 6 * 1024 * 1024 // 5MB
       if (file.size > maxSize) {
         toast({
-          title: `Error`,
           description: `File size should not exceed 5MB`,
           className: "text-black bg-white border-0 rounded-md shadow-mg shadow-black/5 font-normal",
           variant: "destructive",
+duration: 2000
         });
         return
       }
       
 
       try{
-        const type = (!user.profileFolderId || user.profileFolderId === "" || user.profileFolderId === null) ? "name" : "id";
-        console.log("type",type);
         const currentDate = new Date();
         const unixTimestamp = Math.floor(currentDate.getTime() / 1000);
-        const resImage = await uploadToDrive(file,type,user.profileFolderId ? user.profileFolderId : user.name + " " + "profile_img"+unixTimestamp);
+
+        const resImage = await uploadToDriveWTParent(file,"profile",user.name+" "+unixTimestamp);
 
         if(resImage.error || !resImage.url){
           return
@@ -125,11 +125,12 @@ export default function ProfilePage() {
             authorization: `Bearer ${localStorage.getItem("token")}`
           }
         });
-
+        if(imageUrl && imageUrl !== ""){
+          await deleteFile(imageUrl);
+        }
         setIsLoading(false);
         setImageUrl(URL.createObjectURL(file));
         toast({
-          title: `Profile picture updated`,
           description: `Profile picture Successfully updated`,
           className: "text-black bg-white border-0 rounded-md shadow-mg shadow-black/5 font-normal",
         });
@@ -138,10 +139,10 @@ export default function ProfilePage() {
         console.log(error);
         setIsLoading(false);
         toast({
-          title: `Error`,
           description: `Failed to upload profile picture`,
           className: "text-black bg-white border-0 rounded-md shadow-mg shadow-black/5 font-normal",
           variant: "destructive",
+duration: 2000
         });
       }
     }

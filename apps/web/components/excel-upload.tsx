@@ -199,10 +199,10 @@ export default function ExcelUploader({bookings,setBookings}:{
     const fileType = file.name.split('.').pop()?.toLowerCase();
     if (!['xlsx', 'xls'].includes(fileType || '')) {
       toast({
-        title:"Invalid file type",
         description:"Please upload a valid Excel file (.xlsx or .xls)",
         className: "text-black bg-white border-0 rounded-md shadow-mg shadow-black/5 font-normal",
         variant: "destructive",
+duration: 2000
       })
       if (fileInputRef.current) fileInputRef.current.value = '';
       return;
@@ -232,7 +232,6 @@ export default function ExcelUploader({bookings,setBookings}:{
 
         if (errors.length > 0) {
           toast({
-            title:"Invalid data",
             description:<div>
                             <div>Found {errors.length} errors in the Excel file:</div>
                             <ul className="mt-2 list-disc pl-4">
@@ -245,6 +244,7 @@ export default function ExcelUploader({bookings,setBookings}:{
                         </div>,
             className: "text-black bg-white border-0 rounded-md shadow-mg shadow-black/5 font-normal",
             variant: "destructive",
+duration: 2000
           })
           return;
         }
@@ -253,7 +253,6 @@ export default function ExcelUploader({bookings,setBookings}:{
         setIsOpen(true);
       } catch (error) {
         toast({
-            title:"Error parsing data",
             description:'Error parsing Excel file: ' + (error as Error).message,
             variant:'destructive'
         })
@@ -278,7 +277,6 @@ export default function ExcelUploader({bookings,setBookings}:{
       }
 
       toast({
-        title:"Data uploaded",
         description:'Data uploaded successfully',
       })
       setIsOpen(false);
@@ -289,7 +287,6 @@ export default function ExcelUploader({bookings,setBookings}:{
       }
     } catch (error) {
       toast({
-        title:"Error uploading data",
         description:'Error uploading data: ' + (error as Error).message,
         variant:'destructive'
       })
@@ -312,7 +309,7 @@ export default function ExcelUploader({bookings,setBookings}:{
         className="flex items-center gap-2"
       >
         <Upload className="h-4 w-4" />
-        Upload Excel
+        Import
       </Button>
 
       <Dialog open={isOpen} onOpenChange={setIsOpen}>

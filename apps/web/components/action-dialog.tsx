@@ -1,6 +1,6 @@
 import React from "react"
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
-import { Button } from "./ui/button";
+import { Button } from "@/components/ui/button";
 
 
 const ActionDialog = ({isDialogOpen,setIsDialogOpen,action,handleAction}:
@@ -16,7 +16,6 @@ const ActionDialog = ({isDialogOpen,setIsDialogOpen,action,handleAction}:
       const upperHeading = heading.charAt(0).toUpperCase() + heading.slice(1);
   return (
 
-    <div>
         <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
           <DialogContent className="sm:max-w-[425px] bg-muted border-border">
             <DialogHeader>
@@ -34,7 +33,6 @@ const ActionDialog = ({isDialogOpen,setIsDialogOpen,action,handleAction}:
           </DialogContent>
         </Dialog>
       
-    </div>
   )
 };
 

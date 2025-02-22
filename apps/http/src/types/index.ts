@@ -53,6 +53,14 @@ export const BookingSchema = z.object({
     customerId: z.number().optional(),
 })
 
+const DocumentSchema = z.object({
+    id: z.number(),
+    name: z.string(),
+    url: z.string().url(),
+    type: z.string(),
+    folderId:z.string().optional()
+  });
+
 export const BookingUpdateSchema = z.object({
     startDate: z.string().optional(),
     endDate: z.string().optional(),
@@ -66,8 +74,14 @@ export const BookingUpdateSchema = z.object({
     securityDeposit: z.string().optional(),
     dailyRentalPrice: z.number().optional(),
     paymentMethod: z.string().optional(),
-    totalAmount: z.number()
+    odometerReading: z.string().optional(),
+    notes: z.string().optional(),
+    totalAmount: z.number(),
+    documents: z.array(DocumentSchema).optional(),
+    selfieUrl: z.string().url().optional(),
+    carImages: z.array(DocumentSchema).optional(),
 });
+
 
 export const MultipleBookingSchema = z.array(z.object({
     startDate: z.string(),
@@ -84,24 +98,16 @@ export const MultipleBookingSchema = z.array(z.object({
     paymentMethod: z.string().optional(),
     odometerReading: z.string().optional(),
     notes: z.string().optional(),
+    
     customerName: z.string(),
     customerContact: z.string(),
     customerAddress: z.string().optional(),
 }));
 
 
-const DocumentSchema = z.object({
-    name: z.string(),
-    url: z.string().url(),
-    type: z.string(),
-    folderId:z.string()
-  });
-
-
 export  const BookingStartSchema = z.object({
     bookingAmountReceived: z.number(),
     dailyRentalPrice: z.number(),
-    documents: z.array(DocumentSchema),
     notes: z.string().optional(),
     odometerReading: z.string(),
     paymentMethod: z.string(),
@@ -112,6 +118,7 @@ export  const BookingStartSchema = z.object({
     startDate: z.string(),
     startTime: z.string(),
     totalAmount: z.number(),
+    documents: z.array(DocumentSchema).optional(),
     selfieUrl: z.string().url(),
     carImages: z.array(DocumentSchema),
     customerAddress: z.string(),
@@ -122,6 +129,11 @@ export  const BookingStartSchema = z.object({
 export const BookingEndSchema = z.object({
     endDate: z.string(),
     endTime: z.string(),
+    odometerReading: z.string(),
+})
+
+export const MultipleBookingDeleteSchema = z.object({
+    bookingIds: z.array(z.string())
 })
 
 export const CalendarUpdateSchema = z.object({
@@ -133,13 +145,21 @@ export const CalendarUpdateSchema = z.object({
     customerName: z.string().optional(),
 });
 
+export const CustomerCreateSchema = z.object({
+    name: z.string(),
+    contact: z.string(),
+    address: z.string(),
+    folderId: z.string(),
+    documents: z.array(DocumentSchema).optional()
+});
+
 export const CustomerUpdateSchema = z.object({
     name: z.string(),
     contact: z.string(),
     address: z.string(),
     folderId: z.string().optional(),
     documents: z.array(DocumentSchema).optional()
-});
+}); 
 
 declare global {
     namespace Express {

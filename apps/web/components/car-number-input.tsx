@@ -50,7 +50,7 @@ const CarNumberPlateInput: React.FC<CarNumberPlateInputProps> = ({ value, onChan
         className="uppercase z-10 my-4 w-full rounded-none placeholder:text-[14px] max-sm:placeholder:text-[12px] max-sm:text-[12px] text-[14px] placeholder:text-gray-700 dark:placeholder:text-gray-400  border-0 border-b focus-visible:border-b-2 border-b-gray-400 focus-visible:border-b-blue-600  focus-visible:ring-0 focus-visible:ring-offset-0"
 
       />
-      <div className="absolute -z-1 inset-y-0 left-0 flex items-center pointer-events-none">
+      <div className="absolute -z-1 top-[0px] inset-y-0 left-[0px] flex items-center pointer-events-none">
         {(value.length > 0 && focused )&&
             <span className="pl-3 max-sm:text-[12px] text-[15px]">
           {value}

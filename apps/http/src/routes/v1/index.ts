@@ -38,9 +38,11 @@ router.post("/signup/se23crt1", async (req, res) => {
             token,
             name:user.name,
         })
+        return;
     } catch(e) {
      
         res.status(400).json({message: "User already exists"})
+        return;
     }
 })
 
@@ -74,8 +76,10 @@ router.post("/signin", async (req, res) => {
             token,
             name:user.name,
         })
+        return
     } catch(e) {
         res.status(400).json({message: "Internal server error"})
+        return
     }
 })
 
@@ -95,8 +99,10 @@ router.get("/me", middleware,async (req, res) => {
             message:"User fetched successfully",
             user
         })
+        return
     } catch(e) {
         res.status(400).json({message: "Internal server error"})
+        return
     }
 })
 
@@ -117,8 +123,10 @@ router.get("/me/name", middleware,async (req, res) => {
             name:user.name,
             imageUrl:user.imageUrl
         })
+        return
     } catch(e) {
         res.status(400).json({message: "Internal server error"})
+        return
     }
 })
 
@@ -141,11 +149,13 @@ router.put("/me", middleware,async (req, res) => {
         res.json({
             message:"User data updated successfully",
         })
+        return
     } catch(e) {
         res.status(400).json({message: "Internal server error"})
-        
+        return
     }
 })
+
 
 router.use("/car",carRouter)
 router.use("/booking",bookingRouter)

@@ -7,6 +7,21 @@ import { useParams, useRouter } from "next/navigation"
 import axios from "axios"
 import { BASE_URL } from "@/lib/config"
 
+export interface Document{
+  id: number;
+  customerId: number;
+  name: string;
+  url: string;
+  type: string;
+}
+
+export interface CarImage{
+  id: number;
+  name: string;
+  url: string;
+  bookingId: string;
+}
+
 export interface Booking {
   id: string;
   start: string;
@@ -27,11 +42,14 @@ export interface Booking {
   customerAddress?: string;
   paymentMethod?: string;
   odometerReading?: string;
+  endodometerReading?: string;
   notes?: string;
   selfieUrl?: string;
-  documents? : {name:string,url:string,type:string}[];
-  carImages? : {name:string,url:string}[];
+  documents? : Document[];
+  carImages? : CarImage[];
   customerId: number;
+  folderId: string;
+  bookingFolderId: string;
 }
 
 export default function BookingDetails() {

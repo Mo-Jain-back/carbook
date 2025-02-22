@@ -7,7 +7,6 @@ import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, D
 import {  useEffect, useState } from "react";
 import { Input } from "@/components/ui/input"
 import { Card, CardContent } from "@/components/ui/card"
-import Link from "next/link"
 import BackArrow from "@/public/back-arrow.svg";
 import ArrowRight from "@/public/right_arrow.svg"
 import axios from "axios"
@@ -15,9 +14,9 @@ import { BASE_URL } from "@/lib/config"
 import LoadingScreen from "./loading-screen"
 import Booking from "@/public/online-booking.svg"
 import { useCarStore } from "@/lib/store"
-import ActionDialog from "./action-dialog"
-import { uploadToDrive } from "@/app/actions/upload"
 import { toast } from "@/hooks/use-toast"
+import { deleteFile } from "@/app/actions/delete"
+import { uploadToDrive } from "@/app/actions/upload"
 
 interface Car {
   id: number;
@@ -61,6 +60,8 @@ export function CarDetailsClient({ carId }: { carId: number }) {
   const [deleteBookingId,setDeleteBookingId] = useState<number>(0);
   const [imageFile, setImageFile] = useState<File | null>(null);
   const [isLoading, setIsLoading] = useState(false);
+  const [isDeleting,setIsDeleting] = useState(false);
+  const [progress,setProgress] = useState(0);
   
   
   useEffect(() => {
@@ -113,7 +114,7 @@ export function CarDetailsClient({ carId }: { carId: number }) {
       handleDeleteBooking(deleteBookingId)
     }
     else if(action === "Update car"){
-      handleEdit();
+      handleUpdate();
     }
     else if(action === "Delete car"){
       handleDelete();
@@ -121,34 +122,43 @@ export function CarDetailsClient({ carId }: { carId: number }) {
     return;
   }
 
+  const onProgress = (progress:number) => {
+    setProgress(progress);
+  }
+
   const handleDelete = async () => {
+    setIsDeleting(true);
     try {
-      const res = await axios.delete(`${BASE_URL}/api/v1/car/${car.id}`,{
+      await axios.delete(`${BASE_URL}/api/v1/car/${car.id}`,{
         headers: {
           "Content-type": "application/json",
           authorization: `Bearer ${localStorage.getItem("token")}`
         }
       });
-      setCars(cars.filter(car => car.id !== car.id));
+      setCars(cars.filter(c => c.id !== car.id));
+
+      await deleteFile(car.imageUrl);
+
       toast({
-        title: `Car deleted`,
         description: `Car Successfully deleted`,
         className: "text-black bg-white border-0 rounded-md shadow-mg shadow-black/5 font-normal",
       });
       router.push('/');
+      setIsDeleting(false);
     }
     catch(error){
       console.log(error);
       toast({
-        title: `Error`,
         description: `Car failed to delete`,
         className: "text-black bg-white border-0 rounded-md shadow-mg shadow-black/5 font-normal",
         variant: "destructive",
+duration: 2000
       });
+      setIsDeleting(false);
     }
   }
 
-  const handleEdit = async () => {
+  const handleUpdate = async () => {
 
     setIsLoading(true);
     let imageUrl: string | undefined = undefined;
@@ -156,10 +166,9 @@ export function CarDetailsClient({ carId }: { carId: number }) {
   try {
     // Upload image only if imageFile is provided
     if (imageFile) {
-      const resImage = await uploadToDrive(imageFile,"id",car.carFolderId);
+      const resImage = await uploadToDrive(imageFile,car.carFolderId);
       imageUrl = resImage.url;
     }
-    
     // Prepare data for update
     const updateData: Record<string, any> = {
       color: color,
@@ -182,7 +191,9 @@ export function CarDetailsClient({ carId }: { carId: number }) {
           authorization: `Bearer ${localStorage.getItem("token")}`
         }
       });
-
+      if(car.imageUrl){
+        await deleteFile(car.imageUrl);
+      }
       const carId = car.id;
       setCars(cars.map(car => {
         if(car.id === carId){
@@ -199,8 +210,8 @@ export function CarDetailsClient({ carId }: { carId: number }) {
         }
       }));
       setIsLoading(false);
+
       toast({
-        title: `Car updated`,
         description: `Car Successfully updated`,
         className: "text-black bg-white border-0 rounded-md shadow-mg shadow-black/5 font-normal",
       });
@@ -209,10 +220,10 @@ export function CarDetailsClient({ carId }: { carId: number }) {
     catch(error){ 
       console.log(error);
       toast({
-        title: `Error`,
         description: `Car failed to update`,
         className: "text-black bg-white border-0 rounded-md shadow-mg shadow-black/5 font-normal",
         variant: "destructive",
+duration: 2000
       });
       setIsLoading(false);
     }
@@ -289,7 +300,6 @@ export function CarDetailsClient({ carId }: { carId: number }) {
         }
       })
       toast({
-        title: `Booking deleted`,
         description: `Booking Successfully deleted`,
         className: "text-black bg-white border-0 rounded-md shadow-mg shadow-black/5 font-normal",
       });
@@ -298,10 +308,10 @@ export function CarDetailsClient({ carId }: { carId: number }) {
     catch(error){
       console.log(error);
       toast({
-        title: `Error `,
         description: `Booking failed to delete`,
         className: "text-black bg-white border-0 rounded-md shadow-mg shadow-black/5 font-normal",
         variant: "destructive",
+duration: 2000
       });
     }
   }
@@ -310,6 +320,14 @@ export function CarDetailsClient({ carId }: { carId: number }) {
   
   return (
     <div >
+      {isDeleting && <div className=" bg-black bg-opacity-80 fixed top-0 left-0 w-screen h-screen z-50 flex items-center justify-center">
+        <div className="flex space-x-2 justify-center items-center w-screen h-screen">
+          <span className="sr-only">Loading...</span>
+          <div className="h-8 w-8 bg-primary border-[2px] border-border rounded-full animate-bounce [animation-delay:-0.3s]"></div>
+          <div className="h-8 w-8 bg-primary border-[2px] border-border rounded-full animate-bounce [animation-delay:-0.15s]"></div>
+          <div className="h-8 w-8 bg-primary border-[2px] border-border rounded-full animate-bounce"></div>
+        </div>
+      </div>}
 
       <div className="flex items-center justify-between pb-2 border-b border-gray-300 dark:border-gray-700" >
           <div
@@ -368,6 +386,7 @@ export function CarDetailsClient({ carId }: { carId: number }) {
           :
           <>
             <Button
+              disabled={isLoading}
               onClick={() => {
                 setAction("Update car");
                 setIsDialogOpen(true)
@@ -375,12 +394,12 @@ export function CarDetailsClient({ carId }: { carId: number }) {
               className={`mx-3 flex items-center bg-primary text-primary-foreground p-2 rounded-md hover:bg-primary/90 transition-colors ${isLoading && "cursor-not-allowed opacity-50"}`}>
                     {isLoading ?
                       <>
-                      <span>Please wait</span>  
+                      <span className="text-white">Please wait</span>  
                       <div className="flex items-end py-1 h-full">
                         <span className="sr-only">Loading...</span>
-                        <div className="h-1 w-1 dark:bg-primary-foreground mx-[2px] border-border rounded-full animate-bounce [animation-delay:-0.3s]"></div>
-                        <div className="h-1 w-1 dark:bg-primary-foreground mx-[2px] border-border rounded-full animate-bounce [animation-delay:-0.15s]"></div>
-                        <div className="h-1 w-1 dark:bg-primary-foreground mx-[2px] border-border rounded-full animate-bounce"></div>
+                        <div className="h-1 w-1 bg-white mx-[2px] border-border rounded-full animate-bounce [animation-delay:-0.3s]"></div>
+                        <div className="h-1 w-1 bg-white mx-[2px] border-border rounded-full animate-bounce [animation-delay:-0.15s]"></div>
+                        <div className="h-1 w-1 bg-white mx-[2px] border-border rounded-full animate-bounce"></div>
                       </div>
                       </>
                     :
@@ -396,7 +415,6 @@ export function CarDetailsClient({ carId }: { carId: number }) {
           }
         </div>
         <hr className="my-4 border-gray-200 dark:border-gray-700" />
-
           <div className="px-4 ">
             <section className="px-4 py-4 border-b-4 border-gray-200 dark:border-gray-700">
               <h2 className="text-lg font-semibold mb-4 ">Car Details</h2>
@@ -565,7 +583,7 @@ export function CarDetailsClient({ carId }: { carId: number }) {
         <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
             <DialogContent className="sm:max-w-[425px] bg-muted border-border ">
               <DialogHeader>
-                <DialogTitle>Delete</DialogTitle>
+                <DialogTitle>{action.split(" ")[0]}</DialogTitle>
                 <DialogDescription className="text-blue-500">
                   "Are you sure you want to {action}?" 
                 </DialogDescription>
@@ -574,7 +592,7 @@ export function CarDetailsClient({ carId }: { carId: number }) {
               <Button className="max-sm:w-full hover:bg-black bg-black hover:bg-opacity-80 text-white  shadow-lg" onClick={() => {
                   handleAction();
                   setIsDialogOpen(false)
-                }}>Delete</Button>
+                }}>{action.split(" ")[0]}</Button>
               </DialogFooter>
             </DialogContent>
           </Dialog>

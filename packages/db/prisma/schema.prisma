@@ -30,6 +30,7 @@ model Car {
   userId                  Int
   totalEarnings           Int?
   carFolderId             String
+  odometerReading         String?
   user                    User     @relation(fields: [userId], references: [id])
   bookings                Booking[]
 }     
@@ -53,8 +54,10 @@ model Booking {
   totalEarnings           Int?
   paymentMethod           String?
   odometerReading         String? 
+  endodometerReading      String?
   notes                   String?
   selfieUrl               String?
+  bookingFolderId         String
   carImages               CarImages[]
   customerId              Int
   customer                Customer @relation(fields: [customerId], references: [id])
@@ -83,7 +86,7 @@ model Customer {
   name                    String
   contact                 String
   imageUrl                String?
-  folderId                String?
+  folderId                String
   address                 String?
   bookings                Booking[]
   documents               Documents[]

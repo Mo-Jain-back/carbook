@@ -39,7 +39,7 @@ interface DateStoreType {
 }
 
 export type CalendarEventType = {
-  id: number;
+  id: string;
   startDate: dayjs.Dayjs;
   endDate: dayjs.Dayjs;
   status: string;
@@ -67,7 +67,7 @@ interface ToggleSideBarType {
   setSideBarOpen: (flag:boolean) => void;
 }
 
-type EventRow = { id: number; rowIndex: number };
+type EventRow = { id: string; rowIndex: number };
 
 type EventStore1 = {
   eventsRow: EventRow[];
@@ -80,7 +80,7 @@ export const useEventRows = create<EventStore1>((set) => ({
 }));
 
 export type WrappedEvent = {
-  id:number;
+  id:string;
   startDate:Dayjs;
   endDate:Dayjs;
 }

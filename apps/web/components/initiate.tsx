@@ -5,6 +5,7 @@ import axios from "axios";
 import React, { useEffect } from "react"
 import SplashScreen from "./SplashScreen";
 import InitiateScreen from "./InitiateScreen";
+import MappingEvents from "./mapping-events";
 
 const Initiate = () => {
     const {setName,setImageUrl} = useUserStore();
@@ -37,6 +38,7 @@ const Initiate = () => {
             setIsLoading(false);
             fetchData();
     }, []);
+    <MappingEvents/>
 
     if(!isLoading) return <SplashScreen/>
     return <InitiateScreen/>

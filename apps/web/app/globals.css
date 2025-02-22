@@ -87,6 +87,11 @@
     -ms-overflow-style: none;
   }
 
+  .scaled-container {
+    transform-origin: top left;
+    overflow: hidden;
+  }
+
 
   @keyframes fillWater {
     0% {

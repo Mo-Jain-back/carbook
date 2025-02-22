@@ -3,10 +3,10 @@ import { Card, CardContent } from "@/components/ui/card"
 import Link from "next/link"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Button } from "@/components/ui/button"
-import {  Clock, LogIn, PlaneTakeoff, Plus, PlusCircle, PlusIcon, PlusSquare } from "lucide-react"
+import {  Clock, EllipsisVertical, LogIn, MoreVertical, PlaneTakeoff, Plus, PlusCircle, PlusIcon, PlusSquare, Trash, Trash2 } from "lucide-react"
 import Image from "next/image"
-import { use, useEffect, useState } from "react"
-import { CarBookingDialog } from "@/components/add-booking";
+import { use, useEffect, useRef, useState } from "react"
+import { AddBookingDialog } from "@/components/add-booking";
 import ArrowRight from "@/public/right_arrow.svg";
 import CarIcon from "@/public/car-icon.svg"
 import axios from "axios"
@@ -14,9 +14,11 @@ import { BASE_URL } from "@/lib/config"
 import { cn } from "@/lib/utils"
 import { useCarStore } from "@/lib/store"
 import Booking from "@/public/online-booking.svg"
-import LoadingScreen from "@/components/loading-screen"
 import { toast } from "@/hooks/use-toast"
 import ExcelUploader from "@/components/excel-upload"
+import { Checkbox } from "@/components/ui/checkbox";
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu"
+
 
 type BookingStatus = "Upcoming" | "Ongoing" | "Completed" | "Cancelled" | "All"
 
@@ -143,6 +145,10 @@ export default function Bookings() {
   const [isAddBookingOpen,setIsAddBookingOpen] = useState(false);
   const [filteredBookings, setFilteredBookings] = useState<Booking[]>([]);
   const [isLoading,setIsLoading] = useState(true);
+  const [selectedBookings, setSelectedBookings] = useState<string[]>([]);
+  const [isSelectionMode, setIsSelectionMode] = useState<boolean>(false);
+  const containerRef = useRef<HTMLDivElement | null>(null);
+  const [isDropDownOpen,setIsDropdownOpen] = useState(false);
 
   useEffect(() => {
     async function fetchData() {
@@ -164,13 +170,68 @@ export default function Bookings() {
     fetchData();
   },[])
 
+
+  useEffect(() => {
+    console.log("selectedBooking",selectedBookings)
+    if(selectedBookings.length === 0){
+      setIsSelectionMode(false);
+    }else {
+      setIsSelectionMode(true);
+    }
+  },[selectedBookings])
+
+  const handleCheckboxChange = (id: string) => {
+    setSelectedBookings((prev) =>
+      prev.includes(id) ? prev.filter((b) => b !== id) : [...prev, id]
+    );
+  };
+
+  const handleDelete = async () => {
+    try {
+      if(selectedBookings.length === 0) return;
+      await axios.put(`${BASE_URL}/api/v1/booking/delete-multiple`, {
+        bookingIds: selectedBookings
+      }, {
+          headers: {
+              'Content-Type': 'application/json',
+              authorization: `Bearer ${localStorage.getItem('token')}`
+          }
+      });
+      setFilteredBookings([]);
+      for(const id of selectedBookings){
+        setBookings((prev) => prev.filter(booking => booking.id != id))
+      }
+      toast({
+        description: "Bookings successfully deleted",
+        duration: 2000
+      })
+    }
+    catch(error) {
+      console.log(error);
+      toast({
+        description: "Something went wrong",
+        variant: "destructive",
+duration: 2000
+      })
+    }
+  }
+
+  const handleSelectAll = () => {
+    if (filteredBookings.length === selectedBookings.length) {
+      setSelectedBookings([]);
+    } else {
+      setSelectedBookings(filteredBookings.map((booking) => booking.id));
+    }
+  };
+
+
   const handleAddBooking = () =>{
     if(cars.length === 0){
       toast({
-        title: `Error`,
         description: `Please add cars`,
         className: "text-black bg-white border-0 rounded-md shadow-mg shadow-black/5 font-normal",
         variant: "destructive",
+duration: 2000
       });
       return;
     }
@@ -193,7 +254,7 @@ export default function Bookings() {
 
       {/* Add Booking Dialog */}
         {
-          <CarBookingDialog cars={cars} isOpen={isAddBookingOpen} setIsOpen={setIsAddBookingOpen} setBookings={setBookings} />
+          <AddBookingDialog cars={cars} isOpen={isAddBookingOpen} setIsOpen={setIsAddBookingOpen} setBookings={setBookings} />
         }
         {/* Add Booking button */}
         {bookings.length > 0 && (
@@ -234,7 +295,7 @@ export default function Bookings() {
             </Select>
           </div>
         </div>
-        <div className=" flex justify-between border-b border-border w-full scrollbar-hide">
+        <div className=" flex justify-between scrollbar-hide">
           <div className="flex gap-2 mb-6 overflow-x-auto pb-2 scrollbar-hide">
             <Button variant={selectedStatus === "All" ? "default" : "outline"} className={selectedStatus === "All" ? "bg-blue-400 hover:bg-blue-500 text-white dark:text-black" : "hover:bg-blue-100 bg-transparent dark:text-white dark:hover:bg-gray-700 text-black"} 
               onClick={() => setSelectedStatus("All")}>
@@ -258,7 +319,7 @@ export default function Bookings() {
             >
               Completed
             </Button>
-            
+           
           </div>
           {filteredBookings.length > 0 && (
           <Button className="max-sm:hidden bg-blue-600 text-white hover:bg-opacity-10 dark:text-black shadow-lg"
@@ -268,85 +329,143 @@ export default function Bookings() {
           </Button>
           )}
         </div>
-
+        <div className="border-t overflow-hidden border-border w-full ">
+              <div className={`flex items-center justify-between w-full ml-0 transition-all duration-300 gap-3 ${isSelectionMode ? "mt-0" : "-mt-9 " } items-center mt-2`}>
+                <div className="flex items-center gap-3">
+                  <Checkbox
+                    checked={filteredBookings.length === selectedBookings.length}
+                    onClick ={handleSelectAll}
+                    className={`h-5 w-5 max-sm:w-4 max-sm:h-4 transition-all  duration-300 sm:rounded-md accent-blue-300`}
+                  />
+                  <span className={` transition-all duration-300 text-sm`}>Select All</span>
+                </div>
+                <Button variant="outline" 
+                onClick = {handleDelete}
+                className="flex items-center gap-2">
+                  <Trash2 className="w-4 h-4"/>
+                  <span>Delete</span>
+                </Button>
+              </div>
+        </div>
         {bookings.length > 0 ? (
-        <div className="space-y-4">
-          {filteredBookings.map((booking) => (
-            <Card key={booking.id} className="overflow-hidden hover:shadow-md dark:border-card transition-shadow my-2">
-                <Link href={`/booking/${booking.id}`} >
-                <CardContent className="p-0">
-                  {/* Rest of the card content remains the same */}
-                  <div className="flex justify-between bg-gray-100   dark:bg-muted sm:pr-12 pr-2 items-center">
-                    {booking.status === "Upcoming" 
-                    ? 
-                    <div className="px-2 sm:px-4 ">
-                      <p className="text-sm max-sm:text-xs text-blue-500">{getHeader(booking.status,booking.start,booking.startTime,booking.end,booking.endTime)}</p>
-                      <p className="font-semibold text-[#5B4B49] max-sm:text-xs dark:text-gray-400">{getPickupTime(booking.start,booking.startTime)} </p>
-                    </div>
-                    :
-                    <div className="px-2 sm:px-4 ">
-                      <p className="text-sm max-sm:text-xs text-blue-500">{getHeader(booking.status,booking.start,booking.startTime,booking.end,booking.endTime)}</p>
-                      <p className="font-semibold text-[#5B4B49] max-sm:text-xs dark:text-gray-400">{getReturnTime(booking.end,booking.endTime)} </p>
-                    </div>
-                    }
-                    <div className="flex items-center">
-                      <div style={{backgroundColor:booking.carColor}} className="sm:w-8 z-0 bg-green-200 flex-shrink-0 sm:h-8 w-6 h-6 rounded-md"/>
-                      <div className="p-4 max-sm:p-2">
-                        <p className="text-sm max-sm:text-xs text-blue-500">BOOKING ID:</p>
-                        <p className=" text-[#5B4B49] max-sm:text-xs text-sm dark:text-gray-400">{booking.id} </p>
+        <div ref={containerRef} className="space-y-4">
+          {filteredBookings.map((booking,index) => (
+            <div key={index} className="flex gap-2 overflow-hidden items-center w-full">
+                <Checkbox
+                checked={selectedBookings.includes(booking.id)}
+                onClick={() => handleCheckboxChange(booking.id)}
+                className={`h-5 w-5 max-sm:w-4 max-sm:h-4 ${isSelectionMode ? "ml-0" : "-ml-6"} transition-all duration-300 p-0 sm:rounded-md accent-blue-300`}
+              />
+              <Card className="w-full overflow-hidden hover:shadow-md dark:border-card transition-shadow my-2">
+                  <Link href={`/booking/${booking.id}`} >
+                  <CardContent className="p-0">
+                    {/* Rest of the card content remains the same */}
+                    <div className="flex justify-between bg-gray-100   dark:bg-muted pr-2 items-center">
+                      {booking.status === "Upcoming" 
+                      ? 
+                      <div className="px-2 sm:px-4 ">
+                        <p className="text-sm max-sm:text-xs text-blue-500">{getHeader(booking.status,booking.start,booking.startTime,booking.end,booking.endTime)}</p>
+                        <p className="font-semibold text-[#5B4B49] max-sm:text-xs dark:text-gray-400">{getPickupTime(booking.start,booking.startTime)} </p>
+                      </div>
+                      :
+                      <div className="px-2 sm:px-4 ">
+                        <p className="text-sm max-sm:text-xs text-blue-500">{getHeader(booking.status,booking.start,booking.startTime,booking.end,booking.endTime)}</p>
+                        <p className="font-semibold text-[#5B4B49] max-sm:text-xs dark:text-gray-400">{getReturnTime(booking.end,booking.endTime)} </p>
+                      </div>
+                      }
+                      <div className="flex items-center justify-between w-fit ">
+                        <div className="flex items-center sm:pr-10">
+                          <div style={{backgroundColor:booking.carColor}} className="sm:w-8 z-0 bg-green-200 flex-shrink-0 sm:h-8 w-6 h-6 rounded-md"/>
+                          <div className="p-4 max-sm:p-1">
+                            <p className="text-sm max-sm:text-xs text-blue-500">BOOKING ID:</p>
+                            <p className=" text-[#5B4B49] max-sm:text-xs text-sm dark:text-gray-400">{booking.id} </p>
+                          </div>
+
+                        </div>
+                        <div className="">
+                            <DropdownMenu open={isDropDownOpen} onOpenChange={setIsDropdownOpen} modal={false}>
+                              <DropdownMenuTrigger asChild
+                                onClick={(e) => {
+                                  e.preventDefault(); 
+                                  e.stopPropagation();
+                                }}
+                              >
+                                <Button variant="ghost" className="h-8 w-8 p-0">
+                                  <span className="sr-only">Open menu</span>
+                                  <MoreVertical className="h-4 w-4 sm:w-6 sm:h-6" />
+                                </Button>
+                              </DropdownMenuTrigger>
+                              <DropdownMenuContent align="end" className="border-border">
+                                <DropdownMenuItem className="cursor-pointer" 
+                                    onClick={(e) => {
+                                      e.preventDefault(); 
+                                      e.stopPropagation();
+                                      setIsDropdownOpen(false);
+                                      setSelectedBookings((prev) =>
+                                        prev.includes(booking.id) ? prev : [...prev, booking.id]
+                                      );
+                                    }}  
+                                >
+                                  <span>Select</span>
+                                </DropdownMenuItem>
+                              </DropdownMenuContent>
+                            </DropdownMenu>
+                        </div>
                       </div>
                     </div>
-                  </div>
-                  <hr className="border-t border-border" />
-                  <div className=" bg-white dark:bg-background flex flex-row-reverse items-start justify-between">
-                    <div className="flex-1 sm:p-4 py-2 px-2">
-                      <div className="flex items-center sm:gap-8 gap-2">
-                        <div >
-                          <p className="text-xs sm:text-sm text-blue-500">FROM</p>
-                          <p className="font-semibold text-[#5B4B49] text-center text-xs sm:text-sm dark:text-gray-400">{formatDateTime(booking.start)} {booking.startTime}</p>
+                    <hr className="border-t border-border" />
+                    <div className=" bg-white dark:bg-background flex flex-row-reverse items-start justify-between">
+                      <div className="flex-1 sm:p-4 py-2 px-2">
+                        <div className="flex items-center sm:gap-12 gap-2">
+                          <div >
+                            <p className="text-xs sm:text-sm text-blue-500">FROM</p>
+                            <p className="font-semibold text-[#5B4B49] text-center text-xs sm:text-sm dark:text-gray-400">{formatDateTime(booking.start)} {booking.startTime}</p>
+                          </div>
+                          <ArrowRight className="mt-4 stroke-0 sm:w-12 w-8 filter drop-shadow-[2px_2px_rgba(0,0,0,0.1)] fill-blue-400 flex-shrink-0" />
+                          <div>
+                            <p className="sm:text-sm text-xs text-blue-500">TO</p>
+                            <p className="font-semibold text-[#5B4B49] text-center text-xs sm:text-sm dark:text-gray-400">{formatDateTime(booking.end)} {booking.endTime}</p>
+                          </div>
                         </div>
-                        <ArrowRight className="mt-4 stroke-0 sm:w-12 w-8 filter drop-shadow-[2px_2px_rgba(0,0,0,0.1)] fill-blue-400 flex-shrink-0" />
-                        <div>
-                          <p className="sm:text-sm text-xs text-blue-500">TO</p>
-                          <p className="font-semibold text-[#5B4B49] text-center text-xs sm:text-sm dark:text-gray-400">{formatDateTime(booking.end)} {booking.endTime}</p>
+                        <div className="flex items-center w-full sm:w-4/5 justify-between mt-2 sm:mt-8 sm:gap-8 gap-2">
+                          <div>
+                            <p className="text-xs sm:text-sm text-blue-500">BOOKED BY</p>
+                            <p className="font-semibold text-[#5B4B49] text-xs sm:text-sm dark:text-gray-400">{booking.customerName}</p>
+                          </div>
+                          <div>
+                            <p className="sm:text-sm text-xs text-blue-500">CONTACT</p>
+                            <p className="font-semibold text-[#5B4B49] text-xs sm:text-sm dark:text-gray-400">{booking.customerContact}</p>
+                          </div>
                         </div>
                       </div>
-                      <div className="flex items-center w-full sm:w-4/5 justify-between mt-2 sm:mt-8 sm:gap-8 gap-2">
-                        <div>
-                          <p className="text-xs sm:text-sm text-blue-500">BOOKED BY</p>
-                          <p className="font-semibold text-[#5B4B49] text-xs sm:text-sm dark:text-gray-400">{booking.customerName}</p>
+                      <div className="text-center flex flex-col items-center p-4 max-sm:p-2  border-r border-border">
+                        <div className="relative sm:w-24 flex items-center sm:h-20 rounded-md border border-border w-16 h-12 mb-2"> 
+                          { booking.carImageUrl ?
+                            <Image
+                            src={booking.carImageUrl}
+                            alt={booking.carName}
+                            fill
+                            priority={true}
+                            sizes={'6'}
+                            className="object-cover rounded w-full"
+                          />
+                          :
+                          <CarIcon className="w-full dark:stroke-blue-200  dark:fill-blue-200 p-1 stroke-black fill-black" /> 
+                          }
                         </div>
-                        <div>
-                          <p className="sm:text-sm text-xs text-blue-500">CONTACT</p>
-                          <p className="font-semibold text-[#5B4B49] text-xs sm:text-sm dark:text-gray-400">{booking.customerContact}</p>
-                        </div>
+                        <p className="text-sm max-sm:text-xs max-sm:max-w-[80px] overflow-hidden font-semibold">{booking.carName}</p>
+                        <p className="text-xs text-blue-400 max-sm:text-[10px]">{booking.carPlateNumber}</p>
                       </div>
                     </div>
-                    <div className="text-center flex flex-col items-center p-4 max-sm:p-2  border-r border-border">
-                      <div className="relative sm:w-24 flex items-center sm:h-20 rounded-md border border-border w-16 h-12 mb-2"> 
-                        { booking.carImageUrl ?
-                          <Image
-                          src={booking.carImageUrl}
-                          alt={booking.carName}
-                          fill
-                          className="object-cover rounded w-full"
-                        />
-                        :
-                        <CarIcon className="w-full dark:stroke-blue-200  dark:fill-blue-200 p-1 stroke-black fill-black" /> 
-                        }
-                      </div>
-                      <p className="text-sm max-sm:text-xs max-sm:max-w-[80px] overflow-hidden font-semibold">{booking.carName}</p>
-                      <p className="text-xs text-blue-400 max-sm:text-[10px]">{booking.carPlateNumber}</p>
+                    <div className="p-4 max-sm:p-2 bg-green-100 flex dark:bg-secondary items-center text-green-600 dark:text-green-400 gap-2">
+                      <CarIcon className="w-8 h-3 stroke-green-600 dark:stroke-green-400 fill-green-600 dark:fill-green-400 stroke-[4px]" />
+                      <p className="text-sm max-sm:text-xs ">{getTimeUntilBooking(booking.start,booking.status)}</p>
+                      
                     </div>
-                  </div>
-                  <div className="p-4 max-sm:p-2 bg-green-100 flex dark:bg-secondary items-center text-green-600 dark:text-green-400 gap-2">
-                    <CarIcon className="w-8 h-3 stroke-green-600 dark:stroke-green-400 fill-green-600 dark:fill-green-400 stroke-[4px]" />
-                    <p className="text-sm max-sm:text-xs ">{getTimeUntilBooking(booking.start,booking.status)}</p>
-                    
-                  </div>
-                </CardContent>
-                </Link>
-              </Card>
+                  </CardContent>
+                  </Link>
+                </Card>
+            </div>
           ))}
           {filteredBookings.length === 0 && <div className="w-full h-full py-28 gap-2 flex flex-col justify-center items-center">
             <Booking className={`sm:h-16 h-12 sm:w-16 w-12 stroke-[5px] fill-gray-400 `}/>

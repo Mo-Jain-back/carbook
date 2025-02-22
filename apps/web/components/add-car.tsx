@@ -13,9 +13,10 @@ import { BASE_URL } from "@/lib/config";
 import axios from "axios"
 import {  useCarStore } from "@/lib/store"
 import Image from "next/image"
-import { uploadToDrive } from "@/app/actions/upload";
 import { toast } from "@/hooks/use-toast";
 import CarNumberPlateInput from "./car-number-input"
+import { createFolder } from "@/app/actions/folder"
+import { uploadToDrive, uploadToDriveWTParent } from "@/app/actions/upload"
 
 
 interface AddCarDialogProps {
@@ -58,24 +59,38 @@ export function AddCarDialog({isOpen,setIsOpen}:AddCarDialogProps) {
 
   const handleSubmit = async (event: React.FormEvent) => {
     event.preventDefault();
+    setIsLoading(true);
     if (!validateForm()) {
       toast({
-        title: `Error`,
         description: `Please fill all mandatory fields`,
         className: "text-black bg-white border-0 rounded-md shadow-mg shadow-black/5 font-normal",
         variant: "destructive",
+        duration: 2000
       });
       return;
     }
 
     if (!imageFile) return;
-    setIsLoading(true);
     
 
     try {
         const currentDate = new Date();
         const unixTimestamp = Math.floor(currentDate.getTime() / 1000);
-        const resImage = await uploadToDrive(imageFile,"name",carBrand + " " + carModel + " car_img" + unixTimestamp); 
+        
+        const createdFolder = await createFolder(carBrand + " " + carModel + unixTimestamp,"car");
+
+        if(!createdFolder.folderId || createdFolder.error){
+          toast({
+            description: `Failed to create folder`,
+            className: "text-black bg-white border-0 rounded-md shadow-mg shadow-black/5 font-normal",
+            variant: "destructive",
+            duration: 2000
+          });
+          return
+        }
+
+        const resImage = await uploadToDrive(imageFile,createdFolder.folderId);
+
         
         console.log("response Image",resImage);
         
@@ -116,7 +131,6 @@ export function AddCarDialog({isOpen,setIsOpen}:AddCarDialogProps) {
         setIsLoading(false);
         setIsOpen(false);
         toast({
-          title: `Car added`,
           description: `Car Successfully added`,
           className: "text-black bg-white border-0 rounded-md shadow-mg shadow-black/5 font-normal",
         });
@@ -124,10 +138,10 @@ export function AddCarDialog({isOpen,setIsOpen}:AddCarDialogProps) {
       catch (error) {
         console.log(error);
         toast({
-          title: `Error`,
           description: `Failed to submit form`,
           className: "text-black bg-white border-0 rounded-md shadow-mg shadow-black/5 font-normal",
           variant: "destructive",
+            duration: 2000
         });
         setIsLoading(false);
       }
@@ -320,7 +334,7 @@ export function AddCarDialog({isOpen,setIsOpen}:AddCarDialogProps) {
                     </div>
                 </div>
                 <div>
-                <Button type="submit" className={`bg-blue-600 dark:text-white hover:bg-opacity-80 w-full ${isLoading && "cursor-not-allowed opacity-50"}`}>
+                <Button type="submit" disabled={isLoading} className={`bg-blue-600 dark:text-white hover:bg-opacity-80 w-full ${isLoading && "cursor-not-allowed opacity-50"}`}>
                     {isLoading ?
                       <>
                       <span>Please wait</span>

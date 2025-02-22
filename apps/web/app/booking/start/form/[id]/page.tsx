@@ -7,6 +7,21 @@ import axios from "axios"
 import { BASE_URL } from "@/lib/config"
 import BookingStartClient from "./booking-start-client"
 
+export interface Document{
+  id: number;
+  customerId: number;
+  name: string;
+  url: string;
+  type: string;
+}
+
+export interface CarImage{
+  id: number;
+  name: string;
+  url: string;
+  bookingId: string;
+}
+
 export interface Booking {
   id: string;
   start: string;
@@ -30,17 +45,14 @@ export interface Booking {
   aadharCard?: string;
   odometerReading?: string;
   notes?: string;
+  selfieUrl?:string,
+  documents:Document[],
+  carImages:CarImage[],
+  folderId:string,
+  bookingFolderId: string,
+  currOdometerReading: string
 }
 
-function getBookingStatus(start: string, end: string) {
-  const now = new Date()
-  const startDate = new Date(start)
-  const endDate = new Date(end)
-
-  if (now < startDate) return "Booking Yet to Start"
-  if (now >= startDate && now <= endDate) return "Booking Ongoing"
-  return "Booking Completed"
-}
 
 export default function BookingDetails() {
   // const bookingId = await Number(params.id); // Resolve params.id synchronously after awaiting params

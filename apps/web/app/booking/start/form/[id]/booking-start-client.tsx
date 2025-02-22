@@ -20,36 +20,15 @@ import dayjs from "dayjs"
 import { set } from "date-fns"
 import { calculateCost } from "@/components/add-booking"
 import { BsFilePdfFill, BsFiletypePdf } from "react-icons/bs"
+import { Booking, Document } from "./page"
+import { RenderFileList, RenderNewFileList } from "./render-file-list"
+import { deleteFile } from "@/app/actions/delete"
 import { uploadMultipleToDrive, uploadToDrive } from "@/app/actions/upload"
 
 interface FormErrors {
   [key: string]: string;
 }
 
-export interface Booking {
-    id: string;
-    start: string;
-    end: string;
-    startTime: string;
-    endTime: string;
-    status: string;
-    customerName: string;
-    customerContact: string;
-    carId:number;
-    carName: string;
-    carPlateNumber: string;
-    carImageUrl: string;
-    dailyRentalPrice: number;
-    securityDeposit?: string;
-    totalPrice?: number;
-    advancePayment?: number;
-    customerAddress?: string;
-    paymentMethod?: string;
-    drivingLicence?: string;
-    aadharCard?: string;
-    odometerReading?: string;
-    notes?: string;
-  }
 
 export default function BookingStartClient({booking,bookingId} : {
     booking: Booking,
@@ -63,7 +42,7 @@ export default function BookingStartClient({booking,bookingId} : {
     const [returnDate, setReturnDate] = useState(new Date(booking.end));
     const [returnTime, setReturnTime] = useState(booking.endTime);
     const [securityDeposit, setSecurityDeposit] = useState(booking.securityDeposit || "");
-    const [odometerReading, setOdometerReading] = useState(Number(booking.odometerReading) || 0);
+    const [odometerReading, setOdometerReading] = useState(Number(booking.currOdometerReading) || 0);
     const [address, setAddress] = useState(booking.customerAddress);
     const [notes, setNotes] = useState(booking.notes);
     const [bookingAmountReceived, setBookingAmountReceived] = useState(booking.advancePayment || 0);
@@ -72,6 +51,7 @@ export default function BookingStartClient({booking,bookingId} : {
     const [paymentMethod, setPaymentMethod] = useState(booking.paymentMethod);
     const [termsAccepted, setTermsAccepted] = useState(false);
     const [errors, setErrors] = useState<FormErrors>({});
+    const [documents,setDocuments] =useState<Document[] | undefined>(booking.documents);
     const router = useRouter();
     const {cars} = useCarStore();
     const [isLoading, setIsLoading] = useState(false);
@@ -80,6 +60,7 @@ export default function BookingStartClient({booking,bookingId} : {
       photos: [],
       selfie: [],
     });
+    const [progress,setProgress] = useState(0);
 
     useEffect(() => {
         const cost = calculateCost(startDate,returnDate,startTime,returnTime,dailyRentalPrice);
@@ -104,7 +85,11 @@ export default function BookingStartClient({booking,bookingId} : {
       if (!totalAmount) newErrors.totalAmount = "This field is mandatory";
       if (!paymentMethod) newErrors.paymentMethod = "This field is mandatory";
       if (!termsAccepted) newErrors.terms = "You must accept the terms and conditions";
-      if (uploadedFiles.documents.length === 0) newErrors.documents = "Documents are mandatory";
+      if(documents){
+        if (uploadedFiles.documents.length === 0 && documents.length === 0) newErrors.documents = "Documents are mandatory";
+      }
+      else if (uploadedFiles.documents.length === 0) newErrors.documents = "Documents are mandatory";
+      
       if (uploadedFiles.photos.length === 0) newErrors.photos = "Photos are mandatory";
       if (uploadedFiles.selfie.length === 0) newErrors.selfie = "Selfie is mandatory";
 
@@ -116,18 +101,23 @@ export default function BookingStartClient({booking,bookingId} : {
     const handleFileUpload = (event: React.ChangeEvent<HTMLInputElement>, type: string) => {
       const files = event.target.files
       if (files) {
-        const length = uploadedFiles[type].length + files.length;
+        let length = uploadedFiles[type].length + files.length;
         if(type === "selfie"){
           if(length > 1){
             setErrors(prev => ({ ...prev, [type]: "Please upload only one image" }));
-            setUploadedFiles(prev => ({ ...prev, [type]: [] }));
+            return;
+          }
+        }
+        else if(type === "documents"){
+          length = documents ? documents.length + length : length;
+          if(length > 5){
+            setErrors(prev => ({ ...prev, [type]: "You can upload upto 5 documents or images" }));
             return;
           }
         }
         else{
           if(length > 5){
             setErrors(prev => ({ ...prev, [type]: "You can upload upto 5 documents or images" }));
-            setUploadedFiles(prev => ({ ...prev, [type]: [] }));
             return;
           }
         }
@@ -139,18 +129,17 @@ export default function BookingStartClient({booking,bookingId} : {
           if(type === "documents"){
             if(!file.type.startsWith("image/") && !file.type.includes("pdf")){
               setErrors(prev => ({ ...prev, [type]: "Please upload only image or pdf files" }));
-              setUploadedFiles(prev => ({ ...prev, [type]: [] }));
               return;
             }
           }
           else{
             if(!file.type.startsWith("image/")){
               setErrors(prev => ({ ...prev, [type]: "Please upload only image" }));
-              setUploadedFiles(prev => ({ ...prev, [type]: [] }));
               return;
             }
           }
         }
+        
         setUploadedFiles((prev) => ({
           ...prev,
           [type]: [...prev[type], ...Array.from(files)],
@@ -166,76 +155,111 @@ export default function BookingStartClient({booking,bookingId} : {
       }))
     }
 
+    const handleDeleteDocument = async(id:number,url:string,setIsDeleting:React.Dispatch<React.SetStateAction<boolean>>) => {
+      if(!documents) return;
+      setIsDeleting(true);
+      try{
+        await deleteFile(url);
+        await axios.delete(`${BASE_URL}/api/v1/customer/document/${id}`, {
+          headers: {
+            "Content-type": "application/json",
+            authorization: `Bearer ` + localStorage.getItem('token')
+          }
+        });
+        setDocuments(documents.filter(document => document.id !== id));
+        toast({
+          description: `Document Successfully deleted`,
+          className: "text-black bg-white border-0 rounded-md shadow-mg shadow-black/5 font-normal",
+        });
+      }
+      catch(error){
+        console.log(error);
+        toast({
+          description: `Document could not be deleted`,
+          className: "text-black bg-white border-0 rounded-md shadow-mg shadow-black/5 font-normal",
+          variant: "destructive",
+          duration: 2000
+        });
+      }
+      setIsDeleting(false);
+    }
+
     const handleSubmit = async(event: React.FormEvent) => {
       event.preventDefault()
-      
+
       if (!validateForm()) {
         toast({
-          title: `Error`,
           description: `Please fill all mandatory fields`,
           className: "text-black bg-white border-0 rounded-md shadow-mg shadow-black/5 font-normal",
           variant: "destructive",
+          duration: 2000
         });
         return;
       }
       setIsLoading(true);
       try {
-      
-        if(uploadedFiles.documents.length == 0) {
-          setErrors(prev => ({ ...prev, ["documents"]: "Please upload at least one document" }));
-          return;
-        }
-
         if(uploadedFiles.selfie.length == 0) {
-          setErrors(prev => ({ ...prev, ["selfie"]: "Please upload at least one selfie photo" }));
           return;
         }
-
         if(uploadedFiles.photos.length == 0) {
-          setErrors(prev => ({ ...prev, ["photos"]: "Please upload at least one car photo" }));
           return;
         }
+        let overallProgress = 2;
+        setProgress(overallProgress);
+        const totalSize = Object.values(uploadedFiles).flat().reduce((acc, file) => acc + file.size, 0);
         
-        const resSelfie = await uploadToDrive(uploadedFiles.selfie[0],"name",booking.customerName + "_" + booking.carName);
+        const resSelfie = await uploadToDrive(uploadedFiles.selfie[0],booking.bookingFolderId);
         
-        if(resSelfie.error || !resSelfie.folderId){
+        const selfieSize = uploadedFiles.selfie[0].size;
+        overallProgress += Math.round((selfieSize / totalSize) * 100)*0.93;
+        setProgress(overallProgress);
+
+        if(resSelfie.error ){
           toast({
-            title: `Error`,
             description: `Failed to upload selfie photo`,
             className: "text-black bg-white border-0 rounded-md shadow-mg shadow-black/5 font-normal",
             variant: "destructive",
+            duration: 2000
           });
           throw new Error("Failed to upload selfie photo");
           return;
         }
 
-        const resPhoto = await uploadMultipleToDrive(uploadedFiles.photos,"id",resSelfie.folderId);
+        const resPhoto = await uploadMultipleToDrive(uploadedFiles.photos,booking.bookingFolderId);
         
+        const photoSize = uploadedFiles.photos.reduce((acc, file) => acc + file.size, 0);
+        overallProgress += Math.round((photoSize / totalSize) * 100)*0.93;
+        setProgress(overallProgress);
+
         if(resPhoto.error){
           toast({
-            title: `Error`,
             description: `Failed to upload car photo`,
             className: "text-black bg-white border-0 rounded-md shadow-mg shadow-black/5 font-normal",
             variant: "destructive",
+            duration: 2000
           });
           throw new Error("Failed to upload car photo");
           return;
         }
+        let resDoc;
+        if(uploadedFiles.documents){
+          resDoc = await uploadMultipleToDrive(uploadedFiles.documents,booking.folderId);
+          const docSize = uploadedFiles.documents.reduce((acc, file) => acc + file.size, 0);
+          overallProgress += Math.round((docSize / totalSize) * 100)*0.93;
+          setProgress(overallProgress);
+        }
 
-        const resDoc = await uploadMultipleToDrive(uploadedFiles.documents,"id",resSelfie.folderId);
-
-        if(resDoc.error){
+        if(resDoc && resDoc.error){
           toast({
-            title: `Error`,
             description: `Failed to upload aadhar card and driving license`,
             className: "text-black bg-white border-0 rounded-md shadow-mg shadow-black/5 font-normal",
             variant: "destructive",
+            duration: 2000
           });
           throw new Error("Failed to upload aadhar card and driving license");
           return;
         }
        
-        console.log("documents", resDoc.uploadedFiles);  
         await axios.put(`${BASE_URL}/api/v1/booking/${bookingId}/start`, {
           customerName,
           customerContact:phoneNumber,
@@ -252,7 +276,7 @@ export default function BookingStartClient({booking,bookingId} : {
           totalAmount,
           paymentMethod,
           notes,
-          documents:resDoc.uploadedFiles,
+          documents:resDoc && resDoc.uploadedFiles,
           selfieUrl:resSelfie.url,
           carImages:resPhoto.uploadedFiles
         }, {
@@ -262,8 +286,8 @@ export default function BookingStartClient({booking,bookingId} : {
           }
         });
         setIsLoading(false);
+        setProgress(100);
         toast({
-          title: `Booking started`,
           description: `Booking Successfully started`,
           className: "text-black bg-white border-0 rounded-md shadow-mg shadow-black/5 font-normal",
         });
@@ -272,43 +296,27 @@ export default function BookingStartClient({booking,bookingId} : {
       } catch(error) {
         console.log(error);
         toast({
-          title: `Error`,
           description: `Failed to submit form`,
           className: "text-black bg-white border-0 rounded-md shadow-mg shadow-black/5 font-normal",
           variant: "destructive",
+          duration: 2000
         });
         setIsLoading(false);
+        setProgress(0);
       }
     }
 
-    const getFileIcon = (type: string) => {
-      if(!type.startsWith('image/')){
-        return <BsFilePdfFill className="w-4 h-4" />
-      }
-      return <ImageIcon className="w-4 h-4" />
-    }
-
-    const renderFileList = (type: string) => (
+    const renderFileList = (type: string) => {
+      return(
       <div className="mt-2 text-sm">
-        {uploadedFiles[type].map((file, index) => (
-          <div
-            key={index}
-            className="flex w-fit max-w-[200px] max-h-[40px] my-1 items-center gap-2 bg-gray-200 dark:bg-muted p-2 rounded-md"
-          >
-            <span className="min-w-4">
-              {getFileIcon(file.type)}
-            </span>
-            <span className="whitespace-nowrap overflow-hidden text-ellipsis text-sm">{file.name}</span>
-            <span
-              className="rotate-45 text-red-500 w-3 cursor-pointer text-[25px]"
-              onClick={() => handleRemoveFile(type, index)}
-            >
-              +
-            </span>
-          </div>
-        ))}
+        {type==="documents" && 
+          documents && documents.length > 0 &&
+          <RenderFileList documents={documents} handleDeleteDocument={handleDeleteDocument} />
+        }
+        <RenderNewFileList uploadedFiles={uploadedFiles[type]} handleRemoveFile={handleRemoveFile} type={type}/>
+        
       </div>
-    )
+    )}
 
     const handleDateChange = (date:Date,type?:string) => {
       if(type === "start") {
@@ -544,6 +552,7 @@ export default function BookingStartClient({booking,bookingId} : {
           <div className="grid sm:grid-cols-3 grid-cols-1 gap-6">
             <div>
               <Label className="max-sm:text-xs" htmlFor="documents">Driving License and Aadhar Card <span className="text-red-500">*</span></Label>
+              {(uploadedFiles["documents"].length + (documents ? documents.length : 0)) <= 5 && 
               <Input
                 id="documents"
                 type="file"
@@ -553,7 +562,7 @@ export default function BookingStartClient({booking,bookingId} : {
                 className={cn(inputClassName("documents"),
                   "max-sm:text-xs "
                  )}
-              />
+              />}
               {errors.documents && <p className="text-red-500 text-sm mt-1">{errors.documents}</p>}
               {(renderFileList("documents") )}
             </div>
@@ -606,21 +615,28 @@ export default function BookingStartClient({booking,bookingId} : {
           {errors.terms && <p className="text-red-500 text-sm mt-1">{errors.terms}</p>}
 
           <div className="flex items-center space-x-2">
-            <Button type="submit" className={`bg-blue-600 text-white hover:bg-opacity-80 w-full ${isLoading && "cursor-not-allowed opacity-50"}`}>
-                  {isLoading ?
-                    <>
-                    <span>Please wait</span>
-                    <div className="flex items-end py-1 h-full">
-                        <span className="sr-only">Loading...</span>
-                        <div className="h-1 w-1 bg-white mx-[2px] border-border rounded-full animate-bounce [animation-delay:-0.3s]"></div>
-                        <div className="h-1 w-1 bg-white mx-[2px] border-border rounded-full animate-bounce [animation-delay:-0.15s]"></div>
-                        <div className="h-1 w-1 bg-white mx-[2px] border-border rounded-full animate-bounce"></div>
-                      </div>
-                    </>
-                  :
-                  <span>Create</span>
-                  }
+            {isLoading ?
+              <div className="w-full border-2 border-border rounded-lg relative">
+                <div 
+                style={{ width: `${isLoading ? progress : '100'}%` }}
+                className={`bg-primary rounded-lg text-white h-[35px] w-full hover:bg-opacity-80 ${isLoading && "rounded-e-none"}`}/>
+                  <div className={`w-full h-[35px] p-1 flex justify-center items-center absolute top-0 left-0 `}>
+                        <span className="text-white">Please wait</span>
+                        <div className="flex items-end px-1 pb-2 h-full">
+                            <span className="sr-only">Loading...</span>
+                            <div className="h-1 w-1 bg-white mx-[2px] border-border rounded-full animate-bounce [animation-delay:-0.3s]"></div>
+                            <div className="h-1 w-1 bg-white mx-[2px] border-border rounded-full animate-bounce [animation-delay:-0.15s]"></div>
+                            <div className="h-1 w-1 bg-white mx-[2px] border-border rounded-full animate-bounce"></div>
+                        </div>
+                  </div>
+              </div>
+              :
+              <Button type="submit" 
+              disabled={isLoading} 
+              className={`bg-blue-600 text-white hover:bg-opacity-80 w-full ${isLoading && "rounded-e-none cursor-not-allowed opacity-50"}`}>
+                    <span>Create</span>
               </Button>
+            }
               {!isLoading &&
                   <Button  
                     onClick={() => router.push('/booking/'+bookingId)}
@@ -630,6 +646,7 @@ export default function BookingStartClient({booking,bookingId} : {
                   </Button>
             }
           </div>
+          <span className="flex justify-center w-full">Progress : {progress}%</span>
         </form>
       </div>
     )

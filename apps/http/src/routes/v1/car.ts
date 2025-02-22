@@ -2,6 +2,7 @@ import {  Router } from "express";
 import { CarsSchema, CarsUpdateSchema } from "../../types";
 import client from "@repo/db/client";
 import { middleware } from "../../middleware";
+import { deleteFolder } from "./folder";
 
 export const carRouter = Router();
 
@@ -71,9 +72,10 @@ carRouter.post("/",middleware,async (req,res) => {
             message:"Car created successfully",
             carId:car.id
         })
+        return
     } catch(e) {
         res.status(400).json({message: "Internal server error"})
-        
+        return;        
     }
 })
 
@@ -99,9 +101,10 @@ carRouter.get("/all",middleware,async (req,res) => {
             message:"Cars fetched successfully",
             cars:formatedCars
         })
+        return;
     } catch(e) {
         res.status(400).json({message: "Internal server error"})
-        
+        return;
     }
 })
 
@@ -142,9 +145,11 @@ carRouter.get("/:id",middleware,async (req,res) => {
             message:"Car fetched successfully",
             car:formatedCars
         })
+        return;
     } catch(e) {
         console.error("Erros:",e)
         res.status(400).json({message: "Internal server error"});
+        return;
     }
 })
 
@@ -169,6 +174,7 @@ carRouter.get("/earnings/:id",middleware, async(req,res) => {
 
         if(!earnings){
             res.status(400).json({message:"Error while finding earnings"})
+            return;
         }
 
         res.json({
@@ -176,10 +182,12 @@ carRouter.get("/earnings/:id",middleware, async(req,res) => {
             earnings,
             total:car.totalEarnings
         })
+        return;
     }
     catch (e) {
         console.log(e);
         res.status(400).json({message: "Internal server error"})
+        return;
     }
 })
 
@@ -216,16 +224,19 @@ carRouter.get("/thismonth/earnings/all",middleware,async (req,res) => {
 
         if(!carData.length){
             res.status(400).json({message:"No earnings yet"});
+            return;
         }
 
         res.json({
             message:"Car earnings fetched successfully",
             earnings:carData
         })
+        return;
     }
     catch (e) {
         console.log(e);
         res.status(400).json({message: "Internal server error"})
+        return;
     }
 })
 
@@ -264,9 +275,11 @@ carRouter.put("/:id",middleware,async (req,res) => {
             message:"Car updated successfully",
             CarId:car.id
         })
+        return;
     } catch(e) {
         console.error("Erros:",e)
         res.status(400).json({message: "Internal server error"})
+        return;
     }
 })
 
@@ -290,12 +303,15 @@ carRouter.delete("/:id",middleware,async (req,res) => {
             }
         })
 
+        await deleteFolder(car.carFolderId);
+
         res.json({
             message:"Car deleted successfully",
             CarId:car.id
         })
+        return;
     } catch(e) {
         res.status(400).json({message: "Internal server error"})
-        
+        return;
     }
 });

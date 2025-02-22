@@ -83,7 +83,6 @@ export function EventSummaryPopup({ event, isOpen, onClose }: EventSummaryPopupP
       const updatedEvents = events.filter((e) => e.id !== event.id)
       setEvents(updatedEvents)
       toast({
-        title: `Booking deleted`,
         description: `Event Successfully deleted`,
         className: "text-black bg-white border-0 rounded-md shadow-mg shadow-black/5 font-normal",
       });
@@ -92,10 +91,10 @@ export function EventSummaryPopup({ event, isOpen, onClose }: EventSummaryPopupP
     catch(error){
       console.log(error);
       toast({
-        title: `Error`,
         description: `Booking failed to delete`,
         className: "text-black bg-white border-0 rounded-md shadow-mg shadow-black/5 font-normal",
         variant: "destructive",
+duration: 2000
       });
     }
   }
@@ -136,7 +135,6 @@ export function EventSummaryPopup({ event, isOpen, onClose }: EventSummaryPopupP
       setEvents(updatedEvents)
       setIsEditing(false)
       toast({
-        title: `Booking updated`,
         description: `Event Successfully updated`,
         className: "text-black bg-white border-0 rounded-md shadow-mg shadow-black/5 font-normal",
       });
@@ -144,10 +142,10 @@ export function EventSummaryPopup({ event, isOpen, onClose }: EventSummaryPopupP
     catch(error){
       console.log(error);
       toast({
-        title: `Error`,
         description: `Booking failed to update`,
         className: "text-black bg-white border-0 rounded-md shadow-mg shadow-black/5 font-normal",
         variant: "destructive",
+duration: 2000
       });
     }
     

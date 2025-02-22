@@ -47,19 +47,19 @@ const CustomerName = ({name,contact,onChangeInput,setCustomerId,setName,setConta
                 onChange={onChangeInput}
                 onFocus={() => setIsFocused(true)}
                 onBlur={() => setIsFocused(false)}
-                className="w-full"
+                className="w-full max-sm:text-xs max-sm:placeholder:text-xs"
               />
             </div>
           { isFocused && name.length > 0 &&
             <div 
-            className="w-full bg-muted ba p-0 absolute rounded-md scrollbar-hide top-10 left-0" 
+            className="w-[150px] bg-muted ba p-0 absolute rounded-md scrollbar-hide top-10 left-0" 
           >
             {filteredCustomers.length > 0 && (
               <div className="max-h-[300px] overflow-auto">
                 {filteredCustomers.map((customer) => (
                   <div
                     key={customer.id}
-                    className="flex items-start gap-3 p-3 hover:bg-muted cursor-pointer transition-colors"
+                    className="flex items-start gap-3 p-3 w-full rounded-md hover:bg-card cursor-pointer transition-colors"
                     onClick={() => {
                       setCustomerId(customer.id);
                       setName(customer.name);
@@ -70,7 +70,7 @@ const CustomerName = ({name,contact,onChangeInput,setCustomerId,setName,setConta
                     <div className="flex-shrink-0 mt-1">
                       <User className="h-5 w-5 text-muted-foreground" />
                     </div>
-                    <div>
+                    <div className="max-w-[100px] overflow-hidden text-ellipsis whitespace-nowrap">
                       <div className="font-medium text-sm">{customer.name}</div>
                       <div className="text-sm text-muted-foreground">
                         {customer.contact}

@@ -1,7 +1,12 @@
 import {  Router } from "express";
-import { BookingEndSchema, BookingSchema, BookingStartSchema, BookingUpdateSchema, MultipleBookingSchema } from "../../types";
+import { BookingEndSchema, BookingSchema, BookingStartSchema, BookingUpdateSchema, MultipleBookingDeleteSchema, MultipleBookingSchema } from "../../types";
 import client from "@repo/db/client";
 import { middleware } from "../../middleware";
+import { createFolder, deleteFolder } from "./folder";
+import dotenv from "dotenv";
+import { ParsedQs } from 'qs';
+
+dotenv.config();
 
 export function calculateCost(startDate:Date, endDate:Date, startTime:string, endTime:string, pricePer24Hours:number) {
     let startDateTime = new Date(startDate);
@@ -38,6 +43,15 @@ export function calculateCost(startDate:Date, endDate:Date, startTime:string, en
     return newId;
   };
 
+  const parseIds = (ids: string | ParsedQs | (string | ParsedQs)[]): string[] => {
+    if (typeof ids === 'string') {
+        return ids.split(',').map(id => id.trim());
+    } else if (Array.isArray(ids)) {
+        return ids.flatMap(id => typeof id === 'string' ? id.split(',').map(id => id.trim()) : []);
+    }
+    return [];
+};
+
 export const bookingRouter = Router();
 
 bookingRouter.post("/",middleware,async (req,res) => {
@@ -50,16 +64,37 @@ bookingRouter.post("/",middleware,async (req,res) => {
         let customerId = parsedData.data.customerId;
 
         if(!customerId || customerId === 0) {
+            const folder = await createFolder(parsedData.data.customerName+"_"+parsedData.data.customerContact,"customer");
+            if(!folder.folderId || folder.error){
+                res.status(400).json({
+                    message: "Failed to create folder",
+                    error:folder.error,
+                })
+                return
+            }
             const customer = await client.customer.create({
                 data: {
                     name: parsedData.data.customerName,
                     contact: parsedData.data.customerContact,
+                    folderId:folder.folderId
                 }
             })
             customerId = customer.id;
         }
         
         const newBookingId = await generateBookingId();
+        const currDate = new Date();
+        const unixTimeStamp = Math.floor(currDate.getTime() / 1000);
+        const folder = await createFolder(newBookingId+" "+unixTimeStamp,"booking");
+
+
+        if(!folder.folderId || folder.error){
+            res.status(400).json({
+                message: "Failed to create folder",
+                error:folder.error,
+            })
+            return
+        }
 
         const booking = await client.booking.create({
             data: {
@@ -74,18 +109,21 @@ bookingRouter.post("/",middleware,async (req,res) => {
                 totalEarnings:parsedData.data.totalAmount,
                 userId: req.userId!,
                 status:"Upcoming",
-                customerId: customerId
+                customerId: customerId,
+                bookingFolderId:folder.folderId
             }
         })
         
         res.json({
             message:"Booking created successfully",
-            bookingId:booking.id
+            bookingId:booking.id,
+            folderId:folder.folderId
         })
+        return
     } catch(e) {
         console.error(e);
         res.status(400).json({message: "Internal server error"})
-        
+        return
     }
 })
 
@@ -118,18 +156,20 @@ bookingRouter.get("/all",middleware,async (req,res) => {
                 carImageUrl:booking.car.imageUrl,
                 customerName:booking.customer.name,
                 customerContact:booking.customer.contact,
-                carColor:booking.car.colorOfBooking
+                carColor:booking.car.colorOfBooking,
+                odometerReading:booking.car.odometerReading
             }
         })
         res.json({
             message:"Bookings fetched successfully",
             bookings:formatedBookings
         })
+        return
     } catch(e) {
         console.error(e);
 
         res.status(400).json({message: "Internal server error"})
-        
+        return
     }
 })
 
@@ -176,11 +216,15 @@ bookingRouter.get("/:id",middleware,async (req,res) => {
             customerAddress:booking.customer.address,
             paymentMethod:booking.paymentMethod,
             odometerReading:booking.odometerReading,
+            endodometerReading:booking.endodometerReading,
             notes:booking.notes,
             selfieUrl:booking.selfieUrl,
             documents:booking.customer.documents,
             carImages:booking.carImages,
-            customerId:booking.customerId
+            customerId:booking.customerId,
+            folderId:booking.customer.folderId,
+            bookingFolderId:booking.bookingFolderId,
+            currOdometerReading:booking.car.odometerReading
         }
 
         // Filter out null values dynamically
@@ -191,14 +235,70 @@ bookingRouter.get("/:id",middleware,async (req,res) => {
             message:"Booking fetched successfully",
             booking:filteredBooking
         })
+        return
     } catch(e) {
         console.error(e);
         res.status(400).json({message: "Internal server error"})
-        
+        return
+    }
+})
+
+bookingRouter.put("/delete-multiple",middleware,async (req,res) => {
+    console.log('Request body:', req.body);
+
+    const parsedData = MultipleBookingDeleteSchema.safeParse(req.body);
+    if (!parsedData.success) {
+        console.error('Validation error:', parsedData.error);
+        res.status(400).json({ message: 'Wrong Input type' });
+        return;
+    }
+
+    const { bookingIds } = parsedData.data;
+    console.log('Parsed booking IDs:', bookingIds);
+
+    try {
+        for(const id of req.body.bookingIds){
+            const booking = await client.booking.findFirst({
+                where: {
+                    id: id,
+                    userId: req.userId!
+                }
+            })
+
+            if(!booking) {
+                res.status(400).json({message: "Booking not found"})
+                return
+            }
+
+            await client.carImages.deleteMany({
+                where:{
+                    bookingId:id
+                }
+            })
+
+            
+            await client.booking.delete({
+                where: {
+                    id: id,
+                    userId: req.userId!
+                }
+            })
+            
+            await deleteFolder(booking.bookingFolderId);
+        }    
+        res.json({
+            message:"Booking deleted successfully",
+        })
+        return
+    } catch(e) {
+        console.error(e);
+        res.status(400).json({message: "Internal server error"})
+        return
     }
 })
 
 bookingRouter.put("/:id",middleware,async (req,res) => {
+    console.log("hi there")
     const parsedData = BookingUpdateSchema.safeParse(req.body);
     if (!parsedData.success) {
         res.status(400).json({message: "Wrong Input type"})
@@ -229,6 +329,9 @@ bookingRouter.put("/:id",middleware,async (req,res) => {
         if (parsedData.data.securityDeposit !== undefined) updateData.securityDeposit = parsedData.data.securityDeposit;
         if (parsedData.data.dailyRentalPrice !== undefined) updateData.dailyRentalPrice = parsedData.data.dailyRentalPrice;
         if (parsedData.data.paymentMethod !== undefined) updateData.paymentMethod = parsedData.data.paymentMethod;
+        if (parsedData.data.odometerReading !== undefined) updateData.odometerReading = parsedData.data.odometerReading;
+        if (parsedData.data.notes !== undefined) updateData.notes = parsedData.data.notes;
+        if (parsedData.data.selfieUrl !== undefined) updateData.selfieUrl = parsedData.data.selfieUrl
         updateData.totalEarnings = parsedData.data.totalAmount;
 
         if (parsedData.data.customerName !== undefined) updateCustomerData.name = parsedData.data.customerName;
@@ -238,27 +341,56 @@ bookingRouter.put("/:id",middleware,async (req,res) => {
         if (updateCustomerData && booking.customerId) {
             await client.customer.update({
                 where: { id: booking.customerId },
-                data: updateCustomerData,
+                data: {
+                    ...updateCustomerData,
+                },
             });
         }
 
         await client.booking.update({
-            data: updateData
+            data: {
+                ...updateData,
+            }
             ,
             where: {
                 id: booking.id
             }
         })
 
+        if(parsedData.data.documents){
+            for (const document of parsedData.data.documents) {
+                await client.documents.create({
+                    data: {
+                        name: document.name,
+                        url: document.url,
+                        type: document.type,
+                        customerId: booking.customerId
+                    }
+                })
+            }
+        }
+
+        if(parsedData.data.carImages){
+            for (const carImage of parsedData.data.carImages) {
+                await client.carImages.create({
+                    data: {
+                        name: carImage.name,
+                        url: carImage.url,
+                        bookingId: booking.id
+                    }
+                })
+            }
+        }
         res.json({
             message:"Booking updated successfully",
             BookingId:booking.id
         })
+        return
     } catch(e) {
         console.error(e);
 
         res.status(400).json({message: "Internal server error"})
-        
+        return
     }
 })
 
@@ -280,6 +412,13 @@ bookingRouter.put("/:id/start",middleware,async (req,res) => {
             res.status(400).json({message: "Booking not found"})
             return
         }
+
+        await client.car.update({
+            where: { id: booking.carId },
+            data: {
+                odometerReading: parsedData.data.odometerReading
+            }
+        });
 
         await client.customer.update({
             where: { id: booking.customerId },
@@ -311,16 +450,17 @@ bookingRouter.put("/:id/start",middleware,async (req,res) => {
                                     id: req.params.id
                                 }   
                             })  
-        
-        for (const document of parsedData.data.documents) {
-            await client.documents.create({
-                data: {
-                    name: document.name,
-                    url: document.url,
-                    type: document.type,
-                    customerId: booking.customerId
-                }
-            })
+        if(parsedData.data.documents){
+            for (const document of parsedData.data.documents) {
+                await client.documents.create({
+                    data: {
+                        name: document.name,
+                        url: document.url,
+                        type: document.type,
+                        customerId: booking.customerId
+                    }
+                })
+            }
         }
 
         for (const carImage of parsedData.data.carImages) {
@@ -337,11 +477,12 @@ bookingRouter.put("/:id/start",middleware,async (req,res) => {
             message:"Booking started successfully",
             updatedStatus:updatedBooking.status
         })
+        return
     }
     catch(e) {
         console.error(e);
         res.status(400).json({message: "Internal server error"})
-        
+        return
     }
 })
 
@@ -363,13 +504,19 @@ bookingRouter.put("/:id/end",middleware,async (req,res) => {
             res.status(400).json({message: "Booking not found"})
             return
         }
+
         
         const cost = calculateCost(new Date(booking.startDate),new Date(booking.endDate),booking.startTime,booking.endTime,booking.dailyRentalPrice);
         console.log("cost",cost );
 
+        
+
         const updatedBooking =  await client.booking.update({
                                     data: {
-                                        status: "Completed"
+                                        endDate: parsedData.data.endDate,
+                                        endTime: parsedData.data.endTime,
+                                        status: "Completed",
+                                        endodometerReading: parsedData.data.odometerReading 
                                     },
                                     where: {
                                         id: req.params.id,
@@ -378,31 +525,36 @@ bookingRouter.put("/:id/end",middleware,async (req,res) => {
                                 });
         
                                 console.log("booking updated");
-        
+        let increment = 0;
+
         if(updatedBooking.totalEarnings && updatedBooking.totalEarnings > 0){
-            await client.car.update({
-                where:{
-                    id: updatedBooking.carId,
-                    userId: req.userId!
-                },
-                data:{
-                    totalEarnings:{
-                        increment: updatedBooking.totalEarnings ,
-                    }
-                }
-            })
+            increment = updatedBooking.totalEarnings ;
         }
+
+        await client.car.update({
+            where:{
+                id: updatedBooking.carId,
+                userId: req.userId!
+            },
+            data:{
+                totalEarnings:{
+                    increment
+                },
+                odometerReading: parsedData.data.odometerReading
+            }
+        })
     
         
         res.json({
             message:"Booking ended successfully",
             updatedStatus:updatedBooking.status
         })
+        return
     }
     catch(e) {   
         console.error(e);
-     
-        res.status(400).json({message: "Internal server error"})        
+        res.status(400).json({message: "Internal server error"})  
+        return      
     }
 });
 
@@ -412,9 +564,6 @@ bookingRouter.delete("/:id",middleware,async (req,res) => {
             where: {
                 id: req.params.id,
                 userId: req.userId!
-            },
-            include:{
-                car:true
             }
         })
 
@@ -429,44 +578,29 @@ bookingRouter.delete("/:id",middleware,async (req,res) => {
             }
         })
 
+        
         await client.booking.delete({
             where: {
                 id: req.params.id,
                 userId: req.userId!
             }
         })
-
+        
+        await deleteFolder(booking.bookingFolderId);
+        
         res.json({
             message:"Booking deleted successfully",
             BookingId:booking.id
         })
+        return
     } catch(e) {
         console.error(e);
-
         res.status(400).json({message: "Internal server error"})
-        
+        return
     }
 })
 
-bookingRouter.delete('/:id/documents/all',middleware, async (req, res) => {
-    const {id} = req.params;
-    try {
-        await client.documents.deleteMany({
-            where:{
-                customerId:parseInt(id),
-            }
-        })
-        res.status(200).json({
-            message:"Document deleted successfully",
-            BookingId:id
-        })
-    } catch(e) {
-        console.error(e);
 
-        res.status(400).json({message: "Internal server error"})
-        
-    }
-})
 
 bookingRouter.delete('/:id/car-images/all',middleware, async (req, res) => {
     const {id} = req.params;
@@ -480,11 +614,11 @@ bookingRouter.delete('/:id/car-images/all',middleware, async (req, res) => {
             message:"Car image deleted successfully",
             BookingId:id
         })
+        return
     } catch(e) {
         console.error(e);
-
         res.status(400).json({message: "Internal server error"})
-        
+        return
     }
 })
 
@@ -498,6 +632,19 @@ bookingRouter.post("/multiple",middleware, async (req, res) => {
     try{
         const dataSet = parsedData.data;
 
+        const bookings: {
+            id: string;
+            startDate: string;
+            endDate: string;
+            startTime: string;
+            endTime: string;
+            status: string;
+            carId: number;
+            customerId: number;
+            customerName: string;
+            customerContact: string;
+        }[] = [];
+
         for(const data of dataSet ){
             let customer = await client.customer.findFirst({
                 where: {
@@ -507,16 +654,37 @@ bookingRouter.post("/multiple",middleware, async (req, res) => {
             })
 
             if(!customer){
+               
+                const folder = await createFolder(data.customerName+"_"+data.customerContact,"customer");
+                if(!folder.folderId || folder.error){
+                    res.status(400).json({
+                        message: "Failed to create folder",
+                        error:folder.error,
+                    })
+                    return
+                }
                 customer = await client.customer.create({
                     data: {
                         name: data.customerName,
                         contact: data.customerContact,
                         address: data.customerAddress,
+                        folderId:folder.folderId
                     }
                 })
             }
 
             const newBookingId = await generateBookingId();
+            const currDate = new Date();
+            const unixTimeStamp = Math.floor(currDate.getTime() / 1000);
+            const folder = await createFolder(newBookingId+" "+unixTimeStamp,"booking");
+
+            if(!folder.folderId || folder.error){
+                res.status(400).json({
+                    message: "Failed to create folder",
+                    error:folder.error,
+                })
+                return
+            }
 
             let booking = await client.booking.create({
                 data: {
@@ -536,15 +704,71 @@ bookingRouter.post("/multiple",middleware, async (req, res) => {
                     paymentMethod: data.paymentMethod,
                     odometerReading: data.odometerReading,
                     notes: data.notes,
-                    customerId: customer.id
+                    customerId: customer.id,
+                    bookingFolderId:folder.folderId
                 }
             })
+            bookings.push({
+                id:newBookingId,
+                startDate: data.startDate,
+                endDate: data.endDate,
+                startTime: data.startTime,
+                endTime: data.endTime,
+                status: data.status,
+                carId: data.carId,
+                customerId: customer.id,
+                customerName: customer.name,                
+                customerContact: customer.contact
+            })
         }
-        res.status(200).json({message: "Booking created successfully"});
+        res.status(200).json({message: "Booking created successfully",bookings});
+        return
     }
     catch(err){
         console.log(err);
         res.status(500).json({message: "Internal server error"});
+        return
     }
 
+})
+
+bookingRouter.delete('/car-image/:id',middleware, async (req, res) => {
+    try{
+        await client.carImages.delete({
+            where:{
+                id:parseInt(req.params.id)
+            }
+        })
+        res.status(200).json({
+            message:"Car image deleted successfully",
+            BookingId:req.params.id
+        })
+        return
+    } catch(e) {
+        console.error(e);
+        res.json({message: "Internal server error"})
+        return;
+    }
+})
+
+bookingRouter.delete('/selfie-url/:id',middleware, async (req, res) => {
+    try{
+        await client.booking.update({
+            where:{
+                id:req.params.id
+            },
+            data:{
+                selfieUrl:""
+            }
+        })
+        res.status(200).json({
+            message:"selfie deleted successfully",
+            BookingId:req.params.id
+        })
+        return;
+    } catch(e) {
+        console.error(e);
+        res.json({message: "Internal server error"})
+        return;
+    }
 })

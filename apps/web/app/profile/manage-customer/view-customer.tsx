@@ -11,9 +11,11 @@ import UserIcon from "@/public/user.svg"
 import axios from "axios"
 import { BASE_URL } from "@/lib/config"
 import { toast } from "@/hooks/use-toast"
-import LoactionIcon from "@/public/location.svg";
+import LocationIcon from "@/public/location.svg";
 import { Textarea } from "@/components/ui/textarea"
-import { BsFilePdfFill } from "react-icons/bs"
+import { RenderFileList } from "./render-file-list"
+import { deleteMultipleFiles } from "@/app/actions/delete"
+import { Customer, Document } from "./page"
 import { uploadMultipleToDrive } from "@/app/actions/upload"
 
 
@@ -36,20 +38,9 @@ export const BookingStatusIcon  = ({ status,className }: { status?: Status; clas
   return status ? statusIcons[status] : <Clock className={`text-gray-500 ${className}`} />;
 };
 
-interface Customer {
-    id: number;
-    name:string;
-    contact:string;
-    address?:string;
-    documents? : Document[];
-    folderId?:string;
-  }
 
-  interface Document {
-    name:string;
-    url:string;
-    type:string;
-  }
+
+
 interface EventSummaryPopupProps {
   customer: Customer;
   isOpen: boolean;
@@ -67,6 +58,10 @@ export function CustomerPopup({ customer, isOpen, setIsOpen,setCustomers }: Even
   const [isEditing, setIsEditing] = useState(false)
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [uploadedFiles, setUploadedFiles] = useState<File[]>([]);
+  const [errors, setErrors] = useState<string>("");
+  const [isDeleting, setIsDeleting] = useState(false);
+  const [isLoading,setIsLoading] = useState(false);
+  const [isDocumentsDeleting,setIsDocumentsDeleting] = useState(false);
 
   function handleAction() {
    if(action === "Delete"){
@@ -87,7 +82,11 @@ export function CustomerPopup({ customer, isOpen, setIsOpen,setCustomers }: Even
 
 
   const handleDelete = async() => {
+    setIsDeleting(true);
     try{
+      if(documents){
+        await deleteMultipleFiles(documents.map(document => document.url));
+      }
       await axios.delete(`${BASE_URL}/api/v1/customer/${customer.id}`,{
         headers: {
           "Content-type": "application/json",
@@ -97,8 +96,7 @@ export function CustomerPopup({ customer, isOpen, setIsOpen,setCustomers }: Even
 
       setCustomers(prev => prev.filter((c) => c.id !== customer.id))
       toast({
-        title: `Booking deleted`,
-        description: `Event Successfully deleted`,
+        description: `Customer Successfully deleted`,
         className: "text-black bg-white border-0 rounded-md shadow-mg shadow-black/5 font-normal",
       });
       setIsOpen(false);
@@ -106,12 +104,13 @@ export function CustomerPopup({ customer, isOpen, setIsOpen,setCustomers }: Even
     catch(error){
       console.log(error);
       toast({
-        title: `Error`,
-        description: `Booking failed to delete`,
+        description: `Customer failed to delete`,
         className: "text-black bg-white border-0 rounded-md shadow-mg shadow-black/5 font-normal",
         variant: "destructive",
+duration: 2000
       });
     }
+    setIsDeleting(false);
   }
 
   const handleEdit = () => {
@@ -120,51 +119,71 @@ export function CustomerPopup({ customer, isOpen, setIsOpen,setCustomers }: Even
   }
 
   const handleDocumentDelete = async() => {
+    setIsDocumentsDeleting(true);
     try {
-      await axios.delete(`${BASE_URL}/api/v1/booking/${customer.id}/documents/all`, {
+      if(!documents) return;
+      const docArray = documents.map(document => document.url);
+      await deleteMultipleFiles(docArray);
+      await axios.delete(`${BASE_URL}/api/v1/customer/${customer.id}/documents/all`, {
         headers: {
           authorization: `Bearer ` + localStorage.getItem('token')
         }
       });
       setDocuments([]);
       toast({
-        title: `Document deleted`,
         description: `Document Successfully deleted`,
         className: "text-black bg-white border-0 rounded-md shadow-mg shadow-black/5 font-normal",
       });
 
     } catch(error) {
       toast({
-        title: `Error`,
         description: `Failed to delete document`,
         className: "text-black bg-white border-0 rounded-md shadow-mg shadow-black/5 font-normal",
         variant: "destructive",
+duration: 2000
       });
       console.log(error);
     }
+    setIsDocumentsDeleting(false);
   }
 
   const handleUpdate = async () => {
+    setIsLoading(true);
     try{
         let resDoc;
-        if(!documents){
-            if(customer.folderId && customer.folderId !== ""){
-                resDoc = await uploadMultipleToDrive(uploadedFiles,"id",customer.folderId);
-            }
-            else{
-                resDoc = await uploadMultipleToDrive(uploadedFiles,"name",name);
-            }
+        if( uploadedFiles.length > 0){
+            resDoc = await uploadMultipleToDrive(uploadedFiles,customer.folderId);
         }
         
         const folderId = resDoc && resDoc.uploadedFiles ? resDoc.uploadedFiles[0].folderId : customer.folderId;
-        const updatedDocuments = resDoc && resDoc.uploadedFiles ? resDoc.uploadedFiles : customer.documents;
+        let updatedDocuments = resDoc && resDoc.uploadedFiles && 
+          resDoc.uploadedFiles.map(file => {
+          return {
+            id: file.id,
+            name:file.name|| "",
+            url:file.url || "",
+            type:file.type || "",
+          }
+        }) 
+
+        if(!name || !contact || !address){
+          toast({
+            description: `Please fill all the fields`,
+            className: "text-black bg-white border-0 rounded-md shadow-mg shadow-black/5 font-normal",
+            variant: "destructive",
+duration: 2000
+            duration: 3000,
+          });
+          return;
+        }
         
+        const newDocs = [...(documents || []),...(updatedDocuments || [])]
         await axios.put(`${BASE_URL}/api/v1/customer/${customer.id}`,{
             name:name,
             contact:contact,
             address:address,
             folderId,
-            updatedDocuments
+            documents:updatedDocuments
         },{
             headers: {
             "Content-type": "application/json",
@@ -172,93 +191,49 @@ export function CustomerPopup({ customer, isOpen, setIsOpen,setCustomers }: Even
             }
         });
 
+      
       const upadtedCustomer = {
         id: customer.id,
         name,
         contact,
         address,
         folderId:folderId,
-        documents:updatedDocuments && updatedDocuments.map(file => {
-          return {
-            name:file.name|| "",
-            url:file.url || "",
-            type:file.type || ""
-          }
-        })
+        documents:newDocs
       };
-      setCustomers(prev => [...prev,upadtedCustomer]);
+      setCustomers(prev => prev.map(cust => {
+        if(cust.id === customer.id){
+          return upadtedCustomer;
+        }
+        return cust;
+      }));
       setIsEditing(false)
       toast({
-        title: `Booking updated`,
-        description: `Event Successfully updated`,
+        description: `Customer Successfully updated`,
         className: "text-black bg-white border-0 rounded-md shadow-mg shadow-black/5 font-normal",
       });
     }
     catch(error){
       console.log(error);
       toast({
-        title: `Error`,
-        description: `Booking failed to update`,
+        description: `Customer failed to update`,
         className: "text-black bg-white border-0 rounded-md shadow-mg shadow-black/5 font-normal",
         variant: "destructive",
+duration: 2000
       });
     }
-    
+    setIsLoading(false);
   }
 
-
-  const getFileIcon = (type: string) => {
-    if(!type.startsWith('image/')){
-      return <BsFilePdfFill className="sm:w-4 sm:h-4 w-3 h-3" />
-    }
-    return <ImageIcon className="sm:w-4 sm:h-4 w-3 h-3" />
-  }
-
-  const renderFileList = () => (
-    <div className="mt-2 text-sm">
-      {documents ?
-      documents.map((file, index) => (
-        <div
-          key={index}
-          className="flex w-fit max-w-[150px] max-h-[25px] my-1 items-center gap-2 bg-gray-200 dark:bg-muted p-2 rounded-md"
-        >
-          <span className="sm:min-w-4 min-w-3">
-            {getFileIcon(file.type)}
-          </span>
-          <span className="whitespace-nowrap overflow-hidden text-ellipsis text-xs sm:text-sm">{file.name}</span>
-        </div>
-      ))
-      :
-      uploadedFiles.map((file, index) => (
-        <div
-          key={index}
-          className="flex w-fit max-w-[150px] max-h-[25px] my-1 items-center gap-2 bg-gray-200 dark:bg-muted p-2 rounded-md"
-        >
-          <span className="sm:min-w-4 min-w-3">
-            {getFileIcon(file.type)}
-          </span>
-          <span className="whitespace-nowrap overflow-hidden text-ellipsis text-xs sm:text-sm">{file.name}</span>
-        </div>
-      ))
-      }
-    </div>
-  )
 
   const handleFileUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
     const files = event.target.files
       if (files) {
-          if(files.length > 5){
+          if(files.length + uploadedFiles.length + (documents ? documents.length : 0) > 5){
             setUploadedFiles([]);
-            toast({
-              title: `Error`,
-              description: `You can upload upto 5 documents or images`,
-              className: "text-black bg-white border-0 rounded-md shadow-mg shadow-black/5 font-normal",
-              variant: "destructive",
-            });
+            setErrors("You can upload upto 5 documents or images");
             return;
           }
-          console.log("files",files);
-        setUploadedFiles([...Array.from(files)])
+        setUploadedFiles([...uploadedFiles,...Array.from(files)])
       }
   }
 
@@ -269,9 +244,7 @@ export function CustomerPopup({ customer, isOpen, setIsOpen,setCustomers }: Even
 
   return (
     <>
-    {isOpen && 
-    <div className="fixed top-0 left-0 h-screen w-screen z-10 bg-black/50 backdrop-blur-sm"></div>}
-    <Dialog open={isOpen}  onOpenChange={setIsOpen} modal={false} >
+    <Dialog open={isOpen}  onOpenChange={setIsOpen} >
       
       <DialogContent className="sm:max-w-[425px] z-20 border-border max-sm:min-h-[70%] flex flex-col p-0 items-center overflow-auto">
         <DialogHeader className="flex flex-row justify-between items-center w-full px-6 py-0">
@@ -283,12 +256,18 @@ export function CustomerPopup({ customer, isOpen, setIsOpen,setCustomers }: Even
             <Button variant="ghost" size="icon" onClick={handleEdit}>
               <Edit2 className="h-4 w-4" />
             </Button>
+            {isDeleting ? 
+              <div className="flex items-center justify-center">
+                <Loader2 className="h-4 w-4 animate-spin text-gray-500" />
+              </div>
+              :
             <Button variant="ghost" size="icon" onClick={() => {
               setAction("Delete");  
               setIsDialogOpen(true);
             }}>
               <Trash2 className="h-4 w-4" />
             </Button>
+            }
           </div>
         </div>
 
@@ -331,7 +310,7 @@ export function CustomerPopup({ customer, isOpen, setIsOpen,setCustomers }: Even
             </div>
             
             <div className="flex items-center space-x-2">
-                <LoactionIcon className="w-6 h-6 mr-3 stroke-[6px] dark:stroke-white dark:fill-white  stroke-black fill-black" />
+                <LocationIcon className="w-6 h-6 mr-3 stroke-[20px] stroke-black fill-black dark:stroke-white dark:fill-white" />
                 {isEditing ? (
                     <Textarea
                     id="address" 
@@ -351,12 +330,21 @@ export function CustomerPopup({ customer, isOpen, setIsOpen,setCustomers }: Even
                     <div className="space-y-2">
                         <div className="flex items-center gap-1">
                             <span>Documents</span>
-                            {isEditing && <Button className="cursor-pointer bg-gray-200 dark:bg-muted dark:text-white text-black hover:bg-gray-300 dark:hover:bg-secondary hover:bg-opacity-30" onClick={() => {
-                                setAction("delete the documents of");
-                                setIsDialogOpen(true);
-                            }}>
-                                <Trash2 className="h-4 w-4" />
-                            </Button>}
+                            
+                            {isDocumentsDeleting ? 
+                              <div className="flex items-center justify-center">
+                                <Loader2 className="h-4 w-4 animate-spin text-gray-500" />
+                              </div>
+                              :
+                              <>
+                                {isEditing && <Button className="cursor-pointer bg-gray-200 dark:bg-muted dark:text-white text-black hover:bg-gray-300 dark:hover:bg-secondary hover:bg-opacity-30" onClick={() => {
+                                    setAction("delete the documents of");
+                                    setIsDialogOpen(true);
+                                }}>
+                                    <Trash2 className="h-4 w-4" />
+                                </Button>}
+                              </>
+                            }
                         </div>
                         {isEditing && 
                             <div onClick={() => {
@@ -365,19 +353,24 @@ export function CustomerPopup({ customer, isOpen, setIsOpen,setCustomers }: Even
                                 <Upload className="mr-2 h-4 w-4" />
                                 <span>Choose file</span>
                             </div>}
-
+                      {(uploadedFiles.length + (documents ? documents.length : 0)) <= 5 && 
                         <Input
                             id="documents"
                             type="file"
                             accept="image/*"
                             multiple
-                            onChange={(e) => handleFileUpload(e)}
+                            onChange={(e) => {
+                              setErrors("");
+                              handleFileUpload(e)
+                            }}
                             className={"hidden"}
                             />
+                            }
+                      <p className="text-red-500 text-sm mt-1">{errors}</p>
                     </div>
-                    <div className="flex w-full justify-center items-center w-[155px] h-[170px] border border-border px-[2px] sm:p-1">
-                        {(renderFileList() )}
-                        {documents && documents.length === 0 &&(
+                    <div className="flex justify-center w-[210px] h-[175px] max-sm:min-w-[155px] min-h-[170px] border border-border px-[2px]">
+                        <RenderFileList documents={documents} setDocuments={setDocuments} uploadedFiles={uploadedFiles} setUploadedFiles={setUploadedFiles} isEditable={isEditing} />
+                        {documents && documents.length === 0 && uploadedFiles.length === 0 &&(
                             <span className="text-center text-sm text-gray-400 dark:text-gray-500">
                                 Upload upto 5 documents or images
                             </span>
@@ -389,11 +382,23 @@ export function CustomerPopup({ customer, isOpen, setIsOpen,setCustomers }: Even
 
           {isEditing && (
             <div className="mt-4">
-              <Button onClick={() => {
+              <Button disabled={isLoading} onClick={() => {
                 setAction("Update");
                 setIsDialogOpen(true);
-              }} className="w-full">
-                Save Changes
+              }} className={`w-full ${isLoading && "cursor-not-allowed opacity-50"}`}>
+                {isLoading ?
+                <>
+                <span className="text-white">Please wait</span>
+                <div className="flex items-end py-1 h-full">
+                  <span className="sr-only">Loading...</span>
+                  <div className="h-1 w-1 dark:bg-white mx-[2px] border-border rounded-full animate-bounce [animation-delay:-0.3s]"></div>
+                  <div className="h-1 w-1 dark:bg-white mx-[2px] border-border rounded-full animate-bounce [animation-delay:-0.15s]"></div>
+                  <div className="h-1 w-1 dark:bg-white mx-[2px] border-border rounded-full animate-bounce"></div>
+                </div>
+                </>
+              :
+              <span className="text-white">Save Changes</span>
+              }
               </Button>
             </div>
           )}
@@ -412,7 +417,7 @@ export function CustomerPopup({ customer, isOpen, setIsOpen,setCustomers }: Even
             <Button className="max-sm:w-full bg-primary hover:bg-opacity-10 shadow-lg" onClick={() => {
                 handleAction();
                 setIsDialogOpen(false)
-              }}>{action}</Button>
+              }}>{upperHeading}</Button>
             </DialogFooter>
           </DialogContent>
         </Dialog>
