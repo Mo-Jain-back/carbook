@@ -69,10 +69,10 @@ export function CarDetailsClient({ carId }: { carId: number }) {
       setMileage(car.mileage || 0);
       setImageUrl(car.imageUrl || "");
     }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   },[car]);
 
   useEffect(() => {
-  
       const fetchData = async () => {
         try{
           const resCar = await axios.get(`${BASE_URL}/api/v1/car/${carId}`,{
@@ -99,7 +99,6 @@ export function CarDetailsClient({ carId }: { carId: number }) {
         }
       }
       fetchData();
-    
   },[]);
 
   if(!car) {

@@ -82,6 +82,17 @@ calendarRouter.put("/:id", middleware, async (req, res) => {
             },
         });
 
+        if(parsedData.data.customerName){
+            await client.customer.update({
+                where: {
+                    id: booking.customerId,
+                },
+                data: {
+                    name: parsedData.data.customerName,
+                },
+            });
+        }
+
         res.json({
             message: "Booking updated successfully",
             BookingId: booking.id,

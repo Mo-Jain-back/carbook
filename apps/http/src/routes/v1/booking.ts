@@ -396,6 +396,7 @@ bookingRouter.put("/:id",middleware,async (req,res) => {
 bookingRouter.put("/:id/start",middleware,async (req,res) => {
     const parsedData = BookingStartSchema.safeParse(req.body);
     if (!parsedData.success) {
+        console.error('Validation error:', parsedData.error);
         res.status(400).json({message: "Wrong Input type"})
         return
     }

@@ -209,7 +209,7 @@ export default function BookingStartClient({booking,bookingId} : {
         setProgress(overallProgress);
         const totalSize = Object.values(uploadedFiles).flat().reduce((acc, file) => acc + file.size, 0);
 
-        setLoadingMessage("Uploading Aadhar and Driving License");
+        setLoadingMessage("Uploading Aadhar ");
         const docFiles = [];
         if(uploadedFiles.documents){
           for(const file of uploadedFiles.documents){
@@ -223,7 +223,7 @@ export default function BookingStartClient({booking,bookingId} : {
             setProgress(overallProgress);
           }
         }
-        setLoadingMessage("Uploaded Aadhar and Driving License");
+        setLoadingMessage("Uploaded Aadhar");
 
         
         const photoFiles =[]
@@ -265,7 +265,7 @@ export default function BookingStartClient({booking,bookingId} : {
           totalAmount,
           paymentMethod,
           notes,
-          documents:docFiles.length > 0 ? docFiles : null,
+          documents:docFiles.length > 0 ? docFiles : undefined,
           selfieUrl:resSelfie.url,
           carImages:photoFiles
         }, {
@@ -610,7 +610,7 @@ export default function BookingStartClient({booking,bookingId} : {
                 style={{ width: `${progress}%` }}
                 className={`bg-primary rounded-lg text-white h-[35px] transition-all duration-300 ease-in-out hover:bg-opacity-80 ${isLoading && "rounded-e-none"}`}/>
                   <div className={`w-full h-[35px] p-1 flex justify-center items-center absolute top-0 left-0 `}>
-                        <span className="text-white">{loadingMessage}</span>
+                        <span className="text-white max-sm:text-xs">{loadingMessage}</span>
                         <div className="flex items-end px-1 pb-2 h-full">
                             <span className="sr-only">Loading...</span>
                             <div className="h-1 w-1 bg-white mx-[2px] border-border rounded-full animate-bounce [animation-delay:-0.3s]"></div>

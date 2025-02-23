@@ -98,7 +98,6 @@ export const MultipleBookingSchema = z.array(z.object({
     paymentMethod: z.string().optional(),
     odometerReading: z.string().optional(),
     notes: z.string().optional(),
-    
     customerName: z.string(),
     customerContact: z.string(),
     customerAddress: z.string().optional(),
