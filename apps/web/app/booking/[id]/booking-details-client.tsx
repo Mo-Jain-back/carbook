@@ -84,7 +84,7 @@ export function BookingDetailsClient({ booking }: BookingDetailsClientProps) {
           reading = reading + 1;
       }
       return reading.toString();
-  },[odometerReading])
+  },[odometerReading,booking.endodometerReading])
   const [endOdometerReading,setEndOdometerReading] = useState(initialReading);
     
   useEffect(() => {

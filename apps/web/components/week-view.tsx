@@ -29,8 +29,8 @@ export default function WeekView() {
 
   const getFormatedEvents = (events:CalendarEventType[], date:Dayjs) => {
     const filteredEvents = events.filter((event: CalendarEventType) => {
-      return event.startDate.isSame(date,"days")
-      && event.endDate.isSame(date,"days")
+      return dayjs(event.startDate).isSame(date,"days")
+      && dayjs(event.endDate).isSame(date,"days")
     })
 
     return filteredEvents;

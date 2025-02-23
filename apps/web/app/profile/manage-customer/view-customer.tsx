@@ -16,7 +16,7 @@ import { Textarea } from "@/components/ui/textarea"
 import { RenderFileList } from "./render-file-list"
 import { deleteMultipleFiles } from "@/app/actions/delete"
 import { Customer, Document } from "./page"
-import { uploadMultipleToDrive } from "@/app/actions/upload"
+import { uploadMultipleToDrive, uploadToDrive } from "@/app/actions/upload"
 
 
 enum Status {
@@ -62,6 +62,7 @@ export function CustomerPopup({ customer, isOpen, setIsOpen,setCustomers }: Even
   const [isDeleting, setIsDeleting] = useState(false);
   const [isLoading,setIsLoading] = useState(false);
   const [isDocumentsDeleting,setIsDocumentsDeleting] = useState(false);
+  const [progress,setProgress] = useState(0);
 
   function handleAction() {
    if(action === "Delete"){
@@ -150,16 +151,31 @@ duration: 2000
   const handleUpdate = async () => {
     setIsLoading(true);
     try{
-        let resDoc;
+        let resDoc = [];
+        let overallProgress = 0;
+        
+        setProgress(overallProgress);
+        const totalSize = Object.values(uploadedFiles).reduce((acc, file) => acc + file.size, 0);
+
         if( uploadedFiles.length > 0){
-            resDoc = await uploadMultipleToDrive(uploadedFiles,customer.folderId);
+          let cnt =0;
+          for(const file of uploadedFiles){
+            const res = await uploadToDrive(file,customer.folderId);
+            if(res.error){
+              throw new Error("Failed to upload documents");
+              return;
+            }
+            resDoc.push({...res,id:cnt});
+            cnt++;
+            overallProgress += Math.round((file.size / totalSize) * 100)*0.98;
+            setProgress(overallProgress);
+          }
         }
         
-        const folderId = resDoc && resDoc.uploadedFiles ? resDoc.uploadedFiles[0].folderId : customer.folderId;
-        const updatedDocuments = resDoc && resDoc.uploadedFiles && 
-          resDoc.uploadedFiles.map(file => {
+        const updatedDocuments = resDoc && resDoc && 
+          resDoc.map(file => {
           return {
-            id: file.id,
+            id: file.id || 0,
             name:file.name|| "",
             url:file.url || "",
             type:file.type || "",
@@ -181,7 +197,6 @@ duration: 2000
             name:name,
             contact:contact,
             address:address,
-            folderId,
             documents:updatedDocuments
         },{
             headers: {
@@ -196,7 +211,7 @@ duration: 2000
         name,
         contact,
         address,
-        folderId:folderId,
+        folderId:customer.folderId,
         documents:newDocs
       };
       setCustomers(prev => prev.map(cust => {
@@ -205,6 +220,7 @@ duration: 2000
         }
         return cust;
       }));
+      setProgress(100);
       setIsEditing(false)
       toast({
         description: `Customer Successfully updated`,
@@ -367,7 +383,7 @@ duration: 2000
                             }
                       <p className="text-red-500 text-sm mt-1">{errors}</p>
                     </div>
-                    <div className="flex justify-center w-[210px] h-[175px] max-sm:min-w-[155px] min-h-[170px] border border-border px-[2px]">
+                    <div className="flex justify-center w-[210px] h-[175px] max-sm:min-w-[148px] min-h-[155px] w-fit h-fit border border-border px-[2px]">
                         <RenderFileList documents={documents} setDocuments={setDocuments} uploadedFiles={uploadedFiles} setUploadedFiles={setUploadedFiles} isEditable={isEditing} />
                         {documents && documents.length === 0 && uploadedFiles.length === 0 &&(
                             <span className="text-center text-sm text-gray-400 dark:text-gray-500">
@@ -381,24 +397,29 @@ duration: 2000
 
           {isEditing && (
             <div className="mt-4">
+                {isLoading ?
+              <div className="w-full border-2 border-border rounded-lg relative">
+                <div 
+                style={{ width: `${progress}%` }}
+                className={`bg-primary rounded-lg text-white h-[35px] transition-all duration-300 ease-in-out hover:bg-opacity-80 ${isLoading && "rounded-e-none"}`}/>
+                  <div className={`w-full h-[35px] p-1 flex justify-center items-center absolute top-0 left-0 `}>
+                        <span className="text-white">Uploading Documents</span>
+                        <div className="flex items-end px-1 pb-2 h-full">
+                            <span className="sr-only">Loading...</span>
+                            <div className="h-1 w-1 bg-white mx-[2px] border-border rounded-full animate-bounce [animation-delay:-0.3s]"></div>
+                            <div className="h-1 w-1 bg-white mx-[2px] border-border rounded-full animate-bounce [animation-delay:-0.15s]"></div>
+                            <div className="h-1 w-1 bg-white mx-[2px] border-border rounded-full animate-bounce"></div>
+                        </div>
+                  </div>
+              </div>
+              :
               <Button disabled={isLoading} onClick={() => {
                 setAction("Update");
                 setIsDialogOpen(true);
               }} className={`w-full ${isLoading && "cursor-not-allowed opacity-50"}`}>
-                {isLoading ?
-                <>
-                <span className="text-white">Please wait</span>
-                <div className="flex items-end py-1 h-full">
-                  <span className="sr-only">Loading...</span>
-                  <div className="h-1 w-1 dark:bg-white mx-[2px] border-border rounded-full animate-bounce [animation-delay:-0.3s]"></div>
-                  <div className="h-1 w-1 dark:bg-white mx-[2px] border-border rounded-full animate-bounce [animation-delay:-0.15s]"></div>
-                  <div className="h-1 w-1 dark:bg-white mx-[2px] border-border rounded-full animate-bounce"></div>
-                </div>
-                </>
-              :
-              <span className="text-white">Save Changes</span>
-              }
+                <span className="text-white">Save Changes</span>
               </Button>
+              }
             </div>
           )}
         </div>

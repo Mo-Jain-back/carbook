@@ -635,7 +635,6 @@ export default function BookingStartClient({booking,bookingId} : {
                   </Button>
             }
           </div>
-          <span className="flex justify-center w-full">Progress : {progress}%</span>
         </form>
       </div>
     )

@@ -84,7 +84,7 @@ export function AddBookingDialog({isOpen, setIsOpen, cars,setBookings}:
     if(currCar){
       setPrice(currCar.price);
     }
-  },[carId])
+  },[carId,cars])
   
   const validateDate = () => {
     if(startDate < endDate) return true;

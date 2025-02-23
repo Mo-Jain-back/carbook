@@ -4,7 +4,7 @@ import type React from "react"
 import { useEffect, useState } from "react"
 import {  Edit2, Trash2 } from "lucide-react"
 import { Button } from "@/components/ui/button"
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog"
+import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog"
 import {  useEventStore, type CalendarEventType } from "@/lib/store"
 import { Input } from "@/components/ui/input"
 import dayjs from "dayjs"
@@ -17,6 +17,7 @@ import axios from "axios"
 import { BASE_URL } from "@/lib/config"
 import ActionDialog from "./action-dialog"
 import { toast } from "@/hooks/use-toast"
+import { DialogDescription } from "@radix-ui/react-dialog"
 
 enum Status {
   pending = "pending",
@@ -50,8 +51,8 @@ export function EventSummaryPopup({ event, isOpen, onClose }: EventSummaryPopupP
   const [startTime,setStartTime] = useState(event.startTime);
   const [endTime,setEndTime] = useState(event.endTime);
   const [bookedBy,setBookedBy] = useState(event.customerName);
-  const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [action,setAction] = useState<"Delete" | "Update">("Delete");
+  const [isActionDialogOpen, setIsActionDialogOpen] = useState(false);
 
 
   useEffect(() => {
@@ -161,9 +162,8 @@ duration: 2000
 
   return (
     <>
-    <ActionDialog isDialogOpen={isDialogOpen} setIsDialogOpen={setIsDialogOpen} action={action} handleAction={handleAction}/>
     <div className="fixed top-0 left-0 h-screen w-screen z-10 bg-black/50 backdrop-blur-sm"></div>
-    <Dialog open={isOpen}  onOpenChange={onClose} modal={false} >
+    <Dialog open={isOpen && !isActionDialogOpen} onOpenChange={onClose} modal={false}>
       
       <DialogContent className="sm:max-w-[425px] z-20 border-border max-sm:min-h-[70%] flex flex-col p-0 items-center overflow-auto">
         <DialogHeader className="flex flex-row justify-between items-center w-full px-6 py-0">
@@ -177,7 +177,7 @@ duration: 2000
             </Button>
             <Button variant="ghost" size="icon" onClick={() => {
               setAction("Delete");  
-              setIsDialogOpen(true);
+              setIsActionDialogOpen(true);
             }}>
               <Trash2 className="h-4 w-4" />
             </Button>
@@ -261,7 +261,7 @@ duration: 2000
             <div className="mt-4">
               <Button onClick={() => {
                 setAction("Update");
-                setIsDialogOpen(true);
+                setIsActionDialogOpen(true);
               }} className="w-full">
                 Save Changes
               </Button>
@@ -270,6 +270,23 @@ duration: 2000
         </div>
       </DialogContent>
     </Dialog>
+    <Dialog open={isActionDialogOpen} onOpenChange={setIsActionDialogOpen} modal={true}>
+      <DialogContent className="sm:max-w-[425px] bg-muted border-border">
+        <DialogHeader>
+          <DialogTitle>{action}</DialogTitle>
+          <DialogDescription className="text-grey-500">
+            Are you sure you want to {action} the booking? 
+          </DialogDescription>
+        </DialogHeader>
+        <DialogFooter>
+        <Button className="max-sm:w-full bg-primary hover:bg-opacity-10 shadow-lg" onClick={() => {
+            handleAction();
+            setIsActionDialogOpen(false)
+          }}>{action}</Button>
+        </DialogFooter>
+      </DialogContent>
+    </Dialog>
+    
     </>
   )
 }

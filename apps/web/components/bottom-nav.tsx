@@ -38,7 +38,7 @@ export function BottomNav() {
 
   useEffect(()=>{
     setShortName(gethortName());
-  },[name])
+  },[name,gethortName])
   
 
   return (

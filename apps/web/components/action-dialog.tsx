@@ -16,7 +16,7 @@ const ActionDialog = ({isDialogOpen,setIsDialogOpen,action,handleAction}:
       const upperHeading = heading.charAt(0).toUpperCase() + heading.slice(1);
   return (
 
-        <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
+        <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen} modal={false}>
           <DialogContent className="sm:max-w-[425px] bg-muted border-border">
             <DialogHeader>
               <DialogTitle>{upperHeading}</DialogTitle>

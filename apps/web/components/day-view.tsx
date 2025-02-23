@@ -35,11 +35,10 @@ export default function DayView() {
     getAllDayEvents(events,userSelectedDate);
   }, [events,isEventHidden,userSelectedDate]);
 
-
   const getFormatedEvents = (events:CalendarEventType[], date:Dayjs) => {
     const selectedEvents = events.filter((event: CalendarEventType) => {
-        return event.startDate.isSame(date,"days")
-            && event.endDate.isSame(date,"days")
+        return dayjs(event.startDate).isSame(date,"days")
+            && dayjs(event.endDate).isSame(date,"days")
       });
 
     setFilteredEvents(selectedEvents);
@@ -47,9 +46,9 @@ export default function DayView() {
 
   const getAllDayEvents = (events:CalendarEventType[], date:Dayjs) => {
       let tempEvents = events.filter((event: CalendarEventType) => {
-          return (event.startDate.isBefore(date,"days") && event.endDate.isAfter(date,"days"))
-          || (event.startDate.isSame(date,"days") && event.endDate.isAfter(date,"days"))
-          || (event.startDate.isBefore(date,"days") && event.endDate.isSame(date,"days"))
+          return (dayjs(event.startDate).isBefore(date,"days") && dayjs(event.endDate).isAfter(date,"days"))
+          || (dayjs(event.startDate).isSame(date,"days") && dayjs(event.endDate).isAfter(date,"days"))
+          || (dayjs(event.startDate).isBefore(date,"days") && dayjs(event.endDate).isSame(date,"days"))
           || (event.allDay);
         });
 
@@ -87,8 +86,8 @@ export default function DayView() {
         <div className="flex flex-col w-full">
             {
                headerEvents.map((event) => {
-                const eventDuration = event.endDate.diff(event.startDate,"days") + 1;
-                const currentDuration  = userSelectedDate.diff(event.startDate,"days") + 1;
+                const eventDuration = dayjs(event.endDate).diff(dayjs(event.startDate),"days") + 1;
+                const currentDuration  = userSelectedDate.diff(dayjs(event.startDate),"days") + 1;
                 const car = cars.find(car => car.id === event.carId);
                 return(
                 <div

@@ -9,8 +9,6 @@ import UserIcon from "@/public/user.svg"
 import { useUserStore } from "@/lib/store"
 import { Users } from "lucide-react";
 
-// This would typically come from your auth system
-
 export default function Profile() {
   const router = useRouter();
   const {name,imageUrl,setName,setImageUrl} = useUserStore();

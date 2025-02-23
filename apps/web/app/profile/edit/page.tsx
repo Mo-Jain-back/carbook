@@ -39,7 +39,7 @@ export default function ProfilePage() {
   const [username, setUsername] = useState("")
   const [password, setPassword] = useState("")
   const [isLoading, setIsLoading] = useState(false);
-  const [newName,setNewName] = useState(name);
+  const [newName,setNewName] = useState(user?.name);
 
   // This would typically come from your authentication system
   useEffect(() => {
@@ -64,6 +64,7 @@ export default function ProfilePage() {
     if(user) {
       setUsername(user.username);
       setPassword(user.password);
+      setNewName(user.name);
     }
   },[user]);
 
@@ -85,9 +86,34 @@ export default function ProfilePage() {
     }
   }, [isEditingName]);
 
-  const handleNameUpdate = () => {
-    setIsEditingName(false);
-    setName(newName);
+  const handleNameUpdate = async() => {
+    if(!newName) return;
+    try {
+      await axios.put(`${BASE_URL}/api/v1/me`,{
+        name: newName
+      },{
+        headers: {
+          "Content-type": "application/json",
+          authorization: `Bearer ${localStorage.getItem("token")}`
+        }
+      });
+      setIsEditingName(false);
+      setName(newName);
+      toast({
+        description: `Name Successfully updated`,
+        className: "text-black bg-white border-0 rounded-md shadow-mg shadow-black/5 font-normal",
+      });
+    }
+    catch(error){
+      console.log(error);
+      toast({
+        description: `Failed to update name`,
+        className: "text-black bg-white border-0 rounded-md shadow-mg shadow-black/5 font-normal",
+        variant: "destructive",
+        duration: 2000
+      });
+    }
+    
   }
 
   if(!user) {
@@ -193,10 +219,20 @@ export default function ProfilePage() {
           authorization: `Bearer ${localStorage.getItem("token")}`
         }
       });
-      setIsEditingUsername(false)
+      setIsEditingUsername(false);
+      toast({
+        description: `Username Successfully updated`,
+        className: "text-black bg-white border-0 rounded-md shadow-mg shadow-black/5 font-normal",
+      });
     }
     catch(error){
       console.log(error);
+      toast({
+        description: `Failed to update username`,
+        className: "text-black bg-white border-0 rounded-md shadow-mg shadow-black/5 font-normal",
+        variant: "destructive",
+        duration: 2000
+      });
     }
   }
 
@@ -213,9 +249,19 @@ export default function ProfilePage() {
       });
       setIsEditingPassword(false)
       setShowPassword(false)
+      toast({
+        description: `Password Successfully updated`,
+        className: "text-black bg-white border-0 rounded-md shadow-mg shadow-black/5 font-normal",
+      });
     }
     catch(error){
       console.log(error);
+      toast({
+        description: `Failed to update password`,
+        className: "text-black bg-white border-0 rounded-md shadow-mg shadow-black/5 font-normal",
+        variant: "destructive",
+        duration: 2000
+      });
     }
   }
 
@@ -227,6 +273,7 @@ export default function ProfilePage() {
         setIsEditingUsername(false)
         setIsEditingPassword(false)
         setShowPassword(false)
+        setIsEditingName(false)
       }
     }
   }

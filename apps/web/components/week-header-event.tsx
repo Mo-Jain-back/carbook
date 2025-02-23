@@ -23,7 +23,7 @@ const HeaderEvent = ({index,date,today,isEventHidden}:{index:number,date:Dayjs,t
         
     const Initialize = () => {
       const filteredEvents = events.filter((event: CalendarEventType) => {
-        return event.startDate.isSame(date,"days") && event.endDate.isAfter(date,"days");
+        return dayjs(event.startDate).isSame(date,"days") && event.endDate.isAfter(date,"days");
       });
         
       const currentDate = date.startOf("day");
@@ -35,8 +35,8 @@ const HeaderEvent = ({index,date,today,isEventHidden}:{index:number,date:Dayjs,t
       });
 
       const newSortedEvents = [...filteredEvents].sort((a, b) => {
-        const durationA = a.endDate.diff(a.startDate, "minute"); // Get duration in minutes
-        const durationB = b.endDate.diff(b.startDate, "minute");
+        const durationA = dayjs(a.endDate).diff(dayjs(a.startDate), "minute"); // Get duration in minutes
+        const durationB = dayjs(b.endDate).diff(dayjs(b.startDate), "minute");
         return durationB - durationA; // Sort in descending order (longest first)
       });
 
@@ -50,8 +50,8 @@ const HeaderEvent = ({index,date,today,isEventHidden}:{index:number,date:Dayjs,t
         if(!eventRow) return;
         const wrappedEvent = wrappedEvents?.find(e => e.id === eventRow?.id);
         if(wrappedEvent){
-            if((wrappedEvent.startDate.isBefore(date,"day") && wrappedEvent.endDate.isAfter(date,"day"))|| wrappedEvent.endDate.isSame(date,"day") || wrappedEvent.startDate.isSame(date,"day") ){
-              if(wrappedEvent.startDate.isSame(date,"day")){
+            if((dayjs(wrappedEvent.startDate).isBefore(date,"day") && dayjs(wrappedEvent.endDate).isAfter(date,"day"))|| dayjs(wrappedEvent.endDate).isSame(date,"day") || dayjs(wrappedEvent.startDate).isSame(date,"day") ){
+              if(dayjs(wrappedEvent.startDate).isSame(date,"day")){
                 setIsWrapped(true);
               }
               filledRows.push(index);
@@ -74,9 +74,9 @@ const HeaderEvent = ({index,date,today,isEventHidden}:{index:number,date:Dayjs,t
     }
 
     const findOffset  = (index:number,event:CalendarEventType | WrappedEvent,isWrap:boolean=false) => {
-      const weekEnd = event.startDate.endOf("week");
-      const weekendDuration = weekEnd.diff(event.startDate, "days")+1;
-      const eventDuration = event.endDate.diff(event.startDate, "days")+1;
+      const weekEnd = dayjs(event.startDate).endOf("week");
+      const weekendDuration = weekEnd.diff(dayjs(event.startDate), "days")+1;
+      const eventDuration = dayjs(event.endDate).diff(dayjs(event.startDate), "days")+1;
       let temp = emptyRows[index];
       let cnt = 0;
       while(temp > 0){
