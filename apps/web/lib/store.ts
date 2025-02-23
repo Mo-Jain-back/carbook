@@ -184,7 +184,7 @@ export const useEventStore = create<EventStore>()(
 export const useToggleSideBarStore = create<ToggleSideBarType>()(
   devtools(
     persist(
-      (set, get) => ({
+      (set) => ({
         isSideBarOpen: true,
         setSideBarOpen: (flag:boolean) => {
           set({ isSideBarOpen: flag });

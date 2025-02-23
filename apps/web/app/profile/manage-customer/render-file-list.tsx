@@ -89,7 +89,7 @@ export const RenderFileList = ({
           authorization: `Bearer ` + localStorage.getItem("token"),
         },
       });
-      setDocuments && setDocuments((prev) => prev?.filter((doc) => doc.id !== id));
+      if(setDocuments) setDocuments((prev) => prev?.filter((doc) => doc.id !== id));
       toast({
         description: "Document Successfully deleted",
         className: "text-black bg-white border-0 rounded-md shadow-md shadow-black/5 font-normal",

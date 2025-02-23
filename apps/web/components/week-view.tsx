@@ -1,6 +1,6 @@
 "use client"
 import { getHours, getWeekDays } from "@/lib/getTime";
-import { useDateStore, useEventRows, useEventStore, useWrappedEvent, WrappedEvent } from "@/lib/store";
+import { useDateStore, useEventStore } from "@/lib/store";
 import { cn } from "@/lib/utils";
 import dayjs, { Dayjs } from "dayjs";
 import React, { useEffect, useState } from "react";
@@ -8,7 +8,6 @@ import { ScrollArea } from "./ui/scroll-area";
 import { EventRenderer } from "./event-renderer";
 import {CalendarEventType} from "@/lib/store";
 import { ChevronDown, ChevronUp } from "lucide-react";
-import { useMediaQuery } from "react-responsive";
 import HeaderEvent from "./week-header-event";
 
 export default function WeekView() {

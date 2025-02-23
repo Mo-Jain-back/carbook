@@ -1,14 +1,12 @@
 "use client";
 
-import React, { useEffect, useState } from "react";
+import React, { useEffect } from "react";
 import {  Menu } from "lucide-react";
 import { BsCaretDownFill } from "react-icons/bs";
 import { Button } from "../ui/button";
-import Image from "next/image";
 import { MdKeyboardArrowLeft, MdKeyboardArrowRight } from "react-icons/md";
 import { useDateStore, useToggleSideBarStore, useViewStore } from "@/lib/store";
 import dayjs from "dayjs";
-import TestComponent from "./test";
 
 export default function HeaderLeft(
   {
@@ -21,7 +19,6 @@ export default function HeaderLeft(
   }
 ) {
   const todaysDate = dayjs();
-  const [color, setColor] = useState('#ffffff');
   const { userSelectedDate, setDate, setMonth, selectedMonthIndex } =
     useDateStore();
 

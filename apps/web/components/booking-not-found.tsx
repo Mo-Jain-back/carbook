@@ -19,7 +19,7 @@ export default function BookingNotFound() {
             </div>
           </div>
           <p className="text-center text-muted-foreground">
-            We're sorry, but the booking you're looking for doesn't exist or has been cancelled.
+            We&apos;re sorry, but the booking you&apos;re looking for doesn&apos;t exist or has been cancelled.
           </p>
         </CardContent>
         <CardFooter className="flex flex-col space-y-4">

@@ -39,15 +39,15 @@ const TakeAction = () => {
                 authorization: `Bearer ` + localStorage.getItem('token')
                 }
               })
-            let tempBookings:Booking[] = [];
+            const tempBookings:Booking[] = [];
             const currDate = new Date();
             currDate.setMinutes(currDate.getMinutes() + 120);
             res1.data.bookings.forEach((booking:Booking) => {
-                let startDateTime = new Date(booking.start);
-                let endDateTime = new Date(booking.end);
+                const startDateTime = new Date(booking.start);
+                const endDateTime = new Date(booking.end);
 
-                let [startHour, startMinute] = booking.startTime.split(':').map(Number);
-                let [endHour, endMinute] = booking.endTime.split(':').map(Number);
+                const [startHour, startMinute] = booking.startTime.split(':').map(Number);
+                const [endHour, endMinute] = booking.endTime.split(':').map(Number);
 
                 startDateTime.setHours(startHour, startMinute, 0, 0);
                 endDateTime.setHours(endHour, endMinute, 0, 0);
@@ -102,16 +102,15 @@ const Booking = ({booking,setBookings}:{
   const router = useRouter();
   const [endDate,setEndDate] = useState(new Date(booking.end));
   const [endTime,setEndTime] = useState(booking.endTime);
-  const [odometerReading,setOdometerReading] = useState<string | undefined>(booking.odometerReading);
   const initialReading  = useMemo(() => {
-      if(!odometerReading) return "";
-      let reading = Math.floor(Number(odometerReading)/1000);
-      const thirdLastDigit = parseInt(odometerReading[odometerReading.length - 3]);
+      if(!booking.odometerReading) return "";
+      let reading = Math.floor(Number(booking.odometerReading)/1000);
+      const thirdLastDigit = parseInt(booking.odometerReading[booking.odometerReading.length - 3]);
       if(thirdLastDigit === 9){
             reading = reading + 1;
         }
         return reading.toString();
-    },[odometerReading])
+    },[booking.odometerReading])
   const [endOdometerReading,setEndOdometerReading] = useState(initialReading);
   const [isOpen,setIsOpen] = useState(false);
   const [isLoading,setIsLoading] = useState(false);
@@ -135,7 +134,7 @@ const Booking = ({booking,setBookings}:{
       bookingId={booking.id} 
       setEndDate={setEndDate} 
       setEndTime={setEndTime} 
-      odometerReading={odometerReading} 
+      odometerReading={booking.odometerReading} 
       endOdometerReading={endOdometerReading} 
       setEndOdometerReading={setEndOdometerReading} 
       setBookings={setBookings} setIsLoading ={setIsLoading}

@@ -1,5 +1,5 @@
 import { getWeeks } from "@/lib/getTime";
-import { useDateStore, useViewStore } from "@/lib/store";
+import { useDateStore } from "@/lib/store";
 import { cn } from "@/lib/utils";
 import dayjs from "dayjs";
 import React, { Fragment } from "react";
@@ -10,7 +10,6 @@ export default function SideBarCalendar() {
 
   const weeksOfMonth = getWeeks(selectedMonthIndex);
 
-  const { selectedView } = useViewStore();
   const handleDateClick = (day:dayjs.Dayjs) => {
     setDate(day);
   }

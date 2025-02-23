@@ -3,9 +3,9 @@ import { Card, CardContent } from "@/components/ui/card"
 import Link from "next/link"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Button } from "@/components/ui/button"
-import {  Clock, EllipsisVertical, LogIn, MoreVertical, PlaneTakeoff, Plus, PlusCircle, PlusIcon, PlusSquare, Trash, Trash2 } from "lucide-react"
+import { MoreVertical, Plus,  PlusSquare, Trash2 } from "lucide-react"
 import Image from "next/image"
-import { use, useEffect, useRef, useState } from "react"
+import {  useEffect, useRef, useState } from "react"
 import { AddBookingDialog } from "@/components/add-booking";
 import ArrowRight from "@/public/right_arrow.svg";
 import CarIcon from "@/public/car-icon.svg"
@@ -32,14 +32,14 @@ function formatDateTime(dateString: string) {
 
 function getPickupTime(startDate: string,startTime: string) {
   
-  let [hours, minutes] = startTime.split(":").map(Number);
-  let currDate = new Date();
+  const [hours, minutes] = startTime.split(":").map(Number);
+  const currDate = new Date();
   currDate.setHours(hours);
   currDate.setMinutes(minutes - 30); // Subtract 30 minutes
 
   // Format back to HH:MM
-  let newHours = currDate.getHours().toString().padStart(2, "0");
-  let newMinutes = currDate.getMinutes().toString().padStart(2, "0");
+  const newHours = currDate.getHours().toString().padStart(2, "0");
+  const newMinutes = currDate.getMinutes().toString().padStart(2, "0");
 
   const pickup = new Date(startDate); 
   
@@ -54,14 +54,14 @@ function getPickupTime(startDate: string,startTime: string) {
 
 function getReturnTime(startDate: string,startTime: string) {
   
-  let [hours, minutes] = startTime.split(":").map(Number);
-  let currDate = new Date();
+  const [hours, minutes] = startTime.split(":").map(Number);
+  const currDate = new Date();
   currDate.setHours(hours);
   currDate.setMinutes(minutes ); // Subtract 30 minutes
 
   // Format back to HH:MM
-  let newHours = currDate.getHours().toString().padStart(2, "0");
-  let newMinutes = currDate.getMinutes().toString().padStart(2, "0");
+  const newHours = currDate.getHours().toString().padStart(2, "0");
+  const newMinutes = currDate.getMinutes().toString().padStart(2, "0");
 
   const pickup = new Date(startDate); 
   
@@ -87,37 +87,7 @@ function getTimeUntilBooking(startTime: string,status:string) {
   return `Trip start window opens in ${diffDays} days`
 }
 
-export function getHeader(status:string,startDate:string,startTime:string,endDate:string,endTime:string) {
-  let headerText="";
-  let startDateTime = new Date(startDate);
-  let endDateTime = new Date(endDate);
 
-  let [startHour, startMinute] = startTime.split(':').map(Number);
-  let [endHour, endMinute] = endTime.split(':').map(Number);
-
-  startDateTime.setHours(startHour, startMinute, 0, 0);
-  endDateTime.setHours(endHour, endMinute, 0, 0);
-  const currDate = new Date();
-  if(status === "Upcoming") {
-    if(startDateTime >= currDate) {
-      headerText="Guest shall pickup car by";
-    } else {
-      headerText="Guest was scheduled to pickup car by";
-    }
-  } else if(status === "Ongoing") {
-    if(endDateTime < currDate) {
-      headerText="Guest was scheduled to return by";
-    } else {
-      headerText="Guest shall return by";
-    }
-
-  } else if(status === "Completed") {
-    headerText="Guest returned at";
-  };
-
-  return headerText;
-
-}
 
 
 export interface Booking{
@@ -148,7 +118,6 @@ export default function Bookings() {
   const [selectedBookings, setSelectedBookings] = useState<string[]>([]);
   const [isSelectionMode, setIsSelectionMode] = useState<boolean>(false);
   const containerRef = useRef<HTMLDivElement | null>(null);
-  const [isDropDownOpen,setIsDropdownOpen] = useState(false);
 
   useEffect(() => {
     async function fetchData() {
@@ -168,7 +137,7 @@ export default function Bookings() {
       }
     }
     fetchData();
-  },[])
+  },[setBookings])
 
 
   useEffect(() => {
@@ -179,11 +148,6 @@ export default function Bookings() {
     }
   },[selectedBookings])
 
-  const handleCheckboxChange = (id: string) => {
-    setSelectedBookings((prev) =>
-      prev.includes(id) ? prev.filter((b) => b !== id) : [...prev, id]
-    );
-  };
 
   const handleDelete = async () => {
     try {
@@ -278,7 +242,7 @@ duration: 2000
         <div className="flex justify-between items-center mb-6">
           <h1 style={{fontFamily:"var(--font-equinox)"}} className="text-3xl max-sm:text-xl font-black">MY BOOKINGS</h1>
           <div className="flex items-center justify-between max-sm:flex-col gap-1">
-            <ExcelUploader bookings={bookings} setBookings={setBookings}/>
+            <ExcelUploader />
             <Select value={selectedCar} onValueChange={setSelectedCar} >
               <SelectTrigger className="w-[180px] max-sm:w-[130px] hover:bg-gray-200 dark:hover:bg-gray-700">
                 <SelectValue placeholder="Select car"/>
@@ -396,6 +360,37 @@ const BookingCard =({booking,selectedBookings,setSelectedBookings}:{
       prev.includes(id) ? prev.filter((b) => b !== id) : [...prev, id]
     );
   };
+
+  function getHeader(status:string,startDate:string,startTime:string,endDate:string,endTime:string) {
+    let headerText="";
+    const startDateTime = new Date(startDate);
+    const endDateTime = new Date(endDate);
+  
+    const [startHour, startMinute] = startTime.split(':').map(Number);
+    const [endHour, endMinute] = endTime.split(':').map(Number);
+    startDateTime.setHours(startHour, startMinute, 0, 0);
+    endDateTime.setHours(endHour, endMinute, 0, 0);
+    const currDate = new Date();
+    if(status === "Upcoming") {
+      if(startDateTime >= currDate) {
+        headerText="Guest shall pickup car by";
+      } else {
+        headerText="Guest was scheduled to pickup car by";
+      }
+    } else if(status === "Ongoing") {
+      if(endDateTime < currDate) {
+        headerText="Guest was scheduled to return by";
+      } else {
+        headerText="Guest shall return by";
+      }
+  
+    } else if(status === "Completed") {
+      headerText="Guest returned at";
+    };
+  
+    return headerText;
+  
+  }
 
   return (
       <div style={{marginTop:0}} className="flex gap-2 overflow-hidden mt-0 items-center w-full">

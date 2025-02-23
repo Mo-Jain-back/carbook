@@ -21,7 +21,7 @@ const ActionDialog = ({isDialogOpen,setIsDialogOpen,action,handleAction}:
             <DialogHeader>
               <DialogTitle>{upperHeading}</DialogTitle>
               <DialogDescription className="text-grey-500">
-                "Are you sure you want to {action} the booking?" 
+                Are you sure you want to {action} the booking? 
               </DialogDescription>
             </DialogHeader>
             <DialogFooter>

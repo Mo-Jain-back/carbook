@@ -7,9 +7,6 @@ import {
   AccordionTrigger,
 } from "@/components/ui/accordion";
 
-import { cn } from "@/lib/utils";
-import dayjs, { Dayjs } from "dayjs";
-import { useState } from "react";
 import CarsFilters from "./cars-filter";
 
 

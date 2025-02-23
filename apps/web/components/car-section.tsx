@@ -32,7 +32,7 @@ export function CarSection() {
         <section className="py-6 bg-muted px-4">
             <div className="flex justify-between items-center border-b border-border pb-5 mb-3 px-4">
                 <h1 style={{ fontFamily: "var(--font-equinox), sans-serif",
-                 }} className="sm:text-3xl text-xl font-black font-myfont">{name.split(' ')[0]}'s GARRAGE</h1>
+                 }} className="sm:text-3xl text-xl font-black font-myfont">{name.split(' ')[0]}&apos;s GARRAGE</h1>
                 {cars.length > 0 &&
                 <Button className="bg-blue-600 text-white dark:text-black hover:bg-opacity-80  shadow-lg"
                   onClick={() => setIsOpen(true)}>

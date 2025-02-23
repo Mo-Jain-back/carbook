@@ -29,16 +29,6 @@ export default function HeaderRight(
     setOpen(false);
   }
 
-  const handleCarsCheck = () => {
-    return null
-  }
-
-  const myCars = [
-    { id: "cal1", title: "Tesla Mode 3", color: "accent-red-600" },
-    { id: "cal2", title: "Maruti", color: "accent-blue-600" },
-    { id: "cal3", title: "Audi", color: "accent-green-600" },
-  ];
-
   return (
     <div className="flex items-center space-x-4 pr-2">
     {/* <SearchComponent /> */}

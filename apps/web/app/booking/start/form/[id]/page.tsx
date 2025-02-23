@@ -1,7 +1,6 @@
 "use client"
-import { Suspense, use, useEffect, useState } from "react"
+import { Suspense,  useEffect, useState } from "react"
 import LoadingScreen from "@/components/loading-screen"
-import BookingNotFound from "@/components/booking-not-found"
 import { useParams, useRouter } from "next/navigation"
 import axios from "axios"
 import { BASE_URL } from "@/lib/config"
@@ -76,7 +75,7 @@ export default function BookingDetails() {
       }
     };
     fetchData();
-  }, []);
+  }, [Booking,router]);
 
   if(!Booking) return null
 

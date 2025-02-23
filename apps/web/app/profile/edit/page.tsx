@@ -2,9 +2,8 @@
 
 import { useState, useRef, useEffect } from "react"
 import Image from "next/image"
-import {  Edit, Eye, EyeOff, ArrowLeft, Loader2 } from "lucide-react"
+import {  Edit, Eye, EyeOff, Loader2, Pencil } from "lucide-react"
 import { Button } from "@/components/ui/button"
-import type React from "react" // Added import for React
 import { useRouter } from "next/navigation";
 import BackArrow from "@/public/back-arrow.svg";
 import UserIcon from "@/public/user.svg"
@@ -15,7 +14,8 @@ import { useUserStore } from "@/lib/store"
 import { Input } from "@/components/ui/input"
 import { toast } from "@/hooks/use-toast"
 import { deleteFile } from "@/app/actions/delete"
-import {  uploadToDriveWTParent } from "@/app/actions/upload"
+import {  uploadToDriveWTParent } from "@/app/actions/upload";
+import Update from "@/public/updated.svg"
 
 interface User {
   name: string;
@@ -30,13 +30,16 @@ export default function ProfilePage() {
   const {name,setName,imageUrl,setImageUrl} = useUserStore();
   const [isEditingUsername, setIsEditingUsername] = useState(false)
   const [isEditingPassword, setIsEditingPassword] = useState(false)
+  const [isEditingName, setIsEditingName] = useState(false)
   const [showPassword, setShowPassword] = useState(false)
   const usernameInputRef = useRef<HTMLInputElement>(null)
   const passwordInputRef = useRef<HTMLInputElement>(null);
+  const nameInputRef = useRef<HTMLInputElement>(null);
   const router = useRouter();
   const [username, setUsername] = useState("")
   const [password, setPassword] = useState("")
   const [isLoading, setIsLoading] = useState(false);
+  const [newName,setNewName] = useState(name);
 
   // This would typically come from your authentication system
   useEffect(() => {
@@ -74,7 +77,18 @@ export default function ProfilePage() {
     if (isEditingPassword && passwordInputRef.current) {
       passwordInputRef.current.focus()
     }
-  }, [isEditingPassword])
+  }, [isEditingPassword]);
+
+  useEffect(() => {
+    if (isEditingName && nameInputRef.current) {
+      nameInputRef.current.focus()
+    }
+  }, [isEditingName]);
+
+  const handleNameUpdate = () => {
+    setIsEditingName(false);
+    setName(newName);
+  }
 
   if(!user) {
     return <LoadingScreen/>;
@@ -90,7 +104,7 @@ export default function ProfilePage() {
           description: `Please select an image file`,
           className: "text-black bg-white border-0 rounded-md shadow-mg shadow-black/5 font-normal",
           variant: "destructive",
-duration: 2000
+          duration: 2000
         });
         setIsLoading(false);
         return
@@ -102,7 +116,7 @@ duration: 2000
           description: `File size should not exceed 5MB`,
           className: "text-black bg-white border-0 rounded-md shadow-mg shadow-black/5 font-normal",
           variant: "destructive",
-duration: 2000
+          duration: 2000
         });
         setIsLoading(false);
 
@@ -146,7 +160,7 @@ duration: 2000
           description: `Failed to upload profile picture`,
           className: "text-black bg-white border-0 rounded-md shadow-mg shadow-black/5 font-normal",
           variant: "destructive",
-duration: 2000
+          duration: 2000
         });
       }
     }
@@ -269,8 +283,31 @@ duration: 2000
                 <BackArrow className="h-6 w-6 stroke-0 fill-gray-800 dark:fill-blue-300" />
           </Button>
       <div className="max-w-3xl mx-auto pt-12 px-4 sm:px-6 lg:px-8 pb-12  ">
-        {user.name &&
-          <h1 className="text-3xl font-bold text-center text-gray-900 sm:text-4xl mb-8 dark:text-white">{user.name}</h1>
+        {!isEditingName ?
+          <div className="flex items-center mb-8 justify-center gap-2">
+            <h1 className="text-3xl sm:text-4xl font-bold text-center text-gray-900   dark:text-white">{name}</h1>
+            <Pencil
+            onClick={() => setIsEditingName(true)}
+             className="w-4 h-4 mt-2 cursor-pointer text-white" />
+          </div>
+          :
+          <div className="flex items-center mb-8 justify-center gap-2 ">
+            <div className="w-fit">
+              <div className="flex items-center">
+                <input 
+                type="text" 
+                id="name" 
+                ref={nameInputRef}
+                value={newName} 
+                onChange={(e) => setNewName(e.target.value)} 
+                className="text-3xl sm:text-4xl px-1 font-bold max-w-[220px] py-1 sm:max-w-[250px] bg-transparent w-fit border-0 shadow-none focus-visible:ring-0 " />
+                <Update
+                onClick={handleNameUpdate}
+                 className="w-7 h-7  cursor-pointer"/>
+              </div>
+              <div className={`h-px bg-blue-400`} />
+            </div>
+          </div>
         }
         {/* Edit picture button */}
         
@@ -299,8 +336,8 @@ duration: 2000
               </span>
             )}
             {isEditingUsername && (
-              <button onClick={handleUpdateUsername} className="text-blue-500 text-sm font-medium">
-                Update
+              <button onClick={handleUpdateUsername} className="text-blue-500 flex items-center gap-1 text-sm font-medium">
+                <Update className="h-5 w-5" />
               </button>
             )}
           </div>
@@ -345,7 +382,7 @@ duration: 2000
             )}
             {isEditingPassword && (
               <button onClick={handleUpdatePassword} className="text-blue-500 text-sm font-medium">
-                Update
+                <Update className="h-5 w-5" />
               </button>
             )}
           </div>

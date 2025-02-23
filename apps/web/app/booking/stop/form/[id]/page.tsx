@@ -13,18 +13,44 @@ interface FormData {
     carInspection: Record<string, string[]>
     keysDocumentsAccessories: Record<string, string[]>
     finalReview: Record<string, string | boolean>
-  }
+}
+
+interface FinalReviewData {
+  remarks?: string
+  staffApproval?: boolean
+}
+
+interface CarInspectionData {
+  exterior?: string[]
+  interior?: string[]
+  exteriorOther?: string
+  interiorOther?: string
+}
+
+interface GeneralInformationData {
+  renterName?: string
+  bookingId?: string
+  carModel?: string
+  mileage?: number
+}
+
+interface KeysDocumentsAccessoriesData {
+  keys?: string[]
+  accessories?: string[]
+  keysOther?: string
+  accessoriesOther?: string
+}
+
+export default function BookingChecklist() {
+  const [currentSection, setCurrentSection] = useState<number>(1)
+  const [formData, setFormData] = useState<FormData>({
+    generalInformation: {},
+    carInspection: {},
+    keysDocumentsAccessories: {},
+    finalReview: {},
+  })
   
-  export default function BookingChecklist() {
-    const [currentSection, setCurrentSection] = useState<number>(1)
-    const [formData, setFormData] = useState<FormData>({
-      generalInformation: {},
-      carInspection: {},
-      keysDocumentsAccessories: {},
-      finalReview: {},
-    })
-  
-    const updateFormData = (section: keyof FormData, data: Record<string, any>) => {
+    const updateFormData = (section: keyof FormData, data: FinalReviewData | CarInspectionData | GeneralInformationData | KeysDocumentsAccessoriesData) => {
       setFormData((prevData) => ({
         ...prevData,
         [section]: data,

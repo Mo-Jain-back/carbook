@@ -3,7 +3,7 @@ import { BASE_URL } from "@/lib/config";
 import { toast } from "@/hooks/use-toast";
 import { useRouter } from "next/navigation";
 import { Booking } from "./take-action";
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger, DialogFooter } from "@/components/ui/dialog"
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog"
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
@@ -47,7 +47,7 @@ const BookingStop = ({endOdometerReading,setEndOdometerReading,bookingId,endDate
           }
         
         const handleBookingStop = async () => {
-          setIsLoading && setIsLoading(true);
+          if(setIsLoading) setIsLoading(true);
             try {
               await axios.put(`${BASE_URL}/api/v1/booking/${bookingId}/end`, {
                 endDate: endDate.toLocaleDateString('en-US'),
@@ -59,8 +59,8 @@ const BookingStop = ({endOdometerReading,setEndOdometerReading,bookingId,endDate
                   authorization: `Bearer ` + localStorage.getItem('token')
                 }
               });
-              setBookingStatus && setBookingStatus("Completed");
-              setBookings && setBookings((prev) => prev.filter(bg => bg.id !== bookingId));
+              if(setBookingStatus) setBookingStatus("Completed");
+              if(setBookings) setBookings((prev) => prev.filter(bg => bg.id !== bookingId));
               
               toast({
                 description: `Booking Successfully ended`,
@@ -77,7 +77,7 @@ const BookingStop = ({endOdometerReading,setEndOdometerReading,bookingId,endDate
 duration: 2000
               });
             }
-            setIsLoading && setIsLoading(false);
+            if(setIsLoading) setIsLoading(false);
         }
 
         

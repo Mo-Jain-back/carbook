@@ -132,6 +132,7 @@ function formatTime(time: string | number): string {
   }
 }
 
+//eslint-disable-next-line @typescript-eslint/no-explicit-any
 function validateData(data: any): BookingData {
   // Check required fields
   for (const field of REQUIRED_FIELDS) {
@@ -182,10 +183,7 @@ function validateData(data: any): BookingData {
   };
 }
 
-export default function ExcelUploader({bookings,setBookings}:{
-    bookings:Booking[],
-    setBookings:React.Dispatch<React.SetStateAction<Booking[]>>
-}) {
+export default function ExcelUploader() {
   const [isOpen, setIsOpen] = useState(false);
   const [excelData, setExcelData] = useState<BookingData[]>([]);
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -215,7 +213,7 @@ duration: 2000
         const workbook = XLSX.read(data, { type: "binary" });
         const sheetName = workbook.SheetNames[0];
         const worksheet = workbook.Sheets[sheetName];
-        const jsonData = XLSX.utils.sheet_to_json(worksheet) as any[];
+        const jsonData = XLSX.utils.sheet_to_json(worksheet);
 
         // Validate and format each row
         const validatedData: BookingData[] = [];

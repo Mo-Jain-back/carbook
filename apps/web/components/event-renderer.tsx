@@ -1,7 +1,7 @@
 "use client";
 import { CalendarEventType, useCarStore, useEventRows, useEventStore, useWrappedEvent, WrappedEvent } from "@/lib/store";
-import dayjs, { Dayjs } from "dayjs";
-import React, { use, useEffect, useState } from "react";
+import dayjs from "dayjs";
+import React, {  useEffect, useState } from "react";
 import { useMediaQuery } from 'react-responsive';
 
 interface EventRendererProps  {
@@ -61,7 +61,7 @@ export function EventRenderer({ date, view, events, hour}: EventRendererProps) {
     const newWrappedEvents = wrappedEvents || [];
     newSortedEvents.forEach((event) => {
       const newEventsRow = eventsRow || [];
-      let isPresent = newEventsRow.find(e => e.id === event.id);
+      const isPresent = newEventsRow.find(e => e.id === event.id);
       let startDate = event.startDate.startOf("day");
       const endDate = event.endDate.startOf("day");
       let weekEnd = startDate.endOf("week").startOf("day");
@@ -83,7 +83,7 @@ export function EventRenderer({ date, view, events, hour}: EventRendererProps) {
       }
     });
         
-    setWrappedEvents && setWrappedEvents(newWrappedEvents);
+    if(setWrappedEvents) setWrappedEvents(newWrappedEvents);
     const currentDate = date.startOf("day");
 
     const extendedEvents = events.filter((event) => {
@@ -93,7 +93,7 @@ export function EventRenderer({ date, view, events, hour}: EventRendererProps) {
       || (eventStart.isBefore(currentDate) && eventEnd.isAfter(currentDate));
     });
 
-    let filledRows:number[] = [];
+    const filledRows:number[] = [];
     let index=0;
     extendedEvents.forEach((event) => {
       const eventRow = eventsRow?.find(e => e.id === event.id);
@@ -119,7 +119,7 @@ export function EventRenderer({ date, view, events, hour}: EventRendererProps) {
 
     const rows=  [0,1,2,3,4]
     const newEmptyRows = rows.filter(row => !filledRows.includes(row));
-    setEmptyRows((prev)=>{
+    setEmptyRows(()=>{
       return newEmptyRows;
     });
 
@@ -132,7 +132,7 @@ export function EventRenderer({ date, view, events, hour}: EventRendererProps) {
       }
     });
 
-    setEventsRow && setEventsRow(newEventsRow);    
+    if(setEventsRow) setEventsRow(newEventsRow);    
   };
 
   const renderEvent = (event:CalendarEventType,index:number,width:string,marginTop:string|number) => {

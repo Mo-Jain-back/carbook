@@ -8,7 +8,6 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Textarea } from "@/components/ui/textarea"
 import { Checkbox } from "@/components/ui/checkbox"
 import { cn } from "@/lib/utils"
-import { ImageIcon } from "lucide-react"
 import { useRouter } from "next/navigation"
 import axios from "axios"
 import { BASE_URL } from "@/lib/config"
@@ -17,13 +16,11 @@ import { useCarStore } from "@/lib/store"
 import { DatePicker } from "@/components/ui/datepicker"
 import AddTime from "@/components/add-time"
 import dayjs from "dayjs"
-import { set } from "date-fns"
 import { calculateCost } from "@/components/add-booking"
-import { BsFilePdfFill, BsFiletypePdf } from "react-icons/bs"
 import { Booking, Document } from "./page"
 import { RenderFileList, RenderNewFileList } from "./render-file-list"
 import { deleteFile } from "@/app/actions/delete"
-import { uploadMultipleToDrive, uploadToDrive } from "@/app/actions/upload"
+import {  uploadToDrive } from "@/app/actions/upload"
 
 interface FormErrors {
   [key: string]: string;
@@ -213,7 +210,7 @@ export default function BookingStartClient({booking,bookingId} : {
         const totalSize = Object.values(uploadedFiles).flat().reduce((acc, file) => acc + file.size, 0);
 
         setLoadingMessage("Uploading Aadhar and Driving License");
-        let docFiles = [];
+        const docFiles = [];
         if(uploadedFiles.documents){
           for(const file of uploadedFiles.documents){
             const res =await uploadToDrive(file,booking.folderId);

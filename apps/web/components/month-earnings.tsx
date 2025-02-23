@@ -2,7 +2,6 @@
 import { BASE_URL } from "@/lib/config";
 import axios from "axios";
 import { IndianRupee } from "lucide-react";
-import { useRouter } from "next/navigation";
 import React, { useEffect, useState } from "react"
 
 interface Earning {
@@ -16,7 +15,6 @@ interface Earning {
 
 const MonthEarnings = () => {
     const [flag,setFlag] = useState(false);
-    const router = useRouter();
     const [earnings,setEarnings] = useState<Earning[]>([]);
     
     useEffect(() => {

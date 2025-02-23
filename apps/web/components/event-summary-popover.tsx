@@ -2,7 +2,7 @@
 
 import type React from "react"
 import { useEffect, useState } from "react"
-import { X, Edit2, Trash2 } from "lucide-react"
+import {  Edit2, Trash2 } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog"
 import {  useEventStore, type CalendarEventType } from "@/lib/store"

@@ -1,6 +1,6 @@
 "use client"
 import { Button } from "@/components/ui/button"
-import {  Edit, IndianRupee, Loader2, LogOut, MoreVertical, PlaneTakeoff, Trash2 } from "lucide-react"
+import {  Edit, IndianRupee, LogOut, PlaneTakeoff, Trash2 } from "lucide-react"
 import Image from "next/image"
 import {  useRouter } from "next/navigation"
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
@@ -61,8 +61,6 @@ export function CarDetailsClient({ carId }: { carId: number }) {
   const [imageFile, setImageFile] = useState<File | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const [isDeleting,setIsDeleting] = useState(false);
-  const [progress,setProgress] = useState(0);
-  
   
   useEffect(() => {
     if(car) {
@@ -122,9 +120,6 @@ export function CarDetailsClient({ carId }: { carId: number }) {
     return;
   }
 
-  const onProgress = (progress:number) => {
-    setProgress(progress);
-  }
 
   const handleDelete = async () => {
     setIsDeleting(true);
@@ -170,7 +165,7 @@ duration: 2000
       imageUrl = resImage.url;
     }
     // Prepare data for update
-    const updateData: Record<string, any> = {
+    const updateData: Record<string, string|number> = {
       color: color,
       price: price,
       mileage: mileage,
@@ -592,7 +587,7 @@ duration: 2000
               <DialogHeader>
                 <DialogTitle>{action.split(" ")[0]}</DialogTitle>
                 <DialogDescription className="text-blue-500">
-                  "Are you sure you want to {action}?" 
+                  Are you sure you want to {action}? 
                 </DialogDescription>
               </DialogHeader>
               <DialogFooter>

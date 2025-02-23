@@ -1,8 +1,7 @@
 "use client"
-import { Suspense, useEffect, useState } from "react"
+import { Suspense } from "react"
 import { CarDetailsClient } from "@/components/car-details-client";
 import LoadingScreen from "@/components/loading-screen";
-import CarNotFound from "@/components/car-not-found";
 import { useParams } from "next/navigation";
 
 

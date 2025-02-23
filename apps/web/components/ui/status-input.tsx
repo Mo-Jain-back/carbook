@@ -1,21 +1,17 @@
 "use client"
 
-import {useEffect, useState} from "react"
-import { format } from "date-fns"
+import { useState} from "react"
 import { cn } from "@/lib/utils"
-import { Calendar } from "@/components/ui/calendar"
 import {
   Popover,
-  PopoverAnchor,
   PopoverContent,
   PopoverTrigger,
 } from "@/components/ui/popover"
-import { Dayjs } from "dayjs"
-import { Input } from "./input"
+
 
 export function StatusInput({status,setStatus,className}:
   {
-    status:String,
+    status:string,
     setStatus:React.Dispatch<React.SetStateAction<string>>,
     className?:string
   }) 
@@ -32,6 +28,7 @@ export function StatusInput({status,setStatus,className}:
           className={cn(
               "p-1 w-[110px] m-0 border-0 text-sm focus-visible:ring-0 border-y-4 border-transparent cursor-pointer bg-muted dark:hover:bg-card rounded-sm hover:bg-gray-300 justify-start text-left font-normal",
               isPopoverOpen ? "border-b-blue-400" : "",
+              className
             )}
           >
             {status}

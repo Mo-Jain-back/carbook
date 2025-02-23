@@ -42,7 +42,7 @@ const HeaderEvent = ({index,date,today,isEventHidden}:{index:number,date:Dayjs,t
 
       setSortedEvents(newSortedEvents);
       
-      let filledRows:number[] = [];
+      const filledRows:number[] = [];
       let index=0;
       extendedEvents.forEach((event) => {
         const eventRow = eventsRow?.find(e => e.id === event.id);

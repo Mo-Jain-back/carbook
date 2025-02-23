@@ -1,5 +1,5 @@
 import { Button } from "@/components/ui/button"
-import {  Edit, ImageIcon, Loader2, MoreVertical, Trash2, Upload } from "lucide-react"
+import {  Edit, MoreVertical, Trash2, Upload } from "lucide-react"
 import Image from "next/image"
 import {  useRouter } from "next/navigation"
 import {  useEffect, useMemo, useState } from "react";
@@ -17,20 +17,15 @@ import { BASE_URL } from "@/lib/config";
 import { Booking, CarImage, Document } from "./page";
 import ActionDialog from "@/components/action-dialog";
 import { calculateCost } from "@/components/add-booking";
-import { getHeader } from "@/app/bookings/page";
 import { toast } from "@/hooks/use-toast";
 import { deleteFile, deleteMultipleFiles } from "@/app/actions/delete";
 import { Textarea } from "@/components/ui/textarea";
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger, DialogFooter } from "@/components/ui/dialog"
-import { Label } from "@/components/ui/label";
 import { RenderFileList, RenderNewFileList } from "./render-file-list";
-import { BsType } from "react-icons/bs";
 import { uploadMultipleToDrive, uploadToDrive } from "@/app/actions/upload";
 import BookingStop from "@/components/booking-stop";
 
 interface BookingDetailsClientProps {
   booking : Booking,
-  setBooking: React.Dispatch<React.SetStateAction<Booking | undefined>>
 }
 
 function formatDateTime(date: Date) {
@@ -47,7 +42,7 @@ interface FormErrors {
 }
 
 
-export function BookingDetailsClient({ booking,setBooking }: BookingDetailsClientProps) {
+export function BookingDetailsClient({ booking }: BookingDetailsClientProps) {
   const router = useRouter();
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [isEditable, setIsEditable] = useState(false);
@@ -328,15 +323,6 @@ export function BookingDetailsClient({ booking,setBooking }: BookingDetailsClien
     setIsLoading(false);
   }
 
-
-  type ToastOptions = {
-    description: string;
-    className: string;
-    variant?: string;
-};
-
-
-
   const handleRemoveFile = (type: string, index: number) => {
     setUploadedFiles((prev) => ({
       ...prev,
@@ -391,6 +377,38 @@ export function BookingDetailsClient({ booking,setBooking }: BookingDetailsClien
       }))
       setErrors(prev => ({ ...prev, [type]: "" }));
     }
+  }
+
+  function getHeader(status:string,startDate:string,startTime:string,endDate:string,endTime:string) {
+    let headerText="";
+    const startDateTime = new Date(startDate);
+    const endDateTime = new Date(endDate);
+  
+    const [startHour, startMinute] = startTime.split(':').map(Number);
+    const [endHour, endMinute] = endTime.split(':').map(Number);
+  
+    startDateTime.setHours(startHour, startMinute, 0, 0);
+    endDateTime.setHours(endHour, endMinute, 0, 0);
+    const currDate = new Date();
+    if(status === "Upcoming") {
+      if(startDateTime >= currDate) {
+        headerText="Guest shall pickup car by";
+      } else {
+        headerText="Guest was scheduled to pickup car by";
+      }
+    } else if(status === "Ongoing") {
+      if(endDateTime < currDate) {
+        headerText="Guest was scheduled to return by";
+      } else {
+        headerText="Guest shall return by";
+      }
+  
+    } else if(status === "Completed") {
+      headerText="Guest returned at";
+    };
+  
+    return headerText;
+  
   }
 
   const getDocumentList = (type: "documents" | "photos" | "selfie") => {

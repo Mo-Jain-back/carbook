@@ -17,7 +17,7 @@ import Rupee from "@/public/rupee-symbol.svg";
 import Booking from "@/public/online-booking.svg";
 import axios from "axios";
 import { BASE_URL } from "@/lib/config";
-import { CalendarEventType, Car, useEventStore } from "@/lib/store";
+import {  Car } from "@/lib/store";
 import { Booking as BookingType } from "@/app/bookings/page";
 import { toast } from "@/hooks/use-toast";
 import CustomerName from "./customer-name";
@@ -36,18 +36,18 @@ interface Customer {
 }
 
 export function calculateCost(startDate:Date, endDate:Date, startTime:string, endTime:string, pricePer24Hours:number) {
-  let startDateTime = new Date(startDate);
-  let endDateTime = new Date(endDate);
+  const startDateTime = new Date(startDate);
+  const endDateTime = new Date(endDate);
 
-  let [startHour, startMinute] = startTime.split(':').map(Number);
-  let [endHour, endMinute] = endTime.split(':').map(Number);
+  const [startHour, startMinute] = startTime.split(':').map(Number);
+  const [endHour, endMinute] = endTime.split(':').map(Number);
 
   startDateTime.setHours(startHour, startMinute, 0, 0);
   endDateTime.setHours(endHour, endMinute, 0, 0);
 
-  let timeDifference = endDateTime.getTime() - startDateTime.getTime();
-  let hoursDifference = timeDifference / (1000 * 60 * 60);
-  let cost = (hoursDifference / 24) * pricePer24Hours;
+  const timeDifference = endDateTime.getTime() - startDateTime.getTime();
+  const hoursDifference = timeDifference / (1000 * 60 * 60);
+  const cost = (hoursDifference / 24) * pricePer24Hours;
 
   return Math.floor(cost);
 }
@@ -71,7 +71,6 @@ export function AddBookingDialog({isOpen, setIsOpen, cars,setBookings}:
   const [isLoading,setIsLoading] = useState(false);
   const [customerId, setCustomerId] = useState<number>();
   const [customers,setCustomers] = useState<Customer[]>();
-  const {events,setEvents} = useEventStore();
   
 
   useEffect(() => {
@@ -90,11 +89,11 @@ export function AddBookingDialog({isOpen, setIsOpen, cars,setBookings}:
   const validateDate = () => {
     if(startDate < endDate) return true;
 
-    let startDateTime = new Date(startDate);
-    let endDateTime = new Date(endDate);
+    const startDateTime = new Date(startDate);
+    const endDateTime = new Date(endDate);
 
-    let [startHour, startMinute] = startTime.split(':').map(Number);
-    let [endHour, endMinute] = endTime.split(':').map(Number);
+    const [startHour, startMinute] = startTime.split(':').map(Number);
+    const [endHour, endMinute] = endTime.split(':').map(Number);
 
     startDateTime.setHours(startHour, startMinute, 0, 0);
     endDateTime.setHours(endHour, endMinute, 0, 0);

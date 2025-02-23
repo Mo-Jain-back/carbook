@@ -2,19 +2,16 @@
 import Link from "next/link";
 import Image from "next/image"
 import { Card, CardContent } from "@/components/ui/card"
-import { useEffect, useState } from "react";
 import {  Edit } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import BackArrow from "@/public/back-arrow.svg";
-import axios from "axios";
-import { BASE_URL } from "@/lib/config";
 import LoadingScreen from "@/components/loading-screen";
-import { Car, useCarStore } from "@/lib/store";
+import { useCarStore } from "@/lib/store";
 import CarIcon from "@/public/car-icon.svg";
 
 
-const page = () => {
+const Page = () => {
   const {cars} =  useCarStore();
   const router = useRouter();
 
@@ -76,4 +73,4 @@ const page = () => {
   )
 };
 
-export default page;
+export default Page;

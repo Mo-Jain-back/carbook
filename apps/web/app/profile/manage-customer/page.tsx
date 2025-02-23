@@ -12,7 +12,7 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { useEffect, useState } from "react";
-import { Search, UserPlus, Pencil, Trash2, Phone, User, View, Users } from "lucide-react";
+import { Search, UserPlus, Users } from "lucide-react";
 import { CustomerPopup } from "./view-customer";
 import axios from "axios";
 import { BASE_URL } from "@/lib/config";

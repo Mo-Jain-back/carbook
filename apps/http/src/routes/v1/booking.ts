@@ -9,12 +9,11 @@ import { ParsedQs } from 'qs';
 dotenv.config();
 
 export function calculateCost(startDate:Date, endDate:Date, startTime:string, endTime:string, pricePer24Hours:number) {
-    let startDateTime = new Date(startDate);
-    let endDateTime = new Date(endDate);
+        const startDateTime = new Date(startDate);
+    const endDateTime = new Date(endDate);
   
-    let [startHour, startMinute] = startTime.split(':').map(Number);
-    let [endHour, endMinute] = endTime.split(':').map(Number);
-  
+    const [startHour, startMinute] = startTime.split(':').map(Number);
+    const [endHour, endMinute] = endTime.split(':').map(Number);
     startDateTime.setHours(startHour, startMinute, 0, 0);
     endDateTime.setHours(endHour, endMinute, 0, 0);
   

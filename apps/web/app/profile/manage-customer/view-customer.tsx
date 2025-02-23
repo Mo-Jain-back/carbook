@@ -2,7 +2,7 @@
 
 import type React from "react"
 import { useEffect, useState } from "react"
-import { X, Edit2, Trash2, User, Phone, ImageIcon, Upload } from "lucide-react"
+import { Edit2, Trash2, Phone,  Upload } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog"
 import { Input } from "@/components/ui/input"
@@ -156,7 +156,7 @@ duration: 2000
         }
         
         const folderId = resDoc && resDoc.uploadedFiles ? resDoc.uploadedFiles[0].folderId : customer.folderId;
-        let updatedDocuments = resDoc && resDoc.uploadedFiles && 
+        const updatedDocuments = resDoc && resDoc.uploadedFiles && 
           resDoc.uploadedFiles.map(file => {
           return {
             id: file.id,
@@ -171,8 +171,7 @@ duration: 2000
             description: `Please fill all the fields`,
             className: "text-black bg-white border-0 rounded-md shadow-mg shadow-black/5 font-normal",
             variant: "destructive",
-duration: 2000
-            duration: 3000,
+            duration: 2000
           });
           return;
         }
@@ -410,7 +409,7 @@ duration: 2000
             <DialogHeader>
               <DialogTitle>{upperHeading}</DialogTitle>
               <DialogDescription className="text-grey-500">
-                "Are you sure you want to {action} the customer?" 
+                Are you sure you want to {action} the customer? 
               </DialogDescription>
             </DialogHeader>
             <DialogFooter>

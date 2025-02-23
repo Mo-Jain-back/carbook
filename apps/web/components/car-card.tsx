@@ -1,6 +1,5 @@
 import Image from "next/image";
 import Ashoka from "@/public/ashoke-chakra.svg";
-import { useCarStore } from "@/lib/store";
 
 
 interface CarCardProps {
@@ -10,7 +9,7 @@ interface CarCardProps {
   color:string
 }
 
-export function CarCard({ name, imageUrl,plateNumber,color }: CarCardProps) {
+export function CarCard({ name, imageUrl,plateNumber }: CarCardProps) {
   return (
     <div  className="w-full z-0 relative z-0" >
       <div className="p-2 border border-border shadow-md z-0  bg-gray-200 dark:bg-background rounded-md cursor-pointer">

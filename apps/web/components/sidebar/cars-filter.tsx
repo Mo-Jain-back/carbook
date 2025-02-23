@@ -3,10 +3,10 @@
   import { cn } from "@/lib/utils";
 import { useEffect, useState } from "react";
 import { Button } from "../ui/button";
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger, DialogFooter } from "@/components/ui/dialog"
+import { Dialog, DialogContent, DialogHeader, DialogTitle,  DialogFooter } from "@/components/ui/dialog"
 import { Label } from "../ui/label";
 import { Input } from "../ui/input";
-import { CalendarEventType, Car, useCarStore, useEventStore } from "@/lib/store";
+import { CalendarEventType, useCarStore, useEventStore } from "@/lib/store";
 import axios from "axios";
 import { BASE_URL } from "@/lib/config";
 import dayjs from "dayjs";

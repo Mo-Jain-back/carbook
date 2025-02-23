@@ -1,12 +1,12 @@
 "use client";
-import { useDateStore, useToggleSideBarStore, useViewStore } from "@/lib/store";
+import { useDateStore, useViewStore } from "@/lib/store";
 import dayjs from "dayjs";
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import SideBarCalendar from "../sidebar/side-bar-calendar";
 import { useMediaQuery } from "react-responsive";
 
 const DateButtons = ({open}:{open:boolean}) => {
-    const months = ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Nov","Dec"];
+    const months = useMemo(() => ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Nov","Dec"], []);
     const todaysDate = dayjs();
     const { userSelectedDate, setDate, setMonth, selectedMonthIndex } =
         useDateStore();

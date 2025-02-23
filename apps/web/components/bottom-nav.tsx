@@ -3,9 +3,8 @@
 import Link from "next/link"
 import { Home } from "lucide-react";
 import Booking from "@/public/online-booking.svg"
-import { usePathname, useRouter } from "next/navigation"
+import { usePathname } from "next/navigation"
 import { useEffect, useState } from "react";
-import UserIcon from "@/public/user.svg";
 import Calendar from "@/public/calendar.svg"
 import { useUserStore } from "@/lib/store";
 import Image from "next/image";
@@ -16,7 +15,7 @@ export function BottomNav() {
   const {name,imageUrl} = useUserStore();
   const gethortName = () => {
     if(!name) return;
-    let nameArray = name.split(" ");
+    const nameArray = name.split(" ");
     let shortName = "";
     for(let i = 0; i < nameArray.length; i++){
       shortName += nameArray[i][0].toLocaleUpperCase();

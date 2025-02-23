@@ -4,7 +4,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/u
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
-import { Loader2, Upload, X } from "lucide-react"
+import { Upload, X } from "lucide-react"
 import CarFrontIcon from "@/public/car-front.svg";
 import Color from "@/public/color.svg";
 import Price from "@/public/price-tag.svg";
@@ -16,7 +16,7 @@ import Image from "next/image"
 import { toast } from "@/hooks/use-toast";
 import CarNumberPlateInput from "./car-number-input"
 import { createFolder } from "@/app/actions/folder"
-import { uploadToDrive, uploadToDriveWTParent } from "@/app/actions/upload"
+import { uploadToDrive } from "@/app/actions/upload"
 
 
 interface AddCarDialogProps {

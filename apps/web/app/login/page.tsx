@@ -1,17 +1,16 @@
 "use client"
 
 import { useState } from "react"
-import Link from "next/link"
 import { Eye, EyeOff } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from "@/components/ui/card"
-import { ThemeToggle } from "@/components/theme-toggle"
 import axios from "axios"
 import { BASE_URL } from "@/lib/config"
 import { useUserStore } from "@/lib/store"
 import { useRouter } from "next/navigation"
+import { toast } from "@/hooks/use-toast"
 
 export default function LoginPage() {
   const [showPassword, setShowPassword] = useState(false);
@@ -36,13 +35,21 @@ export default function LoginPage() {
       router.refresh();
       localStorage.setItem("token",res.data.token);
       setName(res.data.name);
+      toast({
+        description: "Login Successful",
+        className: "text-black bg-white border-0 rounded-md shadow-mg shadow-black/5 font-normal",
+      });
 
-      console.log(res.data);
     }
     catch(error){
-      console.log(error)
+      console.log(error);
+      toast({
+        description: "Failed to Login",
+        className: "text-black bg-white border-0 rounded-md shadow-mg shadow-black/5 font-normal",
+        variant: "destructive",
+        duration: 2000
+      });
     }
-    console.log("Login submitted")
   }
 
   return (

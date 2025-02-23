@@ -29,7 +29,7 @@ export default function GeneralInformation({ data, updateData }: GeneralInformat
       <h2 className="text-2xl font-semibold mb-4">General Information</h2>
 
       <div>
-        <Label htmlFor="renterName">Renter's Name</Label>
+        <Label htmlFor="renterName">Renter&apos;s Name</Label>
         <Input id="renterName" name="renterName" value={data.renterName || ""} onChange={handleChange} required />
       </div>
 

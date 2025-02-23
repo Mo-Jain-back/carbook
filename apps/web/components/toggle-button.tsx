@@ -1,5 +1,4 @@
 "use client"
-import PoylyEdge from "@/public/theme-svg/out-poly.svg";
 import OutCircle from "@/public/theme-svg/outer-circle.svg";
 import InnerCicle from "@/public/theme-svg/inner-circle.svg";
 import { useEffect, useState } from "react";

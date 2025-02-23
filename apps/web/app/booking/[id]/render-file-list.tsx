@@ -21,8 +21,6 @@ export const RenderFileList = ({documents,editable,onDelete,type,bookingId}:{
     bookingId:string,
     onDelete: (id: number, type: "documents" | "photos" | "selfie") => void
 })=>{
-    const [isDeleting, setIsDeleting] = useState(false);
-
     
     const handleDeleteFile = async (
             id: number, 

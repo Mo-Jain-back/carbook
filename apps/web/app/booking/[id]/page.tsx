@@ -1,8 +1,7 @@
 "use client"
-import { Suspense, use, useEffect, useState } from "react"
+import { Suspense,  useEffect, useState } from "react"
 import { BookingDetailsClient } from "./booking-details-client"
 import LoadingScreen from "@/components/loading-screen"
-import BookingNotFound from "@/components/booking-not-found"
 import { useParams, useRouter } from "next/navigation"
 import axios from "axios"
 import { BASE_URL } from "@/lib/config"
@@ -74,7 +73,7 @@ export default function BookingDetails() {
       }
     };
     fetchData();
-  }, []);
+  }, [Booking,router]);
 
   if (!Booking || !booking) {
   return <div><LoadingScreen/></div>
@@ -85,7 +84,7 @@ export default function BookingDetails() {
       
       <main className="container mx-auto px-0 py-2 pb-16 sm:pb-8">
         <Suspense fallback={<div><LoadingScreen/></div>}>
-          <BookingDetailsClient booking={booking} setBooking={setBooking} />
+          <BookingDetailsClient booking={booking} />
         </Suspense>
       </main>
     </div>

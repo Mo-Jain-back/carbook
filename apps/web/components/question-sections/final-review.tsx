@@ -26,8 +26,8 @@ export default function FinalReview({ data, updateData }: FinalReviewProps) {
     <div className="space-y-6">
       <h2 className="text-2xl font-semibold mb-2">Final Review and Acknowledgment</h2>
       <p className="text-gray-600 mb-4">
-        Conduct a final review of the vehicle's condition with the client, ensuring all points are addressed, and obtain
-        the client's acknowledgment and signature confirming the vehicle's return in the agreed condition.
+        Conduct a final review of the vehicle&apos;s condition with the client, ensuring all points are addressed, and obtain
+        the clients acknowledgment and signature confirming the vehicle&apos;s return in the agreed condition.
       </p>
 
       <div>
@@ -36,7 +36,7 @@ export default function FinalReview({ data, updateData }: FinalReviewProps) {
       </div>
 
       <div>
-        <p>We'd love to hear your feedback! Please leave us a review on Google!</p>
+        <p>We&apos;d love to hear your feedback! Please leave us a review on Google!</p>
         <p>
           <a href="#" className="text-blue-600 hover:underline">
             Click here to give us a review!

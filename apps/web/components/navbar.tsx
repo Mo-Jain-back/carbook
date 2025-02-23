@@ -9,7 +9,6 @@ import { ThemeToggle } from "./theme-toggle"
 import { useEffect, useState } from "react"
 import { useUserStore } from "@/lib/store"
 import Redirect from "./redirect"
-import UserIcon from "@/public/user.svg";
 import Image from "next/image"
 
 export function NavBar() {
@@ -19,7 +18,7 @@ export function NavBar() {
   const {name,imageUrl} = useUserStore();
   const gethortName = () => {
     if(!name) return;
-    let nameArray = name.split(" ");
+    const nameArray = name.split(" ");
     let shortName = "";
     for(let i = 0; i < nameArray.length; i++){
       shortName += nameArray[i][0].toLocaleUpperCase();

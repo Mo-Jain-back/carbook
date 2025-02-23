@@ -1,8 +1,6 @@
 "use client"
 
-import type React from "react"
 import { useEffect, useState } from "react"
-import { useTheme } from "next-themes";
 import MoonStar from "@/public/moon-stars.svg";
 import SunSVG from "./SunSVG";
 
